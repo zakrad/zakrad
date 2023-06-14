@@ -1,5 +1,3 @@
-### Hi there 👋 
-
 :wave: Hi! I'm Mohammad, a Zero-knowledge enthusiast interested in distributed systems.
 
 I've worked at [Paperscore](https://paperscore.org) and [Polytrade](https://polytrade.finance/).
