@@ -17,11 +17,13 @@ Here is an overview of what's done recently.
 
 #### Libraries
 
+- [noir-lang][noir-lang] (contributor)
 - [huff-mate][huff-mate] (contributor)
 - [ERC6960-Huff][ERC6960-Huff] (author)
 
 [See more projects &rarr;][see-more]
 
+[noir-lang]: https://github.com/noir-lang/docs
 [huff-mate]: https://github.com/huff-language/huffmate
 [ERC6960]: https://eips.ethereum.org/EIPS/eip-6960
 [ERC2612]: https://eips.ethereum.org/EIPS/eip-2612
