@@ -1,4 +1,4 @@
-:wave: Hi! I'm Mohammad, a Zero-knowledge enthusiast interested in distributed systems.
+:wave: Hi! I'm Mohammad, a Blockchain developerm and Zero-knowledge enthusiast interested in distributed systems.
 
 I've worked at [Paperscore](https://paperscore.org) and [Polytrade](https://polytrade.finance/).
 Here is an overview of what's done recently.
