@@ -1,6 +1,6 @@
 :wave: Hi! I'm Mohammad, a Blockchain developer and Zero-knowledge researcher working on distributed systems.
 
-I've worked at [Unhosted](https://unhosted.com], [Paperscore](https://paperscore.org) and [Polytrade](https://polytrade.finance/).
+I've worked at [Unhosted](https://unhosted.com), [Paperscore](https://paperscore.org) and [Polytrade](https://polytrade.finance/).
 Here is an overview of what's done recently.
 
 ### Projects
