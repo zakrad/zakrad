@@ -12,6 +12,7 @@
 
 ### Libraries
 
+- [biconomy-smart-account][biconomy-smart-account] (contributor)
 - [noir-lang][noir-lang] (contributor)
 - [huff-mate][huff-mate] (contributor)
 - [ERC6960-Huff][ERC6960-Huff] (author)
@@ -21,6 +22,7 @@
 - [rwa-marketplace][rwa-marketplace] (author)
 - [lender-pool-v3][lender-pool-v3] (author)
 
+[biconomy-smart-account]: https://github.com/bcnmy/scw-contracts
 [noir-lang]: https://github.com/noir-lang/docs
 [huff-mate]: https://github.com/huff-language/huffmate
 [ERC6960]: https://eips.ethereum.org/EIPS/eip-6960
