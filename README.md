@@ -17,6 +17,7 @@ Here is an overview of what's done recently.
 
 #### Libraries
 
+- [account-abstraction-modules][account-abstraction-modules] (author)
 - [biconomy-smart-account][biconomy-smart-account] (contributor)
 - [noir-lang][noir-lang] (contributor)
 - [huff-mate][huff-mate] (contributor)
@@ -24,6 +25,7 @@ Here is an overview of what's done recently.
 
 [See more projects &rarr;][see-more]
 
+[account-abstraction-modules]: https://github.com/Unhosted-Wallet/unhosted-modules
 [biconomy-smart-account]: https://github.com/bcnmy/scw-contracts
 [noir-lang]: https://github.com/noir-lang/docs
 [huff-mate]: https://github.com/huff-language/huffmate
