@@ -1,6 +1,6 @@
-:wave: Hi! I'm Mohammad, a Blockchain developer and Zero-knowledge enthusiast interested in distributed systems.
+:wave: Hi! I'm Mohammad, a Blockchain developer and Zero-knowledge researcher working on distributed systems.
 
-I've worked at [Paperscore](https://paperscore.org) and [Polytrade](https://polytrade.finance/).
+I've worked at [Unhosted](https://unhosted.com], [Paperscore](https://paperscore.org) and [Polytrade](https://polytrade.finance/).
 Here is an overview of what's done recently.
 
 ### Projects
@@ -17,12 +17,14 @@ Here is an overview of what's done recently.
 
 #### Libraries
 
+- [biconomy-smart-account][biconomy-smart-account] (contributor)
 - [noir-lang][noir-lang] (contributor)
 - [huff-mate][huff-mate] (contributor)
 - [ERC6960-Huff][ERC6960-Huff] (author)
 
 [See more projects &rarr;][see-more]
 
+[biconomy-smart-account]: https://github.com/bcnmy/scw-contracts
 [noir-lang]: https://github.com/noir-lang/docs
 [huff-mate]: https://github.com/huff-language/huffmate
 [ERC6960]: https://eips.ethereum.org/EIPS/eip-6960
