@@ -7,6 +7,7 @@ Here is an overview of what's done recently.
 
 #### EIPs
 
+- [ERC7410][ERC7410] (author)
 - [ERC6960][ERC6960] (co-author)
 - [ERC2612][ERC2612] (contributor)
 
@@ -30,6 +31,7 @@ Here is an overview of what's done recently.
 [noir-lang]: https://github.com/noir-lang/docs
 [huff-mate]: https://github.com/huff-language/huffmate
 [ERC6960]: https://eips.ethereum.org/EIPS/eip-6960
+[ERC7410]: https://eips.ethereum.org/EIPS/eip-7410
 [ERC2612]: https://eips.ethereum.org/EIPS/eip-2612
 [ERC6960-Huff]: https://github.com/zakrad/DLT-Huff
 [ERC6960-Permit]: https://github.com/polytrade-finance/dual-layer-token
