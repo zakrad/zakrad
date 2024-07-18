@@ -1,6 +1,6 @@
-:wave: Hi! I'm Mohammad, a Blockchain developer and Zero-knowledge researcher working on distributed systems.
+:wave: Hi! I'm Mohammad, a Blockchain developer and Solidity engineer working on distributed financial systems.
 
-I've worked at [Unhosted](https://unhosted.com), [Paperscore](https://paperscore.org) and [Polytrade](https://polytrade.finance/).
+I've worked at [Unhosted](https://unhosted.com), [Paperscore](https://paperscore.org), [Polytrade](https://polytrade.finance/) and [Pike Finance](https://www.pike.finance/).
 Here is an overview of what's done recently.
 
 ### Projects
