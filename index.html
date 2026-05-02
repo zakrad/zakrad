@@ -1,0 +1,1816 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mohammad zakrad - blockchain developer, Solidity engineer, EIP author.">
+  <title>zakrad.nvim</title>
+  <style>
+    @font-face {
+      font-family: "JetBrainsMono Nerd Font Local";
+      src: local("JetBrainsMono Nerd Font Mono"),
+        url("file:///Users/mohammadzakerirad/Library/Fonts/JetBrainsMonoNerdFontMono-Regular.ttf") format("truetype");
+      font-weight: 400;
+    }
+
+    @font-face {
+      font-family: "JetBrainsMono Nerd Font Local";
+      src: local("JetBrainsMono Nerd Font Mono Medium"),
+        url("file:///Users/mohammadzakerirad/Library/Fonts/JetBrainsMonoNerdFontMono-Medium.ttf") format("truetype");
+      font-weight: 500;
+    }
+
+    :root {
+      color-scheme: dark;
+      --base: #000000;
+      --mantle: #000000;
+      --surface0: #1d1e29;
+      --cursorline: #13141a;
+      --surface1: #2f313d;
+      --surface2: #3a3d4a;
+      --overlay0: #464957;
+      --overlay1: #676b80;
+      --overlay2: #7d8296;
+      --subtext0: #8e94ab;
+      --subtext1: #a3aac2;
+      --text: #c1c9e6;
+      --rosewater: #f5b8ab;
+      --flamingo: #f29d9d;
+      --pink: #ad6ff7;
+      --mauve: #ff8f40;
+      --red: #e66767;
+      --maroon: #eb788b;
+      --peach: #fab770;
+      --yellow: #faca64;
+      --green: #70cf67;
+      --teal: #4cd4bd;
+      --sky: #61bdff;
+      --sapphire: #4ba8fa;
+      --blue: #00bfff;
+      --lavender: #00bbcc;
+      --mono: "JetBrainsMono Nerd Font Local", "JetBrainsMono Nerd Font Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      background: var(--base);
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font: 14px/1 var(--mono);
+      letter-spacing: 0;
+      background: var(--base);
+      overflow-x: hidden;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover,
+    a:focus-visible {
+      color: var(--green);
+      outline: 0;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .workspace {
+      width: 100%;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 0;
+      display: grid;
+      align-content: stretch;
+    }
+
+    .nvim {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      border: 0;
+      background: var(--mantle);
+      box-shadow: none;
+      overflow: hidden;
+    }
+
+    .tabline,
+    .statusline,
+    .cmdline {
+      display: flex;
+      align-items: center;
+      background: var(--surface0);
+    }
+
+    .topbar {
+      display: none;
+    }
+
+    .marks {
+      display: inline-flex;
+      gap: 7px;
+      flex: 0 0 auto;
+    }
+
+    .mark {
+      width: 8px;
+      height: 8px;
+      display: block;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .mark:nth-child(1) { color: var(--red); }
+    .mark:nth-child(2) { color: var(--yellow); }
+    .mark:nth-child(3) { color: var(--green); }
+
+    .address {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      color: var(--subtext1);
+    }
+
+    .tabline {
+      min-height: 38px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--surface1);
+    }
+
+    .tabline.is-hidden {
+      display: none;
+    }
+
+    .tabs {
+      display: flex;
+      min-width: 0;
+    }
+
+    .tab {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      border: 0;
+      border-right: 1px solid var(--base);
+      color: var(--subtext0);
+      background: transparent;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab.is-active {
+      color: var(--text);
+      background: var(--base);
+    }
+
+    .tab-close {
+      width: 18px;
+      height: 18px;
+      display: inline-grid;
+      place-items: center;
+      border: 0;
+      color: var(--overlay2);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .tab-close:hover,
+    .tab-close:focus-visible {
+      color: var(--red);
+      outline: 0;
+    }
+
+    .empty-tabs {
+      padding: 0 12px;
+      color: var(--overlay2);
+    }
+
+    .main {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+    }
+
+    .main.explorer-hidden {
+      grid-template-columns: 0 minmax(0, 1fr);
+    }
+
+    .explorer {
+      min-width: 0;
+      overflow: auto;
+      border-right: 1px solid var(--surface2);
+      background: var(--mantle);
+      transition: width .16s ease, opacity .16s ease;
+    }
+
+    .main.explorer-hidden .explorer {
+      width: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .explorer-head {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 12px;
+      color: var(--subtext1);
+      border-bottom: 1px solid var(--surface1);
+      background: var(--mantle);
+      text-transform: none;
+    }
+
+    .tree-list {
+      margin: 0;
+      padding: 8px 0 14px;
+      list-style: none;
+    }
+
+    .tree-item {
+      width: calc(100% - 2px);
+      min-height: 24px;
+      margin-right: 2px;
+      padding: 0 8px 0 10px;
+      border: 0;
+      display: grid;
+      grid-template-columns: max-content max-content 1fr auto;
+      align-items: center;
+      column-gap: 2px;
+      color: var(--subtext1);
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      line-height: 20px;
+    }
+
+    .tree-item:hover,
+    .tree-item:focus-visible {
+      color: var(--text);
+      background: #171923;
+      outline: 0;
+    }
+
+    .tree-item.is-active {
+      color: var(--text);
+      background: #101116;
+      box-shadow: none;
+    }
+
+    .tree-item.is-selected {
+      color: var(--text);
+      background: #242733;
+      box-shadow: none;
+    }
+
+    .tree-item.is-folder {
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .tree-item.is-folder .file-name {
+      color: var(--subtext1);
+    }
+
+    .tree-indent {
+      display: inline-block;
+      color: var(--overlay0);
+      width: calc(var(--depth, 0) * 16px);
+      min-height: 20px;
+      margin-right: 1px;
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .tree-indent::before {
+      content: "";
+      display: none;
+      position: absolute;
+      left: calc(100% - 9px);
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--overlay0);
+      opacity: .58;
+    }
+
+    .tree-indent::after {
+      content: "";
+      display: none;
+      position: absolute;
+      left: calc(100% - 9px);
+      top: 10px;
+      width: 7px;
+      height: 1px;
+      background: var(--overlay0);
+      opacity: .58;
+    }
+
+    .tree-indent.has-guide::before,
+    .tree-indent.has-guide::after {
+      display: block;
+    }
+
+    .tree-item.is-open .file-mark {
+      color: var(--green);
+    }
+
+    .file-icon {
+      min-width: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      line-height: 20px;
+      white-space: pre;
+    }
+
+    .icon-folder { color: var(--blue); }
+    .icon-md { color: var(--blue); }
+    .icon-lua { color: var(--sky); }
+    .icon-sol { color: var(--lavender); }
+    .icon-text { color: var(--green); }
+    .icon-git { color: var(--red); }
+    .icon-env { color: var(--yellow); }
+
+    .file-name {
+      padding-left: 1px;
+    }
+
+    .file-mark {
+      color: var(--overlay1);
+      font-size: 10px;
+    }
+
+    .right {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) 150px;
+      background: var(--base);
+    }
+
+    .right.no-tabline {
+      grid-template-rows: minmax(0, 1fr) 150px;
+    }
+
+    .editor,
+    .terminal-pane {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      background: var(--base);
+    }
+
+    .editor {
+      border-bottom: 1px solid var(--surface2);
+    }
+
+    .explorer.is-window-active,
+    .editor.is-window-active,
+    .terminal-pane.is-window-active {
+      box-shadow: inset 0 0 0 1px var(--overlay1);
+    }
+
+    .winbar {
+      min-height: 28px;
+      padding: 0 14px;
+      color: var(--overlay2);
+      border-bottom: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .winbar strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .terminal-pane .winbar {
+      justify-content: flex-start;
+    }
+
+    .file-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 24px;
+      padding: 0 12px;
+      color: var(--base);
+      background: var(--blue);
+      font-weight: 700;
+    }
+
+    .buffer {
+      min-height: 0;
+      overflow: auto;
+      padding: 4px 0 12px;
+      outline: 0;
+    }
+
+    .line {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      min-height: 20px;
+      margin-right: 2px;
+      padding-right: 16px;
+    }
+
+    .line-number {
+      padding-right: 12px;
+      color: var(--overlay1);
+      text-align: right;
+      user-select: none;
+    }
+
+    .line-text {
+      min-width: 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .line.is-cursor {
+      background: var(--cursorline);
+    }
+
+    .line.is-cursor .line-number {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .comment { color: var(--overlay2); }
+    .keyword { color: var(--mauve); }
+    .type { color: var(--blue); }
+    .string { color: var(--green); }
+    .fn { color: var(--pink); }
+    .prop { color: var(--teal); }
+    .green { color: var(--green); }
+    .red { color: var(--red); }
+    .yellow { color: var(--yellow); }
+    .mauve { color: var(--mauve); }
+    .pink { color: var(--pink); }
+    .muted { color: var(--subtext0); }
+    .empty { color: var(--overlay2); }
+
+    .statusline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-height: 24px;
+      color: var(--text);
+      background: var(--base);
+      border-top: 0;
+      overflow: hidden;
+    }
+
+    .status-segment {
+      position: relative;
+      z-index: 1;
+      align-self: stretch;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      padding: 0 9px;
+      color: var(--subtext1);
+      background: transparent;
+    }
+
+    .status-segment span:last-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .status-segment.is-muted {
+      color: var(--text);
+      background: var(--surface0);
+    }
+
+    .status-segment.is-black {
+      color: var(--text);
+      background: var(--base);
+    }
+
+    .status-segment.is-orange {
+      color: var(--base);
+      background: var(--mauve);
+      font-weight: 700;
+    }
+
+    .status-segment.is-blue {
+      color: var(--base);
+      background: var(--blue);
+      font-weight: 700;
+    }
+
+    .status-segment.is-right-block {
+      clip-path: polygon(16px 0, 100% 0, 100% 100%, 0 100%);
+      padding-left: 25px;
+      margin-left: -16px;
+    }
+
+    .status-segment.is-red {
+      color: var(--base);
+      background: var(--red);
+      font-weight: 700;
+    }
+
+    .status-segment.is-yellow {
+      color: var(--base);
+      background: var(--yellow);
+      font-weight: 700;
+    }
+
+    .mode-chip {
+      position: relative;
+      z-index: 4;
+      align-self: stretch;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 10px;
+      color: var(--base);
+      background: var(--blue);
+      font-weight: 700;
+    }
+
+    .mode-sep {
+      position: relative;
+      z-index: 3;
+      align-self: stretch;
+      display: block;
+      width: 18px;
+      height: auto;
+      margin-left: 0;
+      margin-right: -18px;
+      background: var(--blue);
+      clip-path: polygon(0 0, 100% 0, 34% 100%, 0 100%);
+    }
+
+    .status-sep {
+      position: relative;
+      z-index: 3;
+      align-self: stretch;
+      display: block;
+      width: 16px;
+      height: auto;
+      flex: 0 0 16px;
+    }
+
+    .status-sep.from-muted {
+      background: var(--base);
+      clip-path: polygon(0 0, 100% 0, 34% 100%, 0 100%);
+      margin-left: 0;
+      margin-right: -16px;
+    }
+
+    .status-sep.into-muted {
+      background: var(--surface0);
+      clip-path: polygon(66% 0, 100% 0, 100% 100%, 0 100%);
+      margin-left: -16px;
+      margin-right: 0;
+    }
+
+    .status-sep.into-blue {
+      display: none;
+    }
+
+    .status-sep.into-orange {
+      display: none;
+    }
+
+    .status-sep.into-red {
+      background: var(--red);
+      clip-path: polygon(66% 0, 100% 0, 100% 100%, 0 100%);
+      margin-left: -16px;
+      margin-right: 0;
+    }
+
+    .status-sep.into-yellow {
+      background: var(--yellow);
+      clip-path: polygon(66% 0, 100% 0, 100% 100%, 0 100%);
+      margin-left: -16px;
+      margin-right: 0;
+    }
+
+    .mode-sep + .status-segment,
+    .status-sep.from-muted + .status-segment {
+      padding-left: 25px;
+    }
+
+    .status-sep[class*="into-"] + .status-segment {
+      padding-left: 25px;
+    }
+
+    .status-spacer {
+      flex: 1;
+    }
+
+    .cmdline {
+      min-height: 25px;
+      gap: 8px;
+      padding: 0 10px;
+      color: var(--subtext1);
+      background: var(--base);
+      display: none;
+      border-top: 0;
+    }
+
+    .cmdline.is-visible {
+      display: flex;
+    }
+
+    .terminal-body {
+      min-height: 0;
+      overflow: auto;
+      padding: 6px 2px 6px 12px;
+      color: var(--subtext1);
+    }
+
+    .term-line {
+      min-height: 20px;
+      margin-right: 2px;
+      padding-right: 10px;
+      white-space: pre-wrap;
+    }
+
+    .cmd-prefix {
+      color: var(--blue);
+    }
+
+    .cmd-input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      color: var(--text);
+      background: transparent;
+      outline: 0;
+    }
+
+    .msg {
+      margin-left: auto;
+      color: var(--overlay2);
+      white-space: nowrap;
+    }
+
+    .which-key {
+      position: fixed;
+      right: 12px;
+      top: auto;
+      bottom: 34px;
+      z-index: 10;
+      width: min(300px, calc(100% - 24px));
+      max-height: min(360px, calc(100vh - 86px));
+      padding: 6px 0 5px;
+      border: 1px solid var(--surface2);
+      border-top-color: var(--blue);
+      background: var(--base);
+      box-shadow: -18px 0 42px rgba(0, 0, 0, .46);
+      overflow: auto;
+    }
+
+    .which-key::before {
+      content: "";
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      width: 16px;
+      height: 16px;
+      background: var(--blue);
+      clip-path: polygon(0 0, 100% 0, 60% 100%, 0 100%);
+      pointer-events: none;
+    }
+
+    .which-key[hidden] {
+      display: none;
+    }
+
+    .wk-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 24px;
+      padding: 0 10px 3px 20px;
+      color: var(--subtext1);
+      border-bottom: 1px solid var(--surface1);
+      align-items: center;
+    }
+
+    .wk-title span:first-child {
+      color: var(--blue);
+    }
+
+    .wk-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1px;
+      margin-top: 2px;
+    }
+
+    .wk-row {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 24px 42px minmax(0, 1fr);
+      gap: 4px;
+      min-height: 22px;
+      padding: 0 10px 0 20px;
+      align-items: center;
+      color: var(--subtext1);
+    }
+
+    .wk-row:hover {
+      background: var(--cursorline);
+    }
+
+    .wk-icon {
+      color: var(--blue);
+      text-align: center;
+      font-size: 15px;
+    }
+
+    .wk-key {
+      color: var(--mauve);
+      text-align: left;
+    }
+
+    .wk-desc {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text);
+    }
+
+    @media (max-width: 780px) {
+      .workspace {
+        width: 100%;
+        padding: 0;
+        align-content: start;
+      }
+
+      .nvim {
+        min-height: 100vh;
+      }
+
+      .main {
+        grid-template-columns: 1fr;
+      }
+
+      .main:not(.explorer-hidden) {
+        grid-template-rows: 178px minmax(0, 1fr);
+      }
+
+      .right {
+        grid-template-rows: minmax(0, 1fr) 132px;
+      }
+
+      .explorer {
+        border-right: 0;
+        border-bottom: 1px solid var(--overlay0);
+      }
+
+      .main.explorer-hidden {
+        grid-template-columns: 1fr;
+      }
+
+      .main.explorer-hidden .explorer {
+        display: none;
+      }
+
+      .tree-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .status-segment.optional,
+      .status-sep.into-muted,
+      .msg {
+        display: none;
+      }
+
+      .line {
+        grid-template-columns: 40px minmax(0, 1fr);
+      }
+
+      .wk-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .which-key {
+        right: 8px;
+        bottom: 34px;
+        height: auto;
+        max-height: min(320px, calc(100vh - 72px));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="workspace" aria-label="zakrad LazyVim portfolio">
+    <section class="nvim" aria-label="interactive fake Neovim editor">
+      <div class="main" id="main">
+        <aside class="explorer" id="explorer" aria-label="file explorer">
+          <div class="explorer-head">
+            <span>Explorer</span>
+            <span>SPC e</span>
+          </div>
+          <ul class="tree-list" id="tree"></ul>
+        </aside>
+
+        <div class="right" id="rightPane">
+          <div class="tabline" id="tabline" aria-label="buffers">
+            <div class="tabs" id="tabs"></div>
+          </div>
+
+          <section class="editor" id="editorPane" aria-live="polite">
+            <div class="winbar" id="winbar"></div>
+            <div class="buffer" id="buffer" tabindex="0" aria-label="editor buffer"></div>
+          </section>
+
+          <section class="terminal-pane" id="terminalPane" aria-label="terminal split">
+            <div class="winbar"><strong>zsh</strong> term://wezterm/tmux</div>
+            <div class="terminal-body" id="terminalBody" tabindex="0">
+              <div class="term-line"><span class="type">➜</span>  sooth-core git:(main) forge test --match-contract OrderEngine</div>
+              <div class="term-line"><span class="green">[PASS]</span> signed orders stop when markets leave LIVE</div>
+              <div class="term-line"><span class="type">➜</span>  sooth-core git:(main) rg "invariant|settle|claim" src test</div>
+              <div class="term-line"><span class="muted">protocol notes: thin interfaces, explicit lifecycle gates, boring accounting</span></div>
+              <div class="term-line"><span class="type">➜</span>  zakrad whoami</div>
+              <div class="term-line">Solidity / DeFi / EIPs / account abstraction / audits</div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <footer class="statusline">
+        <span class="mode-chip"><span></span><span id="mode">NORMAL</span></span>
+        <span class="mode-sep" aria-hidden="true"></span>
+        <span class="status-segment is-muted"><span></span><span id="branch">main</span></span>
+        <span class="status-sep from-muted" aria-hidden="true"></span>
+        <span class="status-segment is-black optional"><span id="statusFileIcon"></span><span id="statusFileName">README.md</span></span>
+        <span class="status-sep from-muted" aria-hidden="true"></span>
+        <span class="status-segment" id="filetype">markdown</span>
+        <span class="status-segment"><span class="red">●</span><span>4</span><span class="yellow">▲</span><span>2</span></span>
+        <span class="status-segment optional"><span id="statusPathIcon"></span><span id="statusPath">README.md</span></span>
+        <span class="status-segment optional"><span class="yellow">󰆧</span><span>Portfolio</span></span>
+        <span class="status-spacer"></span>
+        <span class="status-segment optional"><span class="mauve" id="lastKey">SPC</span></span>
+        <span class="status-segment optional"><span class="pink">⬡</span><span>34</span></span>
+        <span class="status-sep into-muted" aria-hidden="true"></span>
+        <span class="status-segment is-muted optional" id="leaderState">window: editor</span>
+        <span class="status-segment is-blue is-right-block" id="position">1:1</span>
+      </footer>
+
+      <form class="cmdline" id="commandForm">
+        <span class="cmd-prefix">:</span>
+        <input class="cmd-input" id="command" autocomplete="off" spellcheck="false" aria-label="vim command" placeholder="SPC shows which-key | SPC e explorer | SPC w h/j/k/l windows | SPC b d buffer delete">
+        <span class="msg" id="message">press Space</span>
+      </form>
+    </section>
+  </main>
+
+  <section class="which-key" id="whichKey" hidden aria-label="leader key menu">
+    <div class="wk-title">
+      <span id="wkTitle">SPC</span>
+      <span>which-key</span>
+    </div>
+    <div class="wk-grid" id="wkGrid"></div>
+  </section>
+
+  <script>
+    const files = {
+      "README.md": {
+        type: "markdown",
+        icon: "",
+        lines: [
+          ["comment", "# zakrad.nvim"],
+          ["", ""],
+          ["", "Mohammad Zakerirad"],
+          ["", "Blockchain developer, Solidity engineer, and EIP author."],
+          ["", ""],
+          ["", "This portfolio behaves like a tiny LazyVim session."],
+          ["", "Open files from Neo-tree, move between buffers, close buffers,"],
+          ["", "and use leader bindings like a normal editor."],
+          ["", ""],
+          ["type", "SPC e       toggle explorer"],
+          ["type", "SPC b n     next buffer"],
+          ["type", "SPC b p     previous buffer"],
+          ["type", "SPC b d     delete current buffer"],
+          ["type", "SPC b o     delete other buffers"],
+          ["type", "SPC w h/j/k/l move window focus"],
+          ["type", "SPC f g     open GitHub"],
+          ["", ""],
+          ["comment", "-- press Space to start"]
+        ]
+      },
+      "lua/profile.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["comment", "-- profile"],
+          ["keyword", "return", " {"],
+          ["prop", "  name", " = ", "string", "\"Mohammad Zakerirad\","],
+          ["prop", "  handle", " = ", "string", "\"zakrad\","],
+          ["prop", "  location", " = ", "string", "\"Dubai\","],
+          ["prop", "  role", " = ", "string", "\"Blockchain Developer / EIP Author\","],
+          ["prop", "  focus", " = { ", "string", "\"protocols\"", ", ", "string", "\"DeFi\"", ", ", "string", "\"standards\"", " },"],
+          ["prop", "  taste", " = { ", "string", "\"minimal deps\"", ", ", "string", "\"auditable surfaces\"", " },"],
+          ["keyword", "}"]
+        ]
+      },
+      "src/Standards.sol": {
+        type: "solidity",
+        icon: "󰡪",
+        lines: [
+          ["comment", "// standards work"],
+          ["keyword", "pragma solidity ^0.8.24;"],
+          ["", ""],
+          ["keyword", "interface", " ", "type", "IEIPAuthor", " {"],
+          ["fn", "    function erc7410() external pure returns (string memory);"],
+          ["fn", "    function erc6960() external pure returns (string memory);"],
+          ["", "}"],
+          ["", ""],
+          ["keyword", "contract", " ", "type", "Zakrad", " is ", "type", "IEIPAuthor", " {"],
+          ["fn", "    function erc7410() external pure returns (string memory) {"],
+          ["string", "        return \"ERC-7410\";"],
+          ["", "    }"],
+          ["", ""],
+          ["fn", "    function erc6960() external pure returns (string memory) {"],
+          ["string", "        return \"ERC-6960\";"],
+          ["", "    }"],
+          ["", "}"]
+        ]
+      },
+      "src/Projects.sol": {
+        type: "solidity",
+        icon: "󰡪",
+        lines: [
+          ["comment", "// selected projects"],
+          ["keyword", "contract", " ", "type", "Projects", " {"],
+          ["string", "    string constant SOOTH = \"prediction markets, CLOBs, adjudication\";"],
+          ["string", "    string constant NUTS = \"distributed financial primitives\";"],
+          ["string", "    string constant REVIEW = \"security review, specs, invariants\";"],
+          ["", ""],
+          ["fn", "    function style() external pure returns (string memory) {"],
+          ["string", "        return \"interfaces before ornament\";"],
+          ["", "    }"],
+          ["keyword", "}"]
+        ]
+      },
+      "docs/contact.txt": {
+        type: "text",
+        icon: "󰈙",
+        lines: [
+          ["comment", "links"],
+          ["", ""],
+          ["type", "github    https://github.com/zakrad"],
+          ["type", "linkedin  https://www.linkedin.com/in/zakrad"],
+          ["type", "erc7410   https://eips.ethereum.org/EIPS/eip-7410"],
+          ["type", "erc6960   https://eips.ethereum.org/EIPS/eip-6960"],
+          ["", ""],
+          ["", "Open an issue, send a message, or trace the commits."]
+        ]
+      },
+      "docs/help.md": {
+        type: "markdown",
+        icon: "",
+        lines: [
+          ["comment", "# keymaps"],
+          ["", ""],
+          ["type", "SPC         show leader menu"],
+          ["type", "SPC e       toggle neo-tree"],
+          ["type", "SPC b d     delete current buffer"],
+          ["type", "SPC b D     delete buffer and window"],
+          ["type", "SPC b n     next buffer"],
+          ["type", "SPC b p     previous buffer"],
+          ["type", "SPC b o     delete other buffers"],
+          ["type", "SPC b r/l   delete buffers right/left"],
+          ["type", "SPC b p/P   toggle pin / delete non-pinned"],
+          ["type", "SPC b j     pick buffer"],
+          ["type", "SPC w h     focus explorer"],
+          ["type", "SPC w j     focus terminal split"],
+          ["type", "SPC w k     focus editor split"],
+          ["type", "SPC w l     focus editor split"],
+          ["type", "SPC f g     open GitHub"],
+          ["type", "SPC f l     open LinkedIn"],
+          ["type", "SPC f e     open EIPs"],
+          ["", ""],
+          ["type", "j/k         move cursor"],
+          ["type", "h/l         previous/next buffer"],
+          ["type", "gg/G        top/bottom"],
+          ["type", ":q         close current buffer"],
+          ["type", ":e file    open file by name"]
+        ]
+      },
+      ".gitignore": {
+        type: "gitignore",
+        icon: "󰊢",
+        lines: [
+          ["comment", "# visible because snacks explorer hidden=true"],
+          ["", "node_modules/"],
+          ["", "cache/"],
+          ["", "out/"],
+          ["", ".env"]
+        ]
+      },
+      ".env.example": {
+        type: "dotenv",
+        icon: "",
+        lines: [
+          ["comment", "# ignored files are still visible in your snacks config"],
+          ["prop", "RPC_URL", "=", "string", "\"https://...\""],
+          ["prop", "PRIVATE_KEY", "=", "string", "\"0x...\""]
+        ]
+      }
+    };
+
+    const treeNodes = [
+      { kind: "file", path: "README.md", depth: 0, iconClass: "icon-md" },
+      { kind: "folder", name: "lua", depth: 0 },
+      { kind: "file", path: "lua/profile.lua", parent: "lua", depth: 1, iconClass: "icon-lua" },
+      { kind: "folder", name: "src", depth: 0 },
+      { kind: "file", path: "src/Standards.sol", parent: "src", depth: 1, iconClass: "icon-sol" },
+      { kind: "file", path: "src/Projects.sol", parent: "src", depth: 1, iconClass: "icon-sol" },
+      { kind: "folder", name: "docs", depth: 0 },
+      { kind: "file", path: "docs/contact.txt", parent: "docs", depth: 1, iconClass: "icon-text" },
+      { kind: "file", path: "docs/help.md", parent: "docs", depth: 1, iconClass: "icon-md" },
+      { kind: "file", path: ".env.example", depth: 0, iconClass: "icon-env" },
+      { kind: "file", path: ".gitignore", depth: 0, iconClass: "icon-git" }
+    ];
+
+    const links = {
+      github: "https://github.com/zakrad",
+      linkedin: "https://www.linkedin.com/in/zakrad",
+      eips: "https://eips.ethereum.org"
+    };
+
+    const groups = {
+      root: [
+        ["e", "explorer"],
+        ["b", "+buffer"],
+        ["f", "+find/open"],
+        ["w", "+windows"],
+        ["h", "previous buffer"],
+        ["l", "next buffer"],
+        ["o", "delete other buffers"],
+        ["q", "close buffer"],
+        ["`", "alternate buffer"],
+        ["?", "help"]
+      ],
+      b: [
+        ["b", "alternate buffer"],
+        ["d", "delete buffer"],
+        ["D", "delete buffer + window"],
+        ["j", "pick buffer"],
+        ["l", "delete left"],
+        ["P", "delete non-pinned"],
+        ["n", "next buffer"],
+        ["o", "delete others"],
+        ["r", "delete right"],
+        ["p", "toggle pin"]
+      ],
+      f: [
+        ["g", "github"],
+        ["l", "linkedin"],
+        ["e", "eips"],
+        ["h", "help file"]
+      ],
+      w: [
+        ["h", "focus explorer"],
+        ["j", "focus terminal"],
+        ["k", "focus editor"],
+        ["l", "focus editor"]
+      ]
+    };
+
+    const state = {
+      active: "README.md",
+      open: ["README.md"],
+      previous: "",
+      pinned: [],
+      cursor: 0,
+      explorer: true,
+      explorerIndex: 0,
+      expanded: ["lua", "src", "docs"],
+      window: "editor",
+      leader: "",
+      lastKey: "SPC",
+      pendingG: false
+    };
+
+    const main = document.querySelector("#main");
+    const rightPane = document.querySelector("#rightPane");
+    const explorer = document.querySelector("#explorer");
+    const editorPane = document.querySelector("#editorPane");
+    const terminalPane = document.querySelector("#terminalPane");
+    const terminalBody = document.querySelector("#terminalBody");
+    const tree = document.querySelector("#tree");
+    const tabline = document.querySelector("#tabline");
+    const tabs = document.querySelector("#tabs");
+    const buffer = document.querySelector("#buffer");
+    const winbar = document.querySelector("#winbar");
+    const command = document.querySelector("#command");
+    const commandForm = document.querySelector("#commandForm");
+    const message = document.querySelector("#message");
+    const mode = document.querySelector("#mode");
+    const position = document.querySelector("#position");
+    const filetype = document.querySelector("#filetype");
+    const statusFileIcon = document.querySelector("#statusFileIcon");
+    const statusFileName = document.querySelector("#statusFileName");
+    const statusPathIcon = document.querySelector("#statusPathIcon");
+    const statusPath = document.querySelector("#statusPath");
+    const leaderState = document.querySelector("#leaderState");
+    const lastKey = document.querySelector("#lastKey");
+    const whichKey = document.querySelector("#whichKey");
+    const wkTitle = document.querySelector("#wkTitle");
+    const wkGrid = document.querySelector("#wkGrid");
+
+    function showCommandLine() {
+      commandForm.classList.add("is-visible");
+      command.focus();
+    }
+
+    function hideCommandLine() {
+      commandForm.classList.remove("is-visible");
+      command.value = "";
+      command.blur();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;");
+    }
+
+    function renderLine(parts) {
+      const classes = new Set(["comment", "keyword", "type", "string", "fn", "prop", "muted", "empty"]);
+      let html = "";
+      for (let i = 0; i < parts.length; i += 1) {
+        if (classes.has(parts[i]) && i + 1 < parts.length) {
+          html += `<span class="${parts[i]}">${escapeHtml(parts[i + 1])}</span>`;
+          i += 1;
+        } else {
+          html += escapeHtml(parts[i]);
+        }
+      }
+      return html;
+    }
+
+    function visibleTreeNodes() {
+      return treeNodes.filter((node) => !node.parent || state.expanded.includes(node.parent));
+    }
+
+    function iconClassFor(file) {
+      const node = treeNodes.find((item) => item.path === file);
+      return node?.iconClass || "icon-text";
+    }
+
+    function shortFileName(file) {
+      return file.split("/").at(-1) || file;
+    }
+
+    function renderExplorer() {
+      main.classList.toggle("explorer-hidden", !state.explorer);
+      const nodes = visibleTreeNodes();
+      state.explorerIndex = Math.max(0, Math.min(nodes.length - 1, state.explorerIndex));
+      tree.innerHTML = nodes.map((node, index) => {
+        const indent = `<span class="tree-indent ${node.depth ? "has-guide" : ""}" style="--depth:${node.depth}"></span>`;
+        const isSelected = state.window === "explorer" && index === state.explorerIndex;
+        if (node.kind === "folder") {
+          const isExpanded = state.expanded.includes(node.name);
+          return `
+            <li>
+              <button class="tree-item is-folder ${isSelected ? "is-selected" : ""}" data-folder="${node.name}" tabindex="-1">
+                ${indent}
+                <span class="file-icon icon-folder">${isExpanded ? "" : ""}</span>
+                <span class="file-name">${node.name}</span>
+                <span class="file-mark">${isExpanded ? "▾" : "▸"}</span>
+              </button>
+            </li>
+          `;
+        }
+
+        const file = node.path;
+        const isOpen = state.open.includes(file);
+        const isActive = file === state.active;
+        const isCurrent = isActive && state.window !== "explorer";
+        const label = node.depth ? file.split("/").at(-1) : file;
+        return `
+          <li>
+            <button class="tree-item ${isCurrent ? "is-active" : ""} ${isSelected ? "is-selected" : ""} ${isOpen ? "is-open" : ""}" data-file="${file}">
+              ${indent}
+              <span class="file-icon ${node.iconClass}">${files[file].icon}</span>
+              <span class="file-name">${label}</span>
+              <span class="file-mark">${isOpen ? "●" : ""}</span>
+            </button>
+          </li>
+        `;
+      }).join("");
+    }
+
+    function renderWindows() {
+      if (!state.explorer && state.window === "explorer") state.window = "editor";
+      explorer.classList.toggle("is-window-active", state.window === "explorer");
+      editorPane.classList.toggle("is-window-active", state.window === "editor");
+      terminalPane.classList.toggle("is-window-active", state.window === "terminal");
+      leaderState.textContent = `window: ${state.window}`;
+    }
+
+    function renderTabs() {
+      const showTabs = state.open.length > 1;
+      tabline.classList.toggle("is-hidden", !showTabs);
+      rightPane.classList.toggle("no-tabline", !showTabs);
+      tabs.innerHTML = showTabs
+        ? state.open.map((file) => `
+            <button class="tab ${file === state.active ? "is-active" : ""}" data-file="${file}">
+              <span class="${iconClassFor(file)}">${files[file].icon}</span>
+              <span>${state.pinned.includes(file) ? "󰐃" : ""}</span>
+              <span>${file}</span>
+              <span class="tab-close" data-close="${file}" aria-label="close ${file}">×</span>
+            </button>
+          `).join("")
+        : "";
+    }
+
+    function renderBuffer() {
+      if (!state.active || !files[state.active]) {
+        winbar.innerHTML = `<span class="file-badge"><span></span><span>empty</span></span>`;
+        buffer.innerHTML = `<div class="line"><span class="line-number">~</span><span class="line-text empty">No buffer. Press <span class="type">SPC e</span> and open a file.</span></div>`;
+        filetype.textContent = "none";
+        statusFileIcon.textContent = "";
+        statusFileIcon.className = "";
+        statusFileName.textContent = "empty";
+        statusPathIcon.textContent = "";
+        statusPathIcon.className = "";
+        statusPath.textContent = "empty";
+        position.textContent = "0:0";
+        return;
+      }
+
+      const file = files[state.active];
+      const last = file.lines.length - 1;
+      state.cursor = Math.max(0, Math.min(last, state.cursor));
+      const iconClass = iconClassFor(state.active);
+      winbar.innerHTML = `<span class="file-badge"><span class="${iconClass}">${file.icon}</span><span>${shortFileName(state.active)}</span></span>`;
+      filetype.textContent = file.type;
+      statusFileIcon.textContent = file.icon;
+      statusFileIcon.className = iconClass;
+      statusFileName.textContent = shortFileName(state.active);
+      statusPathIcon.textContent = file.icon;
+      statusPathIcon.className = iconClass;
+      statusPath.textContent = state.active;
+      position.textContent = `${Math.round(((state.cursor + 1) / file.lines.length) * 100)}% ${state.cursor + 1}:1`;
+      buffer.innerHTML = file.lines.map((line, index) => `
+        <div class="line ${index === state.cursor ? "is-cursor" : ""}">
+          <span class="line-number">${index + 1}</span>
+          <span class="line-text">${renderLine(line)}</span>
+        </div>
+      `).join("");
+
+      const activeLine = buffer.querySelector(".is-cursor");
+      if (activeLine) activeLine.scrollIntoView({ block: "nearest" });
+    }
+
+    function renderWhichKey(group = "root") {
+      const rows = groups[group] || groups.root;
+      const prefix = state.leader ? `SPC ${state.leader}` : "SPC";
+      wkTitle.textContent = prefix;
+      const icons = {
+        b: "󰓩",
+        d: "󰆴",
+        D: "󰆴",
+        e: "󰙅",
+        f: "󰈞",
+        g: "󰊢",
+        h: "󰁍",
+        j: "󰁅",
+        k: "󰁝",
+        l: "󰁔",
+        n: "󰒭",
+        o: "󰝰",
+        p: "󰐃",
+        P: "󰗮",
+        q: "󰅖",
+        r: "󰁔",
+        w: "",
+        "`": "󰁯",
+        "?": "󰋗"
+      };
+      wkGrid.innerHTML = rows.map(([key, desc]) => `
+        <div class="wk-row">
+          <span class="wk-icon">${icons[key] || "󰌌"}</span>
+          <span class="wk-key">${key}</span>
+          <span class="wk-desc">${desc}</span>
+        </div>
+      `).join("");
+      whichKey.hidden = false;
+    }
+
+    function hideWhichKey() {
+      state.leader = "";
+      mode.textContent = "NORMAL";
+      leaderState.textContent = `window: ${state.window}`;
+      whichKey.hidden = true;
+    }
+
+    function render() {
+      renderExplorer();
+      renderTabs();
+      renderBuffer();
+      renderWindows();
+      lastKey.textContent = state.lastKey;
+    }
+
+    function activateBuffer(file) {
+      if (!files[file]) return;
+      if (state.active && state.active !== file) state.previous = state.active;
+      state.active = file;
+      state.cursor = 0;
+    }
+
+    function openFile(file) {
+      if (!files[file]) return;
+      const node = treeNodes.find((item) => item.path === file);
+      if (node?.parent && !state.expanded.includes(node.parent)) state.expanded.push(node.parent);
+      if (!state.open.includes(file)) state.open.push(file);
+      activateBuffer(file);
+      state.window = "editor";
+      message.textContent = `${file} opened`;
+      hideWhichKey();
+      render();
+      buffer.focus({ preventScroll: true });
+    }
+
+    function focusWindow(target) {
+      if (target === "explorer") {
+        state.explorer = true;
+        state.window = "explorer";
+        const activeIndex = visibleTreeNodes().findIndex((node) => node.path === state.active);
+        state.explorerIndex = activeIndex >= 0 ? activeIndex : state.explorerIndex;
+        message.textContent = "focused explorer";
+      } else if (target === "terminal") {
+        state.window = "terminal";
+        message.textContent = "focused terminal";
+      } else {
+        state.window = "editor";
+        message.textContent = "focused editor";
+      }
+      hideWhichKey();
+      render();
+      const focusTarget = state.window === "terminal" ? terminalBody : buffer;
+      focusTarget.focus({ preventScroll: true });
+    }
+
+    function moveExplorer(delta) {
+      if (!state.explorer) return;
+      const nodes = visibleTreeNodes();
+      state.explorerIndex = Math.max(0, Math.min(nodes.length - 1, state.explorerIndex + delta));
+      render();
+    }
+
+    function toggleFolder(folder) {
+      if (state.expanded.includes(folder)) {
+        state.expanded = state.expanded.filter((item) => item !== folder);
+        message.textContent = `${folder}/ collapsed`;
+      } else {
+        state.expanded.push(folder);
+        message.textContent = `${folder}/ expanded`;
+      }
+      render();
+    }
+
+    function openExplorerSelection() {
+      const node = visibleTreeNodes()[state.explorerIndex];
+      if (!node) {
+        message.textContent = "no file";
+        render();
+        return;
+      }
+      if (node.kind === "folder") {
+        toggleFolder(node.name);
+        return;
+      }
+      openFile(node.path);
+      state.window = "editor";
+      render();
+    }
+
+    function closeBuffer(file = state.active) {
+      const index = state.open.indexOf(file);
+      if (index === -1) return;
+      state.open.splice(index, 1);
+      state.pinned = state.pinned.filter((item) => item !== file);
+
+      if (state.active === file) {
+        const next = state.open[index] || state.open[index - 1] || "";
+        state.active = "";
+        if (next) activateBuffer(next);
+        state.cursor = 0;
+      }
+
+      message.textContent = `${file} deleted`;
+      hideWhichKey();
+      render();
+      buffer.focus({ preventScroll: true });
+    }
+
+    function cycleBuffer(delta) {
+      if (!state.open.length) return;
+      const index = state.open.indexOf(state.active);
+      const next = (index + delta + state.open.length) % state.open.length;
+      activateBuffer(state.open[next]);
+      message.textContent = state.active;
+      hideWhichKey();
+      render();
+    }
+
+    function switchAlternate() {
+      if (state.previous && state.open.includes(state.previous)) {
+        activateBuffer(state.previous);
+        message.textContent = state.active;
+      } else if (state.open.length > 1) {
+        cycleBuffer(1);
+        return;
+      } else {
+        message.textContent = "no alternate buffer";
+      }
+      hideWhichKey();
+      render();
+    }
+
+    function closeOthers() {
+      if (!state.active) return;
+      state.open = [state.active];
+      state.pinned = state.pinned.filter((file) => file === state.active);
+      message.textContent = "deleted other buffers";
+      hideWhichKey();
+      render();
+    }
+
+    function closeNonPinned() {
+      if (!state.active) return;
+      const keep = state.open.filter((file) => state.pinned.includes(file) || file === state.active);
+      state.open = keep.length ? keep : [state.active];
+      message.textContent = "deleted non-pinned buffers";
+      hideWhichKey();
+      render();
+    }
+
+    function closeDirection(direction) {
+      const index = state.open.indexOf(state.active);
+      if (index === -1) return;
+      state.open = direction === "right" ? state.open.slice(0, index + 1) : state.open.slice(index);
+      state.pinned = state.pinned.filter((file) => state.open.includes(file));
+      message.textContent = `deleted buffers to the ${direction}`;
+      hideWhichKey();
+      render();
+    }
+
+    function togglePin() {
+      if (!state.active) return;
+      if (state.pinned.includes(state.active)) {
+        state.pinned = state.pinned.filter((file) => file !== state.active);
+        message.textContent = "unpinned buffer";
+      } else {
+        state.pinned.push(state.active);
+        message.textContent = "pinned buffer";
+      }
+      hideWhichKey();
+      render();
+    }
+
+    function pickBuffer() {
+      if (!state.open.length) return;
+      cycleBuffer(1);
+      message.textContent = "picked next buffer";
+    }
+
+    function moveCursor(delta) {
+      if (!state.active) return;
+      const last = files[state.active].lines.length - 1;
+      state.cursor = Math.max(0, Math.min(last, state.cursor + delta));
+      renderBuffer();
+    }
+
+    function toggleExplorer() {
+      state.explorer = !state.explorer;
+      if (!state.explorer && state.window === "explorer") state.window = "editor";
+      message.textContent = state.explorer ? "neo-tree opened" : "neo-tree hidden";
+      hideWhichKey();
+      render();
+    }
+
+    function runCommand(raw) {
+      const input = raw.trim().replace(/^:/, "");
+      if (!input) {
+        hideCommandLine();
+        mode.textContent = "NORMAL";
+        buffer.focus({ preventScroll: true });
+        return;
+      }
+      if (input === "q" || input === "bd") {
+        closeBuffer();
+      } else if (input === "bo") {
+        closeOthers();
+      } else if (input === "bD") {
+        closeBuffer();
+      } else if (input === "br") {
+        closeDirection("right");
+      } else if (input === "bl") {
+        closeDirection("left");
+      } else if (input === "bP") {
+        closeNonPinned();
+      } else if (input === "bpin" || input === "bpin!") {
+        togglePin();
+      } else if (input === "bn") {
+        cycleBuffer(1);
+      } else if (input === "bp") {
+        cycleBuffer(-1);
+      } else if (input === "Neotree" || input === "NvimTreeToggle") {
+        toggleExplorer();
+      } else if (input.startsWith("e ")) {
+        const query = input.slice(2).trim();
+        const match = Object.keys(files).find((file) => file.includes(query));
+        match ? openFile(match) : message.textContent = `file not found: ${query}`;
+      } else {
+        message.textContent = `not an editor command: ${input}`;
+      }
+      hideCommandLine();
+      mode.textContent = "NORMAL";
+      buffer.focus({ preventScroll: true });
+    }
+
+    function handleLeaderKey(key) {
+      if (!state.leader) {
+        if (key === " ") {
+          state.leader = "root";
+          mode.textContent = "LEADER";
+          leaderState.textContent = "leader: SPC";
+          message.textContent = "which-key";
+          renderWhichKey("root");
+          return true;
+        }
+        return false;
+      }
+
+      if (state.leader === "root") {
+        if (key === "e") {
+          toggleExplorer();
+          return true;
+        }
+        if (key === "b" || key === "f" || key === "w") {
+          state.leader = key;
+          leaderState.textContent = `leader: SPC ${key}`;
+          renderWhichKey(key);
+          return true;
+        }
+        if (key === "h") {
+          cycleBuffer(-1);
+          return true;
+        }
+        if (key === "l") {
+          cycleBuffer(1);
+          return true;
+        }
+        if (key === "o") {
+          closeOthers();
+          return true;
+        }
+        if (key === "`") {
+          switchAlternate();
+          return true;
+        }
+        if (key === "q") {
+          closeBuffer();
+          return true;
+        }
+        if (key === "?") {
+          openFile("docs/help.md");
+          return true;
+        }
+      }
+
+      if (state.leader === "b") {
+        if (key === "b") switchAlternate();
+        else if (key === "d") closeBuffer();
+        else if (key === "D") closeBuffer();
+        else if (key === "j") pickBuffer();
+        else if (key === "l") closeDirection("left");
+        else if (key === "r") closeDirection("right");
+        else if (key === "o") closeOthers();
+        else if (key === "p") togglePin();
+        else if (key === "P") closeNonPinned();
+        else if (key === "n") cycleBuffer(1);
+        else message.textContent = `no mapping: SPC b ${key}`;
+        hideWhichKey();
+        return true;
+      }
+
+      if (state.leader === "f") {
+        if (key === "g") window.open(links.github, "_blank", "noopener");
+        else if (key === "l") window.open(links.linkedin, "_blank", "noopener");
+        else if (key === "e") window.open(links.eips, "_blank", "noopener");
+        else if (key === "h") openFile("docs/help.md");
+        else message.textContent = `no mapping: SPC f ${key}`;
+        hideWhichKey();
+        return true;
+      }
+
+      if (state.leader === "w") {
+        if (key === "h") focusWindow("explorer");
+        else if (key === "j") focusWindow("terminal");
+        else if (key === "k" || key === "l") focusWindow("editor");
+        else {
+          message.textContent = `no mapping: SPC w ${key}`;
+          hideWhichKey();
+        }
+        return true;
+      }
+
+      hideWhichKey();
+      return true;
+    }
+
+    tree.addEventListener("click", (event) => {
+      const folder = event.target.closest("[data-folder]");
+      if (folder) {
+        const index = visibleTreeNodes().findIndex((node) => node.name === folder.dataset.folder);
+        if (index >= 0) state.explorerIndex = index;
+        toggleFolder(folder.dataset.folder);
+        return;
+      }
+
+      const item = event.target.closest("[data-file]");
+      if (item) {
+        const index = visibleTreeNodes().findIndex((node) => node.path === item.dataset.file);
+        if (index >= 0) state.explorerIndex = index;
+        openFile(item.dataset.file);
+      }
+    });
+
+    tabs.addEventListener("click", (event) => {
+      const close = event.target.closest("[data-close]");
+      if (close) {
+        event.stopPropagation();
+        closeBuffer(close.dataset.close);
+        return;
+      }
+
+      const tab = event.target.closest("[data-file]");
+      if (tab) openFile(tab.dataset.file);
+    });
+
+    commandForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      runCommand(command.value);
+    });
+
+    command.addEventListener("focus", () => {
+      hideWhichKey();
+      mode.textContent = "COMMAND";
+      message.textContent = "command mode";
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key.length === 1 || event.key.startsWith("Arrow") || event.key === "Enter" || event.key === "Escape") {
+        state.lastKey = event.key === " " ? "SPC" : event.key;
+        lastKey.textContent = state.lastKey;
+      }
+
+      if (document.activeElement === command) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          hideCommandLine();
+          mode.textContent = "NORMAL";
+          message.textContent = "normal mode";
+          buffer.focus({ preventScroll: true });
+        }
+        return;
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        hideWhichKey();
+        return;
+      }
+
+      if (handleLeaderKey(event.key)) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.key === ":") {
+        event.preventDefault();
+        showCommandLine();
+        return;
+      }
+
+      if (state.window === "explorer") {
+        if (event.key === "j" || event.key === "ArrowDown") {
+          event.preventDefault();
+          moveExplorer(1);
+          return;
+        }
+
+        if (event.key === "k" || event.key === "ArrowUp") {
+          event.preventDefault();
+          moveExplorer(-1);
+          return;
+        }
+
+        if (event.key === "Enter" || event.key === "l" || event.key === "ArrowRight") {
+          event.preventDefault();
+          openExplorerSelection();
+          return;
+        }
+
+        if (event.key === "h" || event.key === "ArrowLeft") {
+          event.preventDefault();
+          const node = visibleTreeNodes()[state.explorerIndex];
+          if (node?.kind === "folder" && state.expanded.includes(node.name)) toggleFolder(node.name);
+          else message.textContent = "folder closed";
+          return;
+        }
+      }
+
+      if (event.key === "j" || event.key === "ArrowDown") {
+        event.preventDefault();
+        state.pendingG = false;
+        moveCursor(1);
+        return;
+      }
+
+      if (event.key === "k" || event.key === "ArrowUp") {
+        event.preventDefault();
+        state.pendingG = false;
+        moveCursor(-1);
+        return;
+      }
+
+      if (event.key === "h" || event.key === "ArrowLeft") {
+        event.preventDefault();
+        cycleBuffer(-1);
+        return;
+      }
+
+      if (event.key === "l" || event.key === "ArrowRight") {
+        event.preventDefault();
+        cycleBuffer(1);
+        return;
+      }
+
+      if (event.key === "G") {
+        event.preventDefault();
+        if (state.active) state.cursor = files[state.active].lines.length - 1;
+        state.pendingG = false;
+        renderBuffer();
+        return;
+      }
+
+      if (event.key === "g") {
+        event.preventDefault();
+        if (state.pendingG) {
+          state.cursor = 0;
+          state.pendingG = false;
+          renderBuffer();
+        } else {
+          state.pendingG = true;
+          message.textContent = "g";
+        }
+      }
+    });
+
+    render();
+    buffer.focus({ preventScroll: true });
+  </script>
+</body>
+</html>
