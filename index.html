@@ -5,18 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Mohammad zakrad - blockchain developer, Solidity engineer, EIP author.">
   <title>zakrad.nvim</title>
+  <link rel="icon" type="image/svg+xml" href="https://commons.wikimedia.org/wiki/Special:FilePath/Neovim-mark-flat.svg">
   <style>
     @font-face {
       font-family: "JetBrainsMono Nerd Font Local";
       src: local("JetBrainsMono Nerd Font Mono"),
-        url("file:///Users/mohammadzakerirad/Library/Fonts/JetBrainsMonoNerdFontMono-Regular.ttf") format("truetype");
+        url("file:///path/to/JetBrainsMonoNerdFontMono-Regular.ttf") format("truetype");
       font-weight: 400;
     }
 
     @font-face {
       font-family: "JetBrainsMono Nerd Font Local";
       src: local("JetBrainsMono Nerd Font Mono Medium"),
-        url("file:///Users/mohammadzakerirad/Library/Fonts/JetBrainsMonoNerdFontMono-Medium.ttf") format("truetype");
+        url("file:///path/to/JetBrainsMonoNerdFontMono-Medium.ttf") format("truetype");
       font-weight: 500;
     }
 
@@ -58,7 +59,9 @@
     html,
     body {
       min-height: 100%;
+      height: 100%;
       background: var(--base);
+      overflow: hidden;
     }
 
     body {
@@ -67,7 +70,6 @@
       font: 14px/1 var(--mono);
       letter-spacing: 0;
       background: var(--base);
-      overflow-x: hidden;
     }
 
     button,
@@ -95,14 +97,17 @@
     .workspace {
       width: 100%;
       min-height: 100vh;
+      height: 100vh;
       margin: 0 auto;
       padding: 0;
       display: grid;
       align-content: stretch;
+      overflow: hidden;
     }
 
     .nvim {
       min-height: 100vh;
+      height: 100vh;
       display: grid;
       grid-template-rows: minmax(0, 1fr) auto;
       border: 0;
@@ -148,9 +153,10 @@
     }
 
     .tabline {
-      min-height: 38px;
+      min-height: 24px;
       overflow-x: auto;
-      border-bottom: 1px solid var(--surface1);
+      background: var(--base);
+      border-bottom: 1px solid rgba(0, 191, 255, .18);
     }
 
     .tabline.is-hidden {
@@ -160,36 +166,50 @@
     .tabs {
       display: flex;
       min-width: 0;
+      background: var(--base);
     }
 
     .tab {
-      min-height: 38px;
+      min-height: 24px;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 0 10px;
+      gap: 6px;
+      padding: 0 8px 0 7px;
       border: 0;
-      border-right: 1px solid var(--base);
+      border-left: 2px solid transparent;
       color: var(--subtext0);
-      background: transparent;
+      background: var(--base);
       cursor: pointer;
       white-space: nowrap;
+      font-size: 12px;
+    }
+
+    .tab > span:first-child {
+      font-size: 18px;
+      line-height: 1;
     }
 
     .tab.is-active {
       color: var(--text);
-      background: var(--base);
+      background: #050505;
+      border-left-color: var(--peach);
     }
 
     .tab-close {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       display: inline-grid;
       place-items: center;
       border: 0;
       color: var(--overlay2);
       background: transparent;
       cursor: pointer;
+      font-size: 28px;
+      line-height: 1;
+      padding: 0;
+      margin-top: -4px;
+      position: relative;
+      top: -4px;
     }
 
     .tab-close:hover,
@@ -205,8 +225,11 @@
 
     .main {
       min-height: 0;
+      height: 100%;
       display: grid;
       grid-template-columns: 286px minmax(0, 1fr);
+      overflow: hidden;
+      align-self: stretch;
     }
 
     .main.explorer-hidden {
@@ -215,7 +238,11 @@
 
     .explorer {
       min-width: 0;
-      overflow: auto;
+      min-height: 0;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
       border-right: 1px solid var(--surface2);
       background: var(--mantle);
       transition: width .16s ease, opacity .16s ease;
@@ -231,16 +258,51 @@
       position: sticky;
       top: 0;
       z-index: 1;
-      min-height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 0 12px;
+      margin: 10px 10px 0;
+      padding: 14px 12px 8px;
       color: var(--subtext1);
-      border-bottom: 1px solid var(--surface1);
+      border: 1px solid var(--blue);
+      border-radius: 3px;
       background: var(--mantle);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px 10px;
       text-transform: none;
+    }
+
+    .explorer-title {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0 10px;
+      color: var(--subtext1);
+      background: var(--mantle);
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: 0;
+      pointer-events: none;
+    }
+
+    .explorer-filter {
+      min-width: 0;
+      width: 100%;
+      border: 0;
+      padding: 0;
+      color: var(--text);
+      background: transparent;
+      outline: 0;
+      font: inherit;
+      line-height: 1;
+    }
+
+    .explorer-count {
+      justify-self: end;
+      color: var(--overlay2);
+      font-size: 13px;
+      line-height: 1;
+      white-space: nowrap;
     }
 
     .tree-list {
@@ -354,6 +416,8 @@
     .icon-text { color: var(--green); }
     .icon-git { color: var(--red); }
     .icon-env { color: var(--yellow); }
+    .icon-json { color: var(--peach); }
+    .icon-toml { color: var(--yellow); }
 
     .file-name {
       padding-left: 1px;
@@ -370,6 +434,7 @@
       display: grid;
       grid-template-rows: auto minmax(0, 1fr) 150px;
       background: var(--base);
+      overflow: hidden;
     }
 
     .right.no-tabline {
@@ -383,16 +448,18 @@
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
       background: var(--base);
+      overflow: hidden;
     }
 
     .editor {
+      position: relative;
       border-bottom: 1px solid var(--surface2);
     }
 
     .explorer.is-window-active,
     .editor.is-window-active,
     .terminal-pane.is-window-active {
-      box-shadow: inset 0 0 0 1px var(--overlay1);
+      box-shadow: inset 0 0 0 1px var(--green);
     }
 
     .winbar {
@@ -408,13 +475,24 @@
       justify-content: flex-end;
     }
 
+    .editor .winbar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 2;
+      width: auto;
+      padding-right: 0;
+      justify-content: flex-end;
+      pointer-events: none;
+    }
+
     .winbar strong {
       color: var(--text);
       font-weight: 700;
     }
 
     .terminal-pane .winbar {
-      justify-content: flex-start;
+      display: none;
     }
 
     .file-badge {
@@ -458,6 +536,10 @@
 
     .line.is-cursor {
       background: var(--cursorline);
+    }
+
+    .line.is-visual {
+      background: rgba(98, 114, 164, 0.18);
     }
 
     .line.is-cursor .line-number {
@@ -557,24 +639,25 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 0 10px;
+      padding: 0 22px 0 10px;
       color: var(--base);
       background: var(--blue);
       font-weight: 700;
+      clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+      margin-right: -14px;
     }
 
-    .mode-sep {
-      position: relative;
-      z-index: 3;
-      align-self: stretch;
-      display: block;
-      width: 18px;
-      height: auto;
-      margin-left: 0;
-      margin-right: -18px;
-      background: var(--blue);
-      clip-path: polygon(0 0, 100% 0, 34% 100%, 0 100%);
+    .mode-chip.is-insert {
+      color: var(--base);
+      background: var(--peach);
     }
+
+    .mode-chip span:first-child {
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    /* removed mode-sep — triangle baked into mode-chip via clip-path */
 
     .status-sep {
       position: relative;
@@ -586,18 +669,33 @@
       flex: 0 0 16px;
     }
 
-    .status-sep.from-muted {
-      background: var(--base);
-      clip-path: polygon(0 0, 100% 0, 34% 100%, 0 100%);
-      margin-left: 0;
-      margin-right: -16px;
+    /* from-muted / into-muted removed — triangles baked into sections */
+
+    /* branch "main" section: slanted right edge, tip at top (mirrors is-right-block) */
+    .statusline .status-segment.is-muted:not(#leaderState) {
+      clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+      padding-left: 18px;
+      padding-right: 20px;
+      margin-right: -12px;
+      z-index: 2;
     }
 
-    .status-sep.into-muted {
-      background: var(--surface0);
-      clip-path: polygon(66% 0, 100% 0, 100% 100%, 0 100%);
-      margin-left: -16px;
-      margin-right: 0;
+    /* filename: breathe past the main triangle overlap */
+    .statusline .status-segment.is-muted:not(#leaderState) + .status-segment {
+      padding-left: 20px;
+    }
+
+    /* buffer-count segment: breathe before the % section overlap */
+    #bufCountSegment {
+      padding-right: 20px;
+    }
+
+    /* % section: left-pointing cut (tip at top, mirrors is-right-block) + right padding */
+    #leaderState {
+      clip-path: polygon(14px 0, 100% 0, 100% 100%, 0 100%);
+      padding-left: 22px;
+      padding-right: 22px;
+      margin-left: -14px;
     }
 
     .status-sep.into-blue {
@@ -622,14 +720,6 @@
       margin-right: 0;
     }
 
-    .mode-sep + .status-segment,
-    .status-sep.from-muted + .status-segment {
-      padding-left: 25px;
-    }
-
-    .status-sep[class*="into-"] + .status-segment {
-      padding-left: 25px;
-    }
 
     .status-spacer {
       flex: 1;
@@ -652,8 +742,47 @@
     .terminal-body {
       min-height: 0;
       overflow: auto;
-      padding: 6px 2px 6px 12px;
+      padding: 6px 2px 16px 12px;
       color: var(--subtext1);
+    }
+
+    .terminal-pane.is-broken {
+      box-shadow: inset 0 0 0 1px var(--red);
+      filter: contrast(1.1) saturate(.9);
+    }
+
+    .terminal-pane.is-broken .terminal-body {
+      background: linear-gradient(180deg, rgba(255, 107, 107, .08), transparent 60%);
+    }
+
+    .page-broken .workspace {
+      filter: grayscale(.12) contrast(1.05);
+    }
+
+    .page-broken .editor,
+    .page-broken .explorer,
+    .page-broken .statusline {
+      opacity: .28;
+    }
+
+    .terminal-command {
+      position: absolute;
+      inset: auto 0 0 0;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .terminal-command-input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      color: var(--text);
+      background: transparent;
+      outline: 0;
+      font: inherit;
     }
 
     .term-line {
@@ -663,8 +792,88 @@
       white-space: pre-wrap;
     }
 
+    .term-row {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+      min-height: 20px;
+    }
+
+    .term-row .up {
+      color: var(--green);
+    }
+
+    .term-row .down {
+      color: var(--red);
+    }
+
+    .term-row .flat {
+      color: var(--overlay2);
+    }
+
+    .term-label {
+      color: var(--text);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .term-price {
+      color: var(--text);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .term-meta {
+      color: var(--overlay2);
+      white-space: nowrap;
+    }
+
     .cmd-prefix {
       color: var(--blue);
+    }
+
+    .term-prompt {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .term-arrow {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .term-user {
+      color: #00f0ff;
+      font-weight: 700;
+    }
+
+    .term-git {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .term-branch {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .term-input {
+      min-width: 0;
+      color: var(--text);
+      white-space: pre;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .term-cursor {
+      color: var(--text);
+      animation: blink 1.1s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
     }
 
     .cmd-input {
@@ -688,25 +897,42 @@
       top: auto;
       bottom: 34px;
       z-index: 10;
-      width: min(300px, calc(100% - 24px));
+      width: min(296px, calc(100% - 24px));
       max-height: min(360px, calc(100vh - 86px));
-      padding: 6px 0 5px;
-      border: 1px solid var(--surface2);
-      border-top-color: var(--blue);
+      padding: 18px 0 5px;
       background: var(--base);
-      box-shadow: -18px 0 42px rgba(0, 0, 0, .46);
-      overflow: auto;
+      box-shadow: -18px 0 42px rgba(0,0,0,.46);
+      overflow: visible;
     }
 
     .which-key::before {
       content: "";
       position: absolute;
-      top: -1px;
-      left: -1px;
-      width: 16px;
-      height: 16px;
-      background: var(--blue);
-      clip-path: polygon(0 0, 100% 0, 60% 100%, 0 100%);
+      inset: 0;
+      border: 1px solid var(--blue);
+      box-shadow: inset 0 0 0 1px rgba(0,191,255,.45);
+      border-radius: 3px;
+      pointer-events: none;
+    }
+
+    .which-key::after {
+      content: "␣";
+      position: absolute;
+      top: -14px;
+      left: 8px;
+      width: 30px;
+      height: 20px;
+      padding: 0;
+      color: var(--text);
+      background: var(--base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 700;
+      text-align: center;
+      border-radius: 1px;
       pointer-events: none;
     }
 
@@ -714,35 +940,71 @@
       display: none;
     }
 
-    .wk-title {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      min-height: 24px;
-      padding: 0 10px 3px 20px;
-      color: var(--subtext1);
-      border-bottom: 1px solid var(--surface1);
-      align-items: center;
+    .yank-toast {
+      position: fixed;
+      right: 18px;
+      top: 18px;
+      z-index: 30;
+      min-width: 220px;
+      padding: 0;
+      color: var(--text);
+      background: var(--base);
+      border: 1px solid var(--surface2);
+      box-shadow: 0 0 0 1px var(--blue);
+      text-align: left;
+      font: 700 13px/1 var(--mono);
+      pointer-events: none;
+      overflow: hidden;
     }
 
-    .wk-title span:first-child {
+    .yank-toast-head {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 26px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--surface2);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .yank-toast-head .icon {
+      font-size: 18px;
+      line-height: 1;
       color: var(--blue);
+    }
+
+    .yank-toast-body {
+      padding: 10px 16px;
+      text-align: left;
+    }
+
+    .yank-toast[hidden] {
+      display: none;
+    }
+
+    .wk-title {
+      display: none;
     }
 
     .wk-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 1px;
-      margin-top: 2px;
+      gap: 0;
+      margin-top: 1px;
+      max-height: min(320px, calc(100vh - 128px));
+      overflow: auto;
+      padding-top: 6px;
     }
 
     .wk-row {
       min-width: 0;
       display: grid;
-      grid-template-columns: 24px 42px minmax(0, 1fr);
-      gap: 4px;
-      min-height: 22px;
-      padding: 0 10px 0 20px;
+      grid-template-columns: 18px 8px 24px minmax(0, 1fr);
+      gap: 0;
+      min-height: 16px;
+      padding: 0 6px 0 10px;
       align-items: center;
       color: var(--subtext1);
     }
@@ -751,22 +1013,57 @@
       background: var(--cursorline);
     }
 
-    .wk-icon {
-      color: var(--blue);
-      text-align: center;
-      font-size: 15px;
+    .wk-key {
+      color: var(--text);
+      text-align: left;
+      font-weight: 700;
     }
 
-    .wk-key {
-      color: var(--mauve);
-      text-align: left;
+    .wk-arrow {
+      color: var(--overlay1);
+      text-align: center;
+      font-size: 12px;
     }
+
+    .wk-icon {
+      text-align: center;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .wk-icon.is-blue { color: var(--blue); }
+    .wk-icon.is-sky { color: var(--sky); }
+    .wk-icon.is-green { color: var(--green); }
+    .wk-icon.is-mauve { color: var(--mauve); }
+    .wk-icon.is-peach { color: var(--peach); }
+    .wk-icon.is-yellow { color: var(--yellow); }
+    .wk-icon.is-red { color: var(--red); }
+    .wk-icon.is-teal { color: var(--teal); }
+    .wk-icon.is-pink { color: var(--pink); }
+    .wk-icon.is-lavender { color: var(--lavender); }
+    .wk-icon.is-flamingo { color: var(--flamingo); }
+    .wk-icon.is-maroon { color: var(--maroon); }
+    .wk-icon.is-overlay { color: var(--overlay1); }
 
     .wk-desc {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      color: var(--text);
+      color: var(--pink);
+    }
+
+    .wk-footer {
+      display: flex;
+      gap: 10px;
+      padding: 2px 14px 0;
+      margin-top: 1px;
+      color: var(--overlay0);
+      font-size: 11px;
+    }
+
+    .wk-footer kbd {
+      color: var(--overlay2);
+      font: inherit;
     }
 
     @media (max-width: 780px) {
@@ -826,7 +1123,9 @@
 
       .which-key {
         right: 8px;
+        left: 8px;
         bottom: 34px;
+        width: auto;
         height: auto;
         max-height: min(320px, calc(100vh - 72px));
       }
@@ -837,10 +1136,11 @@
   <main class="workspace" aria-label="zakrad LazyVim portfolio">
     <section class="nvim" aria-label="interactive fake Neovim editor">
       <div class="main" id="main">
-        <aside class="explorer" id="explorer" aria-label="file explorer">
+        <aside class="explorer" id="explorer" aria-label="file explorer" tabindex="0">
           <div class="explorer-head">
-            <span>Explorer</span>
-            <span>SPC e</span>
+            <span class="explorer-title">Explorer</span>
+            <input class="explorer-filter" id="explorerFilter" autocomplete="off" spellcheck="false" aria-label="filter files and folders">
+            <span class="explorer-count" id="explorerCount">0/0</span>
           </div>
           <ul class="tree-list" id="tree"></ul>
         </aside>
@@ -857,35 +1157,26 @@
 
           <section class="terminal-pane" id="terminalPane" aria-label="terminal split">
             <div class="winbar"><strong>zsh</strong> term://wezterm/tmux</div>
-            <div class="terminal-body" id="terminalBody" tabindex="0">
-              <div class="term-line"><span class="type">➜</span>  sooth-core git:(main) forge test --match-contract OrderEngine</div>
-              <div class="term-line"><span class="green">[PASS]</span> signed orders stop when markets leave LIVE</div>
-              <div class="term-line"><span class="type">➜</span>  sooth-core git:(main) rg "invariant|settle|claim" src test</div>
-              <div class="term-line"><span class="muted">protocol notes: thin interfaces, explicit lifecycle gates, boring accounting</span></div>
-              <div class="term-line"><span class="type">➜</span>  zakrad whoami</div>
-              <div class="term-line">Solidity / DeFi / EIPs / account abstraction / audits</div>
-            </div>
+            <div class="terminal-body" id="terminalBody" tabindex="0"></div>
+            <form class="terminal-command" id="terminalCommandForm">
+              <span class="cmd-prefix">➜</span>
+              <input class="terminal-command-input" id="terminalCommand" autocomplete="off" spellcheck="false" aria-label="terminal command">
+            </form>
           </section>
         </div>
       </div>
 
       <footer class="statusline">
         <span class="mode-chip"><span></span><span id="mode">NORMAL</span></span>
-        <span class="mode-sep" aria-hidden="true"></span>
         <span class="status-segment is-muted"><span></span><span id="branch">main</span></span>
-        <span class="status-sep from-muted" aria-hidden="true"></span>
         <span class="status-segment is-black optional"><span id="statusFileIcon"></span><span id="statusFileName">README.md</span></span>
-        <span class="status-sep from-muted" aria-hidden="true"></span>
         <span class="status-segment" id="filetype">markdown</span>
-        <span class="status-segment"><span class="red">●</span><span>4</span><span class="yellow">▲</span><span>2</span></span>
-        <span class="status-segment optional"><span id="statusPathIcon"></span><span id="statusPath">README.md</span></span>
         <span class="status-segment optional"><span class="yellow">󰆧</span><span>Portfolio</span></span>
         <span class="status-spacer"></span>
-        <span class="status-segment optional"><span class="mauve" id="lastKey">SPC</span></span>
-        <span class="status-segment optional"><span class="pink">⬡</span><span>34</span></span>
-        <span class="status-sep into-muted" aria-hidden="true"></span>
-        <span class="status-segment is-muted optional" id="leaderState">window: editor</span>
-        <span class="status-segment is-blue is-right-block" id="position">1:1</span>
+        <span class="status-segment optional" id="recentKeysSegment"><span class="mauve" id="recentKeys">SPC</span></span>
+        <span class="status-segment optional" id="bufCountSegment"><span class="pink" style="font-size:17px;line-height:1">⬡</span><span id="bufCount">1</span></span>
+        <span class="status-segment is-muted optional" id="leaderState">0%</span>
+        <span class="status-segment is-blue is-right-block"><span id="position">1:1</span><span style="margin-left:7px;font-size:17px;line-height:1;opacity:.85">≡</span></span>
       </footer>
 
       <form class="cmdline" id="commandForm">
@@ -904,20 +1195,28 @@
     <div class="wk-grid" id="wkGrid"></div>
   </section>
 
+  <div class="yank-toast" id="yankToast" hidden></div>
+
   <script>
     const files = {
       "README.md": {
         type: "markdown",
         icon: "",
         lines: [
-          ["comment", "# zakrad.nvim"],
+          ["comment", "# zakrad"],
           ["", ""],
-          ["", "Mohammad Zakerirad"],
-          ["", "Blockchain developer, Solidity engineer, and EIP author."],
+          ["", "Mohammad Zakeri Rad"],
+          ["", "Blockchain engineer."],
+          ["", ""],
+          ["", "Companies:"],
+          ["", "- Pike Finance"],
+          ["", "- Polytrade"],
+          ["", "- ParaLead"],
+          ["", "- PaperScore"],
           ["", ""],
           ["", "This portfolio behaves like a tiny LazyVim session."],
           ["", "Open files from Neo-tree, move between buffers, close buffers,"],
-          ["", "and use leader bindings like a normal editor."],
+          ["", "and use leader bindings."],
           ["", ""],
           ["type", "SPC e       toggle explorer"],
           ["type", "SPC b n     next buffer"],
@@ -930,19 +1229,327 @@
           ["comment", "-- press Space to start"]
         ]
       },
-      "lua/profile.lua": {
+      "nvim/README.md": {
+        type: "markdown",
+        icon: "",
+        lines: [
+          ["comment", "# 💤 LazyVim"],
+          ["", ""],
+          ["", "A starter template for LazyVim."],
+          ["", "Refer to the documentation to get started."]
+        ]
+      },
+      "nvim/init.lua": {
         type: "lua",
         icon: "",
         lines: [
-          ["comment", "-- profile"],
+          ["comment", "-- bootstrap lazy.nvim, LazyVim and your plugins"],
+          ["keyword", "require", "(", "\"config.lazy\"", ")"]
+        ]
+      },
+      "nvim/lua/config/init.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "require", "(", "\"config.autocmds\"", ")"]
+        ]
+      },
+      "nvim/lua/config/options.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["comment", "-- Options are automatically loaded before lazy.nvim startup"],
+          ["comment", "-- Default options are defined by LazyVim"],
+          ["comment", "-- Add any additional options here"],
+          ["prop", "vim.opt.termguicolors", " = ", "keyword", "true"]
+        ]
+      },
+      "nvim/lua/config/keymaps.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["comment", "-- Keymaps are automatically loaded on the VeryLazy event"],
+          ["comment", "-- Default keymaps are defined by LazyVim"],
+          ["comment", "-- Add any additional keymaps here"],
+          ["keyword", "vim.keymap.set", "(", "string", "\"x\"", ", ", "string", "\"p\"", ", ", "string", "\"_dP\"", ", ", "table", "{ desc = \"Paste without overwriting register\" }", ")"]
+        ]
+      },
+      "nvim/lua/config/autocmds.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["comment", "-- Rust: auto-format on save (cargo fmt)"],
+          ["keyword", "vim.api.nvim_create_autocmd", "(", "string", "\"BufWritePre\"", ",", "table", " { ... }", ")"],
+          ["comment", "-- Highlight on yank (all files)"],
+          ["keyword", "vim.api.nvim_create_autocmd", "(", "string", "\"TextYankPost\"", ",", "table", " { ... }", ")"]
+        ]
+      },
+      "nvim/lua/config/lazy.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["comment", "-- lazy.nvim bootstrap and LazyVim setup"],
+          ["keyword", "local", " ", "prop", "lazypath", " = ", "prop", "vim.fn.stdpath", "(", "string", "\"data\"", ")", " .. ", "string", "\"/lazy/lazy.nvim\""],
+          ["comment", "-- imports LazyVim and your plugins"],
+          ["keyword", "require", "(", "\"lazy\"", ")", ".", "prop", "setup", "(", "{ ... }", ")"]
+        ]
+      },
+      "nvim/lua/plugins/persistence-autoload.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
           ["keyword", "return", " {"],
-          ["prop", "  name", " = ", "string", "\"Mohammad Zakerirad\","],
-          ["prop", "  handle", " = ", "string", "\"zakrad\","],
-          ["prop", "  location", " = ", "string", "\"Dubai\","],
-          ["prop", "  role", " = ", "string", "\"Blockchain Developer / EIP Author\","],
-          ["prop", "  focus", " = { ", "string", "\"protocols\"", ", ", "string", "\"DeFi\"", ", ", "string", "\"standards\"", " },"],
-          ["prop", "  taste", " = { ", "string", "\"minimal deps\"", ", ", "string", "\"auditable surfaces\"", " },"],
+          ["string", "  \"folke/persistence.nvim\""],
+          ["prop", "  opts", " = {},"],
+          ["comment", "  -- load last session on startup when no files were passed"],
           ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/lazygit.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"kdheepak/lazygit.nvim\""],
+          ["comment", "  -- LazyGit commands and keymap"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/toggleterm.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"akinsho/toggleterm.nvim\""],
+          ["comment", "  -- horizontal, vertical and float terminal toggles"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/mini-move.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"nvim-mini/mini.move\""],
+          ["comment", "  -- move visual selections and lines with Alt-h/j/k/l"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/conform.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"stevearc/conform.nvim\""],
+          ["comment", "  -- formatters for solidity, rust, json, js/ts"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/rust-tools.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"simrat39/rust-tools.nvim\""],
+          ["comment", "  -- rust analyzer tooling"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/snacks.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"folke/snacks.nvim\""],
+          ["comment", "  -- explorer and picker show hidden + ignored files"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/amp.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"amp.nvim\""],
+          ["comment", "  -- AMP integration"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/colorscheme.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"LazyVim/LazyVim\""],
+          ["string", "  \"catppuccin/nvim\""],
+          ["comment", "  -- uses catppuccin and custom highlight overrides"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/nvim-lspconfig.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["comment", "-- LSP setup for rust, solidity, bash, python, and efm"],
+          ["keyword", "return", " {"],
+          ["string", "  \"neovim/nvim-lspconfig\""],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/solidity_lsp.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["comment", "-- Solidity LSP wiring for the current setup"],
+          ["keyword", "return", " {"],
+          ["string", "  \"vscode-solidity-server\""],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/devicons.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"nvim-tree/nvim-web-devicons\""],
+          ["comment", "  -- file icons for tabs, explorer and statusline"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/lualine.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"nvim-lualine/lualine.nvim\""],
+          ["comment", "  -- compact statusline with pretty path formatting"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/lspsaga.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"nvimdev/lspsaga.nvim\""],
+          ["comment", "  -- goto definition, finder and hover UI"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/mason-lspconfig.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"williamboman/mason-lspconfig.nvim\""],
+          ["comment", "  -- mason bridges to lspconfig"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/nvim-cmp.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"hrsh7th/nvim-cmp\""],
+          ["comment", "  -- completion sources for LSP and buffer"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/fire.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"glacambre/firenvim\""],
+          ["comment", "  -- browser textareas into Neovim"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/telescope.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"nvim-telescope/telescope.nvim\""],
+          ["comment", "  -- ascending prompt, flex layout"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/incline.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "return", " {"],
+          ["string", "  \"b0o/incline.nvim\""],
+          ["comment", "  -- per-window file badge in the upper right"],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/fire_ui_off.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["comment", "-- disable fire UI decorations in this setup"],
+          ["keyword", "return", " {"],
+          ["string", "  \"firenvim\""],
+          ["keyword", "}"]
+        ]
+      },
+      "nvim/lua/plugins/example.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["comment", "-- Example plugin spec used by LazyVim"],
+          ["keyword", "return", " {}"]
+        ]
+      },
+      "nvim/stylua.toml": {
+        type: "toml",
+        icon: "",
+        lines: [
+          ["prop", "indent_type", " = ", "string", "\"Spaces\""],
+          ["prop", "indent_width", " = ", "string", "\"2\""],
+          ["prop", "column_width", " = ", "string", "\"120\""]
+        ]
+      },
+      "nvim/lazyvim.json": {
+        type: "json",
+        icon: "",
+        lines: [
+          ["prop", "{"],
+          ["prop", "  \"extras\": [", ""],
+          ["prop", "    \"lazyvim.plugins.extras.coding.mini-surround\",", ""],
+          ["prop", "    \"lazyvim.plugins.extras.coding.yanky\",", ""],
+          ["prop", "    \"lazyvim.plugins.extras.lang.json\",", ""],
+          ["prop", "    \"lazyvim.plugins.extras.lang.markdown\",", ""],
+          ["prop", "    \"lazyvim.plugins.extras.lang.toml\",", ""],
+          ["prop", "    \"lazyvim.plugins.extras.util.dot\"", ""],
+          ["prop", "  ],", ""],
+          ["prop", "  \"install_version\": 8,", ""],
+          ["prop", "  \"news\": {", ""],
+          ["prop", "    \"NEWS.md\": \"11866\"", ""],
+          ["prop", "  },", ""],
+          ["prop", "  \"version\": 8", ""],
+          ["prop", "}"]
+        ]
+      },
+      "nvim/lazy-lock.json": {
+        type: "json",
+        icon: "",
+        lines: [
+          ["prop", "{ ... pinned plugin commits ... }"]
+        ]
+      },
+      "nvim/LICENSE": {
+        type: "text",
+        icon: "󰈙",
+        lines: [
+          ["comment", "Apache License"],
+          ["comment", "Version 2.0, January 2004"],
+          ["", "http://www.apache.org/licenses/"],
+          ["", ""],
+          ["", "TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION"]
         ]
       },
       "src/Standards.sol": {
@@ -1033,11 +1640,35 @@
         type: "gitignore",
         icon: "󰊢",
         lines: [
-          ["comment", "# visible because snacks explorer hidden=true"],
-          ["", "node_modules/"],
-          ["", "cache/"],
-          ["", "out/"],
-          ["", ".env"]
+          ["comment", "tt.*"],
+          ["", ".tests"],
+          ["", "doc/tags"],
+          ["", "debug"],
+          ["", ".repro"],
+          ["", "foo.*"],
+          ["", "*.log"],
+          ["", "data"]
+        ]
+      },
+      ".neoconf.json": {
+        type: "json",
+        icon: "",
+        lines: [
+          ["prop", "{", ""],
+          ["prop", "  \"neodev\": {", ""],
+          ["prop", "    \"library\": {", ""],
+          ["prop", "      \"enabled\": true,", ""],
+          ["prop", "      \"plugins\": true", ""],
+          ["prop", "    }", ""],
+          ["prop", "  },", ""],
+          ["prop", "  \"neoconf\": {", ""],
+          ["prop", "    \"plugins\": {", ""],
+          ["prop", "      \"lua_ls\": {", ""],
+          ["prop", "        \"enabled\": true", ""],
+          ["prop", "      }", ""],
+          ["prop", "    }", ""],
+          ["prop", "  }", ""],
+          ["prop", "}"]
         ]
       },
       ".env.example": {
@@ -1048,21 +1679,1958 @@
           ["prop", "RPC_URL", "=", "string", "\"https://...\""],
           ["prop", "PRIVATE_KEY", "=", "string", "\"0x...\""]
         ]
-      }
+      },
+      "shell/.zshrc": {
+        type: "shell",
+        icon: "$",
+        lines: [
+          ["comment", "# If you come from bash you might have to change your $PATH."],
+          ["comment", "# export PATH=$HOME/bin:/usr/local/bin:$PATH"],
+          ["", ""],
+          ["comment", "# Path to your oh-my-zsh installation."],
+          ["keyword", "export", " ", "prop", "ZSH", "=", "string", "\"$HOME/.oh-my-zsh\""],
+          ["keyword", "export", " ", "prop", "PATH", "=", "string", "\"/opt/homebrew/opt/gnu-tar/libexec/gnubin:$PATH\""],
+          ["comment", "# Set name of the theme to load --- if set to \"random\", it will"],
+          ["comment", "# load a random theme each time oh-my-zsh is loaded, in which case,"],
+          ["comment", "# to know which specific one was loaded, run: echo $RANDOM_THEME"],
+          ["keyword", "ZSH_THEME", "=", "string", "\"robbyrussell\""],
+          ["", ""],
+          ["comment", "# Which plugins would you like to load?"],
+          ["keyword", "plugins", "=", "string", "(git)"],
+          ["", ""],
+          ["keyword", "source", " ", "prop", "$ZSH/oh-my-zsh.sh"],
+          ["", ""],
+          ["comment", "# User configuration"],
+          ["keyword", "export", " ", "prop", "PATH", "=", "string", "\"$PATH:$HOME/.huff/bin\""],
+          ["keyword", "export", " ", "prop", "NARGO_HOME", "=", "string", "\"$HOME/.nargo\""],
+          ["keyword", "export", " ", "prop", "LC_ALL", "=", "string", "\"en_US.UTF-8\""],
+          ["keyword", "export", " ", "prop", "FOUNDRY_DISABLE_NIGHTLY_WARNING", "=", "string", "\"1\""]
+        ]
+      },
+      "wezterm/wezterm.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["keyword", "local", " ", "prop", "wezterm", " = ", "fn", "require", "(", "string", "\"wezterm\"", ")"],
+          ["keyword", "local", " ", "prop", "config", " = ", "prop", "wezterm.config_builder", "(", ")"],
+          ["keyword", "local", " ", "prop", "action", " = ", "prop", "wezterm.action"],
+          ["", ""],
+          ["prop", "config.default_prog", " = ", "table", "{ \"/bin/zsh\", \"-lc\", \"unset TMUX; exec tmux new-session -A -s main\" }"],
+          ["prop", "config.font", " = ", "fn", "wezterm.font", "(", "table", "{ family = \"JetBrains Mono\", weight = \"Medium\" }", ")"],
+          ["prop", "config.font_size", " = ", "string", "14.0"],
+          ["prop", "config.line_height", " = ", "string", "1.0"],
+          ["prop", "config.window_decorations", " = ", "string", "\"RESIZE\""],
+          ["prop", "config.hide_tab_bar_if_only_one_tab", " = ", "keyword", "true"],
+          ["prop", "config.color_scheme", " = ", "string", "\"Dark Pastel\""],
+          ["", ""],
+          ["keyword", "return", " ", "prop", "config"]
+        ]
+      },
+    // dotfiles actual files start
+      "nvim/config/.gitignore": {
+        type: "gitignore",
+        icon: "󰊢",
+        lines: [
+          ["tt.*"],
+          [".tests"],
+          ["doc/tags"],
+          ["debug"],
+          [".repro"],
+          ["foo.*"],
+          ["*.log"],
+          ["data"],
+          [""],
+        ]
+      },
+      "nvim/config/.neoconf.json": {
+        type: "json",
+        icon: "",
+        lines: [
+          ["{"],
+          ["  \"neodev\": {"],
+          ["    \"library\": {"],
+          ["      \"enabled\": true,"],
+          ["      \"plugins\": true"],
+          ["    }"],
+          ["  },"],
+          ["  \"neoconf\": {"],
+          ["    \"plugins\": {"],
+          ["      \"lua_ls\": {"],
+          ["        \"enabled\": true"],
+          ["      }"],
+          ["    }"],
+          ["  }"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/LICENSE": {
+        type: "text",
+        icon: "󰈙",
+        lines: [
+          ["                                 Apache License"],
+          ["                           Version 2.0, January 2004"],
+          ["                        http://www.apache.org/licenses/"],
+          [""],
+          ["   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION"],
+          [""],
+          ["   1. Definitions."],
+          [""],
+          ["      \"License\" shall mean the terms and conditions for use, reproduction,"],
+          ["      and distribution as defined by Sections 1 through 9 of this document."],
+          [""],
+          ["      \"Licensor\" shall mean the copyright owner or entity authorized by"],
+          ["      the copyright owner that is granting the License."],
+          [""],
+          ["      \"Legal Entity\" shall mean the union of the acting entity and all"],
+          ["      other entities that control, are controlled by, or are under common"],
+          ["      control with that entity. For the purposes of this definition,"],
+          ["      \"control\" means (i) the power, direct or indirect, to cause the"],
+          ["      direction or management of such entity, whether by contract or"],
+          ["      otherwise, or (ii) ownership of fifty percent (50%) or more of the"],
+          ["      outstanding shares, or (iii) beneficial ownership of such entity."],
+          [""],
+          ["      \"You\" (or \"Your\") shall mean an individual or Legal Entity"],
+          ["      exercising permissions granted by this License."],
+          [""],
+          ["      \"Source\" form shall mean the preferred form for making modifications,"],
+          ["      including but not limited to software source code, documentation"],
+          ["      source, and configuration files."],
+          [""],
+          ["      \"Object\" form shall mean any form resulting from mechanical"],
+          ["      transformation or translation of a Source form, including but"],
+          ["      not limited to compiled object code, generated documentation,"],
+          ["      and conversions to other media types."],
+          [""],
+          ["      \"Work\" shall mean the work of authorship, whether in Source or"],
+          ["      Object form, made available under the License, as indicated by a"],
+          ["      copyright notice that is included in or attached to the work"],
+          ["      (an example is provided in the Appendix below)."],
+          [""],
+          ["      \"Derivative Works\" shall mean any work, whether in Source or Object"],
+          ["      form, that is based on (or derived from) the Work and for which the"],
+          ["      editorial revisions, annotations, elaborations, or other modifications"],
+          ["      represent, as a whole, an original work of authorship. For the purposes"],
+          ["      of this License, Derivative Works shall not include works that remain"],
+          ["      separable from, or merely link (or bind by name) to the interfaces of,"],
+          ["      the Work and Derivative Works thereof."],
+          [""],
+          ["      \"Contribution\" shall mean any work of authorship, including"],
+          ["      the original version of the Work and any modifications or additions"],
+          ["      to that Work or Derivative Works thereof, that is intentionally"],
+          ["      submitted to Licensor for inclusion in the Work by the copyright owner"],
+          ["      or by an individual or Legal Entity authorized to submit on behalf of"],
+          ["      the copyright owner. For the purposes of this definition, \"submitted\""],
+          ["      means any form of electronic, verbal, or written communication sent"],
+          ["      to the Licensor or its representatives, including but not limited to"],
+          ["      communication on electronic mailing lists, source code control systems,"],
+          ["      and issue tracking systems that are managed by, or on behalf of, the"],
+          ["      Licensor for the purpose of discussing and improving the Work, but"],
+          ["      excluding communication that is conspicuously marked or otherwise"],
+          ["      designated in writing by the copyright owner as \"Not a Contribution.\""],
+          [""],
+          ["      \"Contributor\" shall mean Licensor and any individual or Legal Entity"],
+          ["      on behalf of whom a Contribution has been received by Licensor and"],
+          ["      subsequently incorporated within the Work."],
+          [""],
+          ["   2. Grant of Copyright License. Subject to the terms and conditions of"],
+          ["      this License, each Contributor hereby grants to You a perpetual,"],
+          ["      worldwide, non-exclusive, no-charge, royalty-free, irrevocable"],
+          ["      copyright license to reproduce, prepare Derivative Works of,"],
+          ["      publicly display, publicly perform, sublicense, and distribute the"],
+          ["      Work and such Derivative Works in Source or Object form."],
+          [""],
+          ["   3. Grant of Patent License. Subject to the terms and conditions of"],
+          ["      this License, each Contributor hereby grants to You a perpetual,"],
+          ["      worldwide, non-exclusive, no-charge, royalty-free, irrevocable"],
+          ["      (except as stated in this section) patent license to make, have made,"],
+          ["      use, offer to sell, sell, import, and otherwise transfer the Work,"],
+          ["      where such license applies only to those patent claims licensable"],
+          ["      by such Contributor that are necessarily infringed by their"],
+          ["      Contribution(s) alone or by combination of their Contribution(s)"],
+          ["      with the Work to which such Contribution(s) was submitted. If You"],
+          ["      institute patent litigation against any entity (including a"],
+          ["      cross-claim or counterclaim in a lawsuit) alleging that the Work"],
+          ["      or a Contribution incorporated within the Work constitutes direct"],
+          ["      or contributory patent infringement, then any patent licenses"],
+          ["      granted to You under this License for that Work shall terminate"],
+          ["      as of the date such litigation is filed."],
+          [""],
+          ["   4. Redistribution. You may reproduce and distribute copies of the"],
+          ["      Work or Derivative Works thereof in any medium, with or without"],
+          ["      modifications, and in Source or Object form, provided that You"],
+          ["      meet the following conditions:"],
+          [""],
+          ["      (a) You must give any other recipients of the Work or"],
+          ["          Derivative Works a copy of this License; and"],
+          [""],
+          ["      (b) You must cause any modified files to carry prominent notices"],
+          ["          stating that You changed the files; and"],
+          [""],
+          ["      (c) You must retain, in the Source form of any Derivative Works"],
+          ["          that You distribute, all copyright, patent, trademark, and"],
+          ["          attribution notices from the Source form of the Work,"],
+          ["          excluding those notices that do not pertain to any part of"],
+          ["          the Derivative Works; and"],
+          [""],
+          ["      (d) If the Work includes a \"NOTICE\" text file as part of its"],
+          ["          distribution, then any Derivative Works that You distribute must"],
+          ["          include a readable copy of the attribution notices contained"],
+          ["          within such NOTICE file, excluding those notices that do not"],
+          ["          pertain to any part of the Derivative Works, in at least one"],
+          ["          of the following places: within a NOTICE text file distributed"],
+          ["          as part of the Derivative Works; within the Source form or"],
+          ["          documentation, if provided along with the Derivative Works; or,"],
+          ["          within a display generated by the Derivative Works, if and"],
+          ["          wherever such third-party notices normally appear. The contents"],
+          ["          of the NOTICE file are for informational purposes only and"],
+          ["          do not modify the License. You may add Your own attribution"],
+          ["          notices within Derivative Works that You distribute, alongside"],
+          ["          or as an addendum to the NOTICE text from the Work, provided"],
+          ["          that such additional attribution notices cannot be construed"],
+          ["          as modifying the License."],
+          [""],
+          ["      You may add Your own copyright statement to Your modifications and"],
+          ["      may provide additional or different license terms and conditions"],
+          ["      for use, reproduction, or distribution of Your modifications, or"],
+          ["      for any such Derivative Works as a whole, provided Your use,"],
+          ["      reproduction, and distribution of the Work otherwise complies with"],
+          ["      the conditions stated in this License."],
+          [""],
+          ["   5. Submission of Contributions. Unless You explicitly state otherwise,"],
+          ["      any Contribution intentionally submitted for inclusion in the Work"],
+          ["      by You to the Licensor shall be under the terms and conditions of"],
+          ["      this License, without any additional terms or conditions."],
+          ["      Notwithstanding the above, nothing herein shall supersede or modify"],
+          ["      the terms of any separate license agreement you may have executed"],
+          ["      with Licensor regarding such Contributions."],
+          [""],
+          ["   6. Trademarks. This License does not grant permission to use the trade"],
+          ["      names, trademarks, service marks, or product names of the Licensor,"],
+          ["      except as required for reasonable and customary use in describing the"],
+          ["      origin of the Work and reproducing the content of the NOTICE file."],
+          [""],
+          ["   7. Disclaimer of Warranty. Unless required by applicable law or"],
+          ["      agreed to in writing, Licensor provides the Work (and each"],
+          ["      Contributor provides its Contributions) on an \"AS IS\" BASIS,"],
+          ["      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or"],
+          ["      implied, including, without limitation, any warranties or conditions"],
+          ["      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A"],
+          ["      PARTICULAR PURPOSE. You are solely responsible for determining the"],
+          ["      appropriateness of using or redistributing the Work and assume any"],
+          ["      risks associated with Your exercise of permissions under this License."],
+          [""],
+          ["   8. Limitation of Liability. In no event and under no legal theory,"],
+          ["      whether in tort (including negligence), contract, or otherwise,"],
+          ["      unless required by applicable law (such as deliberate and grossly"],
+          ["      negligent acts) or agreed to in writing, shall any Contributor be"],
+          ["      liable to You for damages, including any direct, indirect, special,"],
+          ["      incidental, or consequential damages of any character arising as a"],
+          ["      result of this License or out of the use or inability to use the"],
+          ["      Work (including but not limited to damages for loss of goodwill,"],
+          ["      work stoppage, computer failure or malfunction, or any and all"],
+          ["      other commercial damages or losses), even if such Contributor"],
+          ["      has been advised of the possibility of such damages."],
+          [""],
+          ["   9. Accepting Warranty or Additional Liability. While redistributing"],
+          ["      the Work or Derivative Works thereof, You may choose to offer,"],
+          ["      and charge a fee for, acceptance of support, warranty, indemnity,"],
+          ["      or other liability obligations and/or rights consistent with this"],
+          ["      License. However, in accepting such obligations, You may act only"],
+          ["      on Your own behalf and on Your sole responsibility, not on behalf"],
+          ["      of any other Contributor, and only if You agree to indemnify,"],
+          ["      defend, and hold each Contributor harmless for any liability"],
+          ["      incurred by, or claims asserted against, such Contributor by reason"],
+          ["      of your accepting any such warranty or additional liability."],
+          [""],
+          ["   END OF TERMS AND CONDITIONS"],
+          [""],
+          ["   APPENDIX: How to apply the Apache License to your work."],
+          [""],
+          ["      To apply the Apache License to your work, attach the following"],
+          ["      boilerplate notice, with the fields enclosed by brackets \"[]\""],
+          ["      replaced with your own identifying information. (Don't include"],
+          ["      the brackets!)  The text should be enclosed in the appropriate"],
+          ["      comment syntax for the file format. We also recommend that a"],
+          ["      file or class name and description of purpose be included on the"],
+          ["      same \"printed page\" as the copyright notice for easier"],
+          ["      identification within third-party archives."],
+          [""],
+          ["   Copyright [yyyy] [name of copyright owner]"],
+          [""],
+          ["   Licensed under the Apache License, Version 2.0 (the \"License\");"],
+          ["   you may not use this file except in compliance with the License."],
+          ["   You may obtain a copy of the License at"],
+          [""],
+          ["       http://www.apache.org/licenses/LICENSE-2.0"],
+          [""],
+          ["   Unless required by applicable law or agreed to in writing, software"],
+          ["   distributed under the License is distributed on an \"AS IS\" BASIS,"],
+          ["   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied."],
+          ["   See the License for the specific language governing permissions and"],
+          ["   limitations under the License."],
+          [""],
+        ]
+      },
+      "nvim/config/README.md": {
+        type: "markdown",
+        icon: "",
+        lines: [
+          ["# 💤 LazyVim"],
+          [""],
+          ["A starter template for [LazyVim](https://github.com/LazyVim/LazyVim)."],
+          ["Refer to the [documentation](https://lazyvim.github.io/installation) to get started."],
+          [""],
+        ]
+      },
+      "dotfiles/README.md": {
+        type: "markdown",
+        icon: "",
+        lines: [
+          ["# dotfiles setup"],
+          [""],
+          ["This tree is meant to be used as a shareable dotfiles bundle."],
+          [""],
+          ["## Requirements"],
+          ["- Neovim 0.9+ with Lua support"],
+          ["- `git`"],
+          ["- `lazy.nvim` bootstrap access"],
+          ["- a Nerd Font for icons"],
+          [""],
+          ["## Layout"],
+          ["- `dotfiles/nvim` contains the Neovim config"],
+          ["- `dotfiles/shell` contains shell config"],
+          ["- `dotfiles/wezterm` contains terminal config"],
+          ["- `dotfiles/tmux` contains tmux config"],
+          [""],
+          ["## Neovim"],
+          ["- `nvim/config/init.lua` bootstraps the config"],
+          ["- `nvim/config/lua/config/*` holds core options and keymaps"],
+          ["- `nvim/config/lua/plugins/*` holds plugin specs"],
+          [""],
+          ["## Setup"],
+          ["1. Copy or symlink `dotfiles/nvim/config` to `~/.config/nvim`."],
+          ["2. Run Neovim once so `lazy.nvim` can bootstrap."],
+          ["3. Run `:Lazy sync` and `:Mason` if you want the language servers and tools."],
+          ["4. Keep any machine-specific paths outside the shared config."],
+          [""],
+          ["## Notes"],
+          ["- Shell paths and local binaries should be replaced with `$HOME`-relative values."],
+          ["- The tree only includes files that are safe to share publicly."],
+          [""],
+          ["## Path changes"],
+          ["- before: `/Users/you/.huff/bin`"],
+          ["- after:  `$HOME/.huff/bin`"],
+          ["- before: `/Users/you/.nvm/versions/node/...`"],
+          ["- after:  `$HOME/.nvm/versions/node/...`"],
+          [""],
+          ["## Shell and terminal"],
+          ["- `.zshrc` should keep generic exports and avoid user-specific tool paths."],
+          ["- Replace any hard-coded install locations with `$HOME`-based paths."],
+          ["- `wezterm.lua` is safe to share when it only describes display settings, tmux startup, and key bindings."],
+          ["- If `wezterm.lua` points to local binaries or special font files, swap those to portable values."],
+          [""],
+          ["## Tmux"],
+          ["- `tmux` uses `~/.tmux.conf` by default."],
+          ["- If your config lives elsewhere, start tmux with `tmux -f /path/to/.tmux.conf`."],
+          ["- Change any hard-coded helper script path to a `$HOME`-relative path before using it on another machine."],
+          ["- If a `bind` or `run-shell` command calls a local file, update that path to match the new machine."],
+          [""],
+        ]
+      },
+      "dotfiles/tmux/.tmux.conf": {
+        type: "text",
+        icon: "󰓩",
+        lines: [
+          ["# portable tmux config"],
+          [""],
+          ["set -g mouse on"],
+          ["set -g history-limit 10000"],
+          ["set -g renumber-windows on"],
+          ["set -g status-interval 2"],
+          [""],
+          ["unbind C-b"],
+          ["set -g prefix C-a"],
+          ["bind C-a send-prefix"],
+          [""],
+          ["bind r source-file ~/.tmux.conf \\; display-message 'tmux reloaded'"],
+          [""],
+          ["setw -g mode-keys vi"],
+          ["set -g set-clipboard on"],
+          [""],
+          ["# Keep commands generic when sharing."],
+          ["# Replace any machine-specific paths with $HOME-relative values."],
+          [""],
+        ]
+      },
+      "nvim/config/init.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["-- bootstrap lazy.nvim, LazyVim and your plugins"],
+          ["require(\"config.lazy\")"],
+          [""],
+        ]
+      },
+      "nvim/config/lazy-lock.json": {
+        type: "json",
+        icon: "",
+        lines: [
+          ["{"],
+          ["  \"LazyVim\": { \"branch\": \"main\", \"commit\": \"83d90f339defdb109a6ede333865a66ffc7ef6aa\" },"],
+          ["  \"SchemaStore.nvim\": { \"branch\": \"main\", \"commit\": \"8092a4212b66b4ff2c392080ff4186ff0b7d4945\" },"],
+          ["  \"amp.nvim\": { \"branch\": \"main\", \"commit\": \"3b9ad5ef0328de1b35cc9bfa723a37db5daf9434\" },"],
+          ["  \"blink.cmp\": { \"branch\": \"main\", \"commit\": \"78336bc89ee5365633bcf754d93df01678b5c08f\" },"],
+          ["  \"bufferline.nvim\": { \"branch\": \"main\", \"commit\": \"655133c3b4c3e5e05ec549b9f8cc2894ac6f51b3\" },"],
+          ["  \"catppuccin\": { \"branch\": \"main\", \"commit\": \"426dbebe06b5c69fd846ceb17b42e12f890aedf1\" },"],
+          ["  \"conform.nvim\": { \"branch\": \"master\", \"commit\": \"dca1a190aa85f9065979ef35802fb77131911106\" },"],
+          ["  \"efmls-configs-nvim\": { \"branch\": \"main\", \"commit\": \"5dc52088c231f2721f545570fcb541b04802ce6b\" },"],
+          ["  \"firenvim\": { \"branch\": \"master\", \"commit\": \"899206da6ec88e476d3f96df5e5ef48e37dc87d2\" },"],
+          ["  \"flash.nvim\": { \"branch\": \"main\", \"commit\": \"fcea7ff883235d9024dc41e638f164a450c14ca2\" },"],
+          ["  \"friendly-snippets\": { \"branch\": \"main\", \"commit\": \"6cd7280adead7f586db6fccbd15d2cac7e2188b9\" },"],
+          ["  \"gitsigns.nvim\": { \"branch\": \"main\", \"commit\": \"6d808f99bd63303646794406e270bd553ad7792e\" },"],
+          ["  \"grug-far.nvim\": { \"branch\": \"main\", \"commit\": \"21790e59dd0109a92a70cb874dd002af186314f5\" },"],
+          ["  \"incline.nvim\": { \"branch\": \"main\", \"commit\": \"8b54c59bcb23366645ae10edca6edfb9d3a0853e\" },"],
+          ["  \"lazy.nvim\": { \"branch\": \"main\", \"commit\": \"85c7ff3711b730b4030d03144f6db6375044ae82\" },"],
+          ["  \"lazydev.nvim\": { \"branch\": \"main\", \"commit\": \"ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d\" },"],
+          ["  \"lazygit.nvim\": { \"branch\": \"main\", \"commit\": \"a04ad0dbc725134edbee3a5eea29290976695357\" },"],
+          ["  \"lspsaga.nvim\": { \"branch\": \"main\", \"commit\": \"c532fb86c3d211c5829ad58d2a0783012739bb65\" },"],
+          ["  \"lualine.nvim\": { \"branch\": \"master\", \"commit\": \"131a558e13f9f28b15cd235557150ccb23f89286\" },"],
+          ["  \"markdown-preview.nvim\": { \"branch\": \"master\", \"commit\": \"a923f5fc5ba36a3b17e289dc35dc17f66d0548ee\" },"],
+          ["  \"mason-lspconfig.nvim\": { \"branch\": \"main\", \"commit\": \"0c2823e0418f3d9230ff8b201c976e84de1cb401\" },"],
+          ["  \"mason.nvim\": { \"branch\": \"main\", \"commit\": \"cb8445f8ce85d957416c106b780efd51c6298f89\" },"],
+          ["  \"mini.ai\": { \"branch\": \"main\", \"commit\": \"43eb2074843950a3a25aae56a5f41362ec043bfa\" },"],
+          ["  \"mini.icons\": { \"branch\": \"main\", \"commit\": \"bac6317300e205335df425296570d84322730067\" },"],
+          ["  \"mini.move\": { \"branch\": \"main\", \"commit\": \"74d140143b1bb905c3d0aebcfc2f216fd237080e\" },"],
+          ["  \"mini.pairs\": { \"branch\": \"main\", \"commit\": \"42387c7fe68fc0b6e95eaf37f1bb76e7bffaa0d9\" },"],
+          ["  \"mini.surround\": { \"branch\": \"main\", \"commit\": \"2715e04bea3ec9244f15b421dc5b18c0fe326210\" },"],
+          ["  \"noice.nvim\": { \"branch\": \"main\", \"commit\": \"7bfd942445fb63089b59f97ca487d605e715f155\" },"],
+          ["  \"nui.nvim\": { \"branch\": \"main\", \"commit\": \"de740991c12411b663994b2860f1a4fd0937c130\" },"],
+          ["  \"nvim-lint\": { \"branch\": \"master\", \"commit\": \"eab58b48eb11d7745c11c505e0f3057165902461\" },"],
+          ["  \"nvim-lspconfig\": { \"branch\": \"master\", \"commit\": \"f7e89f3d19fb436e1fbeff3bf4291eef35da94e3\" },"],
+          ["  \"nvim-treesitter\": { \"branch\": \"main\", \"commit\": \"7caec274fd19c12b55902a5b795100d21531391f\" },"],
+          ["  \"nvim-treesitter-textobjects\": { \"branch\": \"main\", \"commit\": \"851e865342e5a4cb1ae23d31caf6e991e1c99f1e\" },"],
+          ["  \"nvim-ts-autotag\": { \"branch\": \"main\", \"commit\": \"88c1453db4ba7dd24131086fe51fdf74e587d275\" },"],
+          ["  \"nvim-web-devicons\": { \"branch\": \"master\", \"commit\": \"4fc505ac7bd7692824a142e96e5f529c133862f8\" },"],
+          ["  \"persistence.nvim\": { \"branch\": \"main\", \"commit\": \"b20b2a7887bd39c1a356980b45e03250f3dce49c\" },"],
+          ["  \"plenary.nvim\": { \"branch\": \"master\", \"commit\": \"74b06c6c75e4eeb3108ec01852001636d85a932b\" },"],
+          ["  \"render-markdown.nvim\": { \"branch\": \"main\", \"commit\": \"3f3eea97b80839f629c951ca660ffd125bfa5b34\" },"],
+          ["  \"rust-tools.nvim\": { \"branch\": \"master\", \"commit\": \"676187908a1ce35ffcd727c654ed68d851299d3e\" },"],
+          ["  \"snacks.nvim\": { \"branch\": \"main\", \"commit\": \"ad9ede6a9cddf16cedbd31b8932d6dcdee9b716e\" },"],
+          ["  \"telescope.nvim\": { \"branch\": \"master\", \"commit\": \"506338434fec5ad19cb1f8d45bf92d66c4917393\" },"],
+          ["  \"todo-comments.nvim\": { \"branch\": \"main\", \"commit\": \"31e3c38ce9b29781e4422fc0322eb0a21f4e8668\" },"],
+          ["  \"toggleterm.nvim\": { \"branch\": \"main\", \"commit\": \"50ea089fc548917cc3cc16b46a8211833b9e3c7c\" },"],
+          ["  \"tokyonight.nvim\": { \"branch\": \"main\", \"commit\": \"cdc07ac78467a233fd62c493de29a17e0cf2b2b6\" },"],
+          ["  \"trouble.nvim\": { \"branch\": \"main\", \"commit\": \"bd67efe408d4816e25e8491cc5ad4088e708a69a\" },"],
+          ["  \"ts-comments.nvim\": { \"branch\": \"main\", \"commit\": \"123a9fb12e7229342f807ec9e6de478b1102b041\" },"],
+          ["  \"which-key.nvim\": { \"branch\": \"main\", \"commit\": \"3aab2147e74890957785941f0c1ad87d0a44c15a\" },"],
+          ["  \"yanky.nvim\": { \"branch\": \"main\", \"commit\": \"784188e0a7363e762e53140f39124d786aec0832\" }"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lazyvim.json": {
+        type: "json",
+        icon: "",
+        lines: [
+          ["{"],
+          ["  \"extras\": ["],
+          ["    \"lazyvim.plugins.extras.coding.mini-surround\","],
+          ["    \"lazyvim.plugins.extras.coding.yanky\","],
+          ["    \"lazyvim.plugins.extras.lang.json\","],
+          ["    \"lazyvim.plugins.extras.lang.markdown\","],
+          ["    \"lazyvim.plugins.extras.lang.toml\","],
+          ["    \"lazyvim.plugins.extras.util.dot\""],
+          ["  ],"],
+          ["  \"install_version\": 8,"],
+          ["  \"news\": {"],
+          ["    \"NEWS.md\": \"11866\""],
+          ["  },"],
+          ["  \"version\": 8"],
+          ["}"],
+        ]
+      },
+      "nvim/config/lua/config/autocmds.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["-- ==========================="],
+          ["-- Rust: auto-format on save (cargo fmt)"],
+          ["-- ==========================="],
+          ["vim.api.nvim_create_autocmd(\"BufWritePre\", {"],
+          ["  group = vim.api.nvim_create_augroup(\"RustFormatGroup\", {}),"],
+          ["  pattern = \"*.rs\","],
+          ["  callback = function()"],
+          ["    if vim.fn.filereadable(\"Cargo.toml\") == 1 then"],
+          ["      vim.cmd(\"silent! !cargo fmt\")"],
+          ["    end"],
+          ["  end,"],
+          ["})"],
+          [""],
+          ["-- ==========================="],
+          ["-- Highlight on yank (all files)"],
+          ["-- ==========================="],
+          ["local highlight_yank_group = vim.api.nvim_create_augroup(\"HighlightYankGroup\", {})"],
+          ["vim.api.nvim_create_autocmd(\"TextYankPost\", {"],
+          ["  group = highlight_yank_group,"],
+          ["  callback = function()"],
+          ["    vim.highlight.on_yank()"],
+          ["  end,"],
+          ["})"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/config/init.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["require(\"config.autocmds\")"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/config/keymaps.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["-- Keymaps are automatically loaded on the VeryLazy event"],
+          ["-- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua"],
+          ["-- Add any additional keymaps here"],
+          ["vim.keymap.set(\"x\", \"p\", '\"_dP', { desc = \"Paste without overwriting register\" })"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/config/lazy.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["local lazypath = vim.fn.stdpath(\"data\") .. \"/lazy/lazy.nvim\""],
+          ["if not (vim.uv or vim.loop).fs_stat(lazypath) then"],
+          ["  local lazyrepo = \"https://github.com/folke/lazy.nvim.git\""],
+          ["  local out = vim.fn.system({ \"git\", \"clone\", \"--filter=blob:none\", \"--branch=stable\", lazyrepo, lazypath })"],
+          ["  if vim.v.shell_error ~= 0 then"],
+          ["    vim.api.nvim_echo({"],
+          ["      { \"Failed to clone lazy.nvim:\\n\", \"ErrorMsg\" },"],
+          ["      { out, \"WarningMsg\" },"],
+          ["      { \"\\nPress any key to exit...\" },"],
+          ["    }, true, {})"],
+          ["    vim.fn.getchar()"],
+          ["    os.exit(1)"],
+          ["  end"],
+          ["end"],
+          ["vim.opt.rtp:prepend(lazypath)"],
+          [""],
+          ["require(\"lazy\").setup({"],
+          ["  spec = {"],
+          ["    -- add LazyVim and import its plugins"],
+          ["    { \"LazyVim/LazyVim\", import = \"lazyvim.plugins\" },"],
+          ["    -- import/override with your plugins"],
+          ["    { import = \"plugins\" },"],
+          ["  },"],
+          ["  defaults = {"],
+          ["    -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup."],
+          ["    -- If you know what you're doing, you can set this to `true` to have all your custom plugins lazy-loaded by default."],
+          ["    lazy = false,"],
+          ["    -- It's recommended to leave version=false for now, since a lot the plugin that support versioning,"],
+          ["    -- have outdated releases, which may break your Neovim install."],
+          ["    version = false, -- always use the latest git commit"],
+          ["    -- version = \"*\", -- try installing the latest stable version for plugins that support semver"],
+          ["  },"],
+          ["  install = { colorscheme = { \"tokyonight\", \"habamax\" } },"],
+          ["  checker = {"],
+          ["    enabled = true, -- check for plugin updates periodically"],
+          ["    notify = false, -- notify on update"],
+          ["  }, -- automatically check for plugin updates"],
+          ["  performance = {"],
+          ["    rtp = {"],
+          ["      -- disable some rtp plugins"],
+          ["      disabled_plugins = {"],
+          ["        \"gzip\","],
+          ["        -- \"matchit\","],
+          ["        -- \"matchparen\","],
+          ["        -- \"netrwPlugin\","],
+          ["        \"tarPlugin\","],
+          ["        \"tohtml\","],
+          ["        \"tutor\","],
+          ["        \"zipPlugin\","],
+          ["      },"],
+          ["    },"],
+          ["  },"],
+          ["})"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/config/options.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["-- Options are automatically loaded before lazy.nvim startup"],
+          ["-- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua"],
+          ["-- Add any additional options here"],
+          ["vim.opt.termguicolors = true"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/amp.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  {"],
+          ["    \"sourcegraph/amp.nvim\","],
+          ["    enabled = false,"],
+          ["    branch = \"main\","],
+          ["    lazy = false,"],
+          ["    opts = {"],
+          ["      auto_start = true,"],
+          ["      log_level = \"info\","],
+          ["    },"],
+          ["    config = function(_, opts)"],
+          ["      require(\"amp\").setup(opts)"],
+          [""],
+          ["      -- Optional: handy commands"],
+          ["      vim.api.nvim_create_user_command(\"AmpSend\", function(cmdopts)"],
+          ["        local msg = cmdopts.args"],
+          ["        if msg == \"\" then"],
+          ["          vim.notify(\"Usage: :AmpSend <message>\", vim.log.levels.WARN)"],
+          ["          return"],
+          ["        end"],
+          ["        require(\"amp.message\").send_message(msg)"],
+          ["      end, { nargs = \"*\", desc = \"Send a message to Amp\" })"],
+          [""],
+          ["      vim.api.nvim_create_user_command(\"AmpPromptSelection\", function(cmdopts)"],
+          ["        local lines = vim.api.nvim_buf_get_lines(0, cmdopts.line1 - 1, cmdopts.line2, false)"],
+          ["        local text = table.concat(lines, \"\\n\")"],
+          ["        require(\"amp.message\").send_to_prompt(text)"],
+          ["      end, { range = true, desc = \"Add selected text to Amp prompt\" })"],
+          [""],
+          ["      vim.api.nvim_create_user_command(\"AmpPromptRef\", function(cmdopts)"],
+          ["        local bufname = vim.api.nvim_buf_get_name(0)"],
+          ["        if bufname == \"\" then"],
+          ["          vim.notify(\"Current buffer has no filename\", vim.log.levels.WARN)"],
+          ["          return"],
+          ["        end"],
+          ["        local rel = vim.fn.fnamemodify(bufname, \":.\")"],
+          ["        local ref = \"@\" .. rel"],
+          ["        if cmdopts.line1 ~= cmdopts.line2 then"],
+          ["          ref = ref .. \"#L\" .. cmdopts.line1 .. \"-\" .. cmdopts.line2"],
+          ["        elseif cmdopts.line1 > 1 then"],
+          ["          ref = ref .. \"#L\" .. cmdopts.line1"],
+          ["        end"],
+          ["        require(\"amp.message\").send_to_prompt(ref)"],
+          ["      end, { range = true, desc = \"Add file reference (with selection) to Amp prompt\" })"],
+          [""],
+          ["      -- Optional: keymaps (LazyVim convention uses <leader>)"],
+          ["      -- Visual: send selection to Amp prompt"],
+          ["      vim.keymap.set(\"v\", \"<leader>a\", \":AmpPromptSelection<CR>\", { desc = \"Amp: prompt selection\" })"],
+          ["      -- Visual: send file reference + range"],
+          ["      vim.keymap.set(\"v\", \"<leader>A\", \":AmpPromptRef<CR>\", { desc = \"Amp: prompt file ref\" })"],
+          ["    end,"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/colorscheme.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  {"],
+          ["    \"LazyVim/LazyVim\","],
+          ["    opts = {"],
+          ["      colorscheme = function()"],
+          ["        require(\"catppuccin\").load()"],
+          ["      end,"],
+          ["    },"],
+          ["  },"],
+          ["  {"],
+          ["    \"catppuccin/nvim\","],
+          ["    name = \"catppuccin\","],
+          ["    priority = 1000,"],
+          ["    opts = {"],
+          ["      no_italic = true,"],
+          ["      term_colors = true,"],
+          ["      transparent_background = false,"],
+          ["      styles = {"],
+          ["        comments = {},"],
+          ["        conditionals = {},"],
+          ["        loops = {},"],
+          ["        functions = {},"],
+          ["        keywords = {},"],
+          ["        strings = {},"],
+          ["        variables = {},"],
+          ["        numbers = {},"],
+          ["        booleans = {},"],
+          ["        properties = {},"],
+          ["        types = {},"],
+          ["      },"],
+          ["      highlight_overrides = {"],
+          ["        all = function(colors)"],
+          ["          return {"],
+          ["            CurSearch = { bg = colors.sky },"],
+          ["            IncSearch = { bg = colors.sky },"],
+          ["            CursorLineNr = { fg = colors.blue, style = { \"bold\" } },"],
+          ["            DashboardFooter = { fg = colors.overlay0 },"],
+          ["            TreesitterContextBottom = { style = {} },"],
+          ["            WinSeparator = { fg = colors.overlay0, style = { \"bold\" } },"],
+          ["            [\"@markup.italic\"] = { fg = colors.blue, style = { \"italic\" } },"],
+          ["            [\"@markup.strong\"] = { fg = colors.blue, style = { \"bold\" } },"],
+          ["            Headline = { style = { \"bold\" } },"],
+          ["            Headline1 = { fg = colors.blue, style = { \"bold\" } },"],
+          ["            Headline2 = { fg = colors.pink, style = { \"bold\" } },"],
+          ["            Headline3 = { fg = colors.lavender, style = { \"bold\" } },"],
+          ["            Headline4 = { fg = colors.green, style = { \"bold\" } },"],
+          ["            Headline5 = { fg = colors.peach, style = { \"bold\" } },"],
+          ["            Headline6 = { fg = colors.flamingo, style = { \"bold\" } },"],
+          ["            rainbow1 = { fg = colors.blue, style = { \"bold\" } },"],
+          ["            rainbow2 = { fg = colors.pink, style = { \"bold\" } },"],
+          ["            rainbow3 = { fg = colors.lavender, style = { \"bold\" } },"],
+          ["            rainbow4 = { fg = colors.green, style = { \"bold\" } },"],
+          ["            rainbow5 = { fg = colors.peach, style = { \"bold\" } },"],
+          ["            rainbow6 = { fg = colors.flamingo, style = { \"bold\" } },"],
+          ["          }"],
+          ["        end,"],
+          ["      },"],
+          ["      color_overrides = {"],
+          ["        mocha = {"],
+          ["          rosewater = \"#F5B8AB\","],
+          ["          flamingo = \"#F29D9D\","],
+          ["          pink = \"#AD6FF7\","],
+          ["          mauve = \"#FF8F40\","],
+          ["          red = \"#E66767\","],
+          ["          maroon = \"#EB788B\","],
+          ["          peach = \"#FAB770\","],
+          ["          yellow = \"#FACA64\","],
+          ["          green = \"#70CF67\","],
+          ["          teal = \"#4CD4BD\","],
+          ["          sky = \"#61BDFF\","],
+          ["          sapphire = \"#4BA8FA\","],
+          ["          blue = \"#00BFFF\","],
+          ["          lavender = \"#00BBCC\","],
+          ["          text = \"#C1C9E6\","],
+          ["          subtext1 = \"#A3AAC2\","],
+          ["          subtext0 = \"#8E94AB\","],
+          ["          overlay2 = \"#7D8296\","],
+          ["          overlay1 = \"#676B80\","],
+          ["          overlay0 = \"#464957\","],
+          ["          surface2 = \"#3A3D4A\","],
+          ["          surface1 = \"#2F313D\","],
+          ["          surface0 = \"#1D1E29\","],
+          ["          base = \"#000000\","],
+          ["          mantle = \"#000000\","],
+          ["          crust = \"#000000\","],
+          ["        },"],
+          ["      },"],
+          ["      integrations = {"],
+          ["        telescope = {"],
+          ["          enabled = true,"],
+          ["          style = \"nvchad\","],
+          ["        },"],
+          ["        dropbar = {"],
+          ["          enabled = true,"],
+          ["          color_mode = true,"],
+          ["        },"],
+          ["      },"],
+          ["    },"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/conform.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  \"stevearc/conform.nvim\","],
+          ["  opts = {"],
+          ["    formatters_by_ft = {"],
+          ["      solidity = { \"forge_fmt\" },"],
+          ["      rust = { \"rustfmt\" },"],
+          ["      json = { \"prettier\" },"],
+          ["      jsonc = { \"prettier\" },"],
+          ["      typescript = { \"prettier\" },"],
+          ["      typescriptreact = { \"prettier\" },"],
+          ["      javascript = { \"prettier\" },"],
+          ["      javascriptreact = { \"prettier\" },"],
+          ["    },"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/devicons.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  \"nvim-tree/nvim-web-devicons\","],
+          ["  opts = {"],
+          ["    override_by_extension = {},"],
+          ["    override_by_filename = {},"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/example.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["-- since this is just an example spec, don't actually load anything here and return an empty spec"],
+          ["-- stylua: ignore"],
+          ["if true then return {} end"],
+          [""],
+          ["-- every spec file under the \"plugins\" directory will be loaded automatically by lazy.nvim"],
+          ["--"],
+          ["-- In your plugin files, you can:"],
+          ["-- * add extra plugins"],
+          ["-- * disable/enabled LazyVim plugins"],
+          ["-- * override the configuration of LazyVim plugins"],
+          ["return {"],
+          ["  -- add gruvbox"],
+          ["  { \"ellisonleao/gruvbox.nvim\" },"],
+          [""],
+          ["  -- Configure LazyVim to load gruvbox"],
+          ["  {"],
+          ["    \"LazyVim/LazyVim\","],
+          ["    opts = {"],
+          ["      colorscheme = \"gruvbox\","],
+          ["    },"],
+          ["  },"],
+          [""],
+          ["  -- change trouble config"],
+          ["  {"],
+          ["    \"folke/trouble.nvim\","],
+          ["    -- opts will be merged with the parent spec"],
+          ["    opts = { use_diagnostic_signs = true },"],
+          ["  },"],
+          [""],
+          ["  -- disable trouble"],
+          ["  { \"folke/trouble.nvim\", enabled = false },"],
+          [""],
+          ["  -- override nvim-cmp and add cmp-emoji"],
+          ["  {"],
+          ["    \"hrsh7th/nvim-cmp\","],
+          ["    dependencies = { \"hrsh7th/cmp-emoji\" },"],
+          ["    ---@param opts cmp.ConfigSchema"],
+          ["    opts = function(_, opts)"],
+          ["      table.insert(opts.sources, { name = \"emoji\" })"],
+          ["    end,"],
+          ["  },"],
+          [""],
+          ["  -- change some telescope options and a keymap to browse plugin files"],
+          ["  {"],
+          ["    \"nvim-telescope/telescope.nvim\","],
+          ["    keys = {"],
+          ["      -- add a keymap to browse plugin files"],
+          ["      -- stylua: ignore"],
+          ["      {"],
+          ["        \"<leader>fp\","],
+          ["        function() require(\"telescope.builtin\").find_files({ cwd = require(\"lazy.core.config\").options.root }) end,"],
+          ["        desc = \"Find Plugin File\","],
+          ["      },"],
+          ["    },"],
+          ["    -- change some options"],
+          ["    opts = {"],
+          ["      defaults = {"],
+          ["        layout_strategy = \"horizontal\","],
+          ["        layout_config = { prompt_position = \"top\" },"],
+          ["        sorting_strategy = \"ascending\","],
+          ["        winblend = 0,"],
+          ["      },"],
+          ["    },"],
+          ["  },"],
+          [""],
+          ["  -- add pyright to lspconfig"],
+          ["  {"],
+          ["    \"neovim/nvim-lspconfig\","],
+          ["    ---@class PluginLspOpts"],
+          ["    opts = {"],
+          ["      ---@type lspconfig.options"],
+          ["      servers = {"],
+          ["        -- pyright will be automatically installed with mason and loaded with lspconfig"],
+          ["        pyright = {},"],
+          ["      },"],
+          ["    },"],
+          ["  },"],
+          [""],
+          ["  -- add tsserver and setup with typescript.nvim instead of lspconfig"],
+          ["  {"],
+          ["    \"neovim/nvim-lspconfig\","],
+          ["    dependencies = {"],
+          ["      \"jose-elias-alvarez/typescript.nvim\","],
+          ["      init = function()"],
+          ["        require(\"lazyvim.util\").lsp.on_attach(function(_, buffer)"],
+          ["          -- stylua: ignore"],
+          ["          vim.keymap.set( \"n\", \"<leader>co\", \"TypescriptOrganizeImports\", { buffer = buffer, desc = \"Organize Imports\" })"],
+          ["          vim.keymap.set(\"n\", \"<leader>cR\", \"TypescriptRenameFile\", { desc = \"Rename File\", buffer = buffer })"],
+          ["        end)"],
+          ["      end,"],
+          ["    },"],
+          ["    ---@class PluginLspOpts"],
+          ["    opts = {"],
+          ["      ---@type lspconfig.options"],
+          ["      servers = {"],
+          ["        -- tsserver will be automatically installed with mason and loaded with lspconfig"],
+          ["        tsserver = {},"],
+          ["      },"],
+          ["      -- you can do any additional lsp server setup here"],
+          ["      -- return true if you don't want this server to be setup with lspconfig"],
+          ["      ---@type table<string, fun(server:string, opts:_.lspconfig.options):boolean?>"],
+          ["      setup = {"],
+          ["        -- example to setup with typescript.nvim"],
+          ["        tsserver = function(_, opts)"],
+          ["          require(\"typescript\").setup({ server = opts })"],
+          ["          return true"],
+          ["        end,"],
+          ["        -- Specify * to use this function as a fallback for any server"],
+          ["        -- [\"*\"] = function(server, opts) end,"],
+          ["      },"],
+          ["    },"],
+          ["  },"],
+          [""],
+          ["  -- for typescript, LazyVim also includes extra specs to properly setup lspconfig,"],
+          ["  -- treesitter, mason and typescript.nvim. So instead of the above, you can use:"],
+          ["  { import = \"lazyvim.plugins.extras.lang.typescript\" },"],
+          [""],
+          ["  -- add more treesitter parsers"],
+          ["  {"],
+          ["    \"nvim-treesitter/nvim-treesitter\","],
+          ["    opts = {"],
+          ["      ensure_installed = {"],
+          ["        \"bash\","],
+          ["        \"html\","],
+          ["        \"javascript\","],
+          ["        \"json\","],
+          ["        \"lua\","],
+          ["        \"markdown\","],
+          ["        \"markdown_inline\","],
+          ["        \"python\","],
+          ["        \"query\","],
+          ["        \"regex\","],
+          ["        \"tsx\","],
+          ["        \"typescript\","],
+          ["        \"vim\","],
+          ["        \"yaml\","],
+          ["      },"],
+          ["    },"],
+          ["  },"],
+          [""],
+          ["  -- since `vim.tbl_deep_extend`, can only merge tables and not lists, the code above"],
+          ["  -- would overwrite `ensure_installed` with the new value."],
+          ["  -- If you'd rather extend the default config, use the code below instead:"],
+          ["  {"],
+          ["    \"nvim-treesitter/nvim-treesitter\","],
+          ["    opts = function(_, opts)"],
+          ["      -- add tsx and treesitter"],
+          ["      vim.list_extend(opts.ensure_installed, {"],
+          ["        \"tsx\","],
+          ["        \"typescript\","],
+          ["      })"],
+          ["    end,"],
+          ["  },"],
+          [""],
+          ["  -- the opts function can also be used to change the default opts:"],
+          ["  {"],
+          ["    \"nvim-lualine/lualine.nvim\","],
+          ["    event = \"VeryLazy\","],
+          ["    opts = function(_, opts)"],
+          ["      table.insert(opts.sections.lualine_x, {"],
+          ["        function()"],
+          ["          return \"😄\""],
+          ["        end,"],
+          ["      })"],
+          ["    end,"],
+          ["  },"],
+          [""],
+          ["  -- or you can return new options to override all the defaults"],
+          ["  {"],
+          ["    \"nvim-lualine/lualine.nvim\","],
+          ["    event = \"VeryLazy\","],
+          ["    opts = function()"],
+          ["      return {"],
+          ["        --[[add your custom lualine config here]]"],
+          ["      }"],
+          ["    end,"],
+          ["  },"],
+          [""],
+          ["  -- use mini.starter instead of alpha"],
+          ["  { import = \"lazyvim.plugins.extras.ui.mini-starter\" },"],
+          [""],
+          ["  -- add jsonls and schemastore packages, and setup treesitter for json, json5 and jsonc"],
+          ["  { import = \"lazyvim.plugins.extras.lang.json\" },"],
+          [""],
+          ["  -- add any tools you want to have installed below"],
+          ["  {"],
+          ["    \"williamboman/mason.nvim\","],
+          ["    opts = {"],
+          ["      ensure_installed = {"],
+          ["        \"stylua\","],
+          ["        \"shellcheck\","],
+          ["        \"shfmt\","],
+          ["        \"flake8\","],
+          ["      },"],
+          ["    },"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/fire.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  \"glacambre/firenvim\","],
+          ["  build = \":call firenvim#install(0)\","],
+          [""],
+          ["  init = function()"],
+          ["    -- 🔴 THIS is the important part: make Firenvim BIG"],
+          ["    vim.g.firenvim_config = {"],
+          ["      globalSettings = {"],
+          ["        alt = \"all\","],
+          ["      },"],
+          ["      localSettings = {"],
+          ["        [\".*\"] = {"],
+          ["          takeover = \"never\", -- always use nvim for textareas"],
+          ["          priority = 0,"],
+          [""],
+          ["          -- 👇 MAIN FIX: size"],
+          ["          width = 140,"],
+          ["          height = 45,"],
+          ["        },"],
+          ["      },"],
+          ["    }"],
+          [""],
+          ["    -- Clean, readable UI when inside Firenvim"],
+          ["    vim.api.nvim_create_autocmd(\"UIEnter\", {"],
+          ["      callback = function()"],
+          ["        if vim.g.started_by_firenvim then"],
+          ["          vim.opt.laststatus = 0"],
+          ["          vim.opt.showtabline = 0"],
+          ["          vim.opt.number = false"],
+          ["          vim.opt.relativenumber = false"],
+          ["          vim.opt.signcolumn = \"no\""],
+          ["          vim.opt.wrap = true"],
+          ["          vim.opt.linebreak = true"],
+          ["        end"],
+          ["      end,"],
+          ["    })"],
+          ["  end,"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/fire_ui_off.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  -- Disable lualine in Firenvim"],
+          ["  {"],
+          ["    \"nvim-lualine/lualine.nvim\","],
+          ["    enabled = function()"],
+          ["      return not vim.g.started_by_firenvim"],
+          ["    end,"],
+          ["  },"],
+          [""],
+          ["  -- Disable bufferline in Firenvim (optional, but helps keep things minimal)"],
+          ["  {"],
+          ["    \"akinsho/bufferline.nvim\","],
+          ["    enabled = function()"],
+          ["      return not vim.g.started_by_firenvim"],
+          ["    end,"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/incline.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  {"],
+          ["    \"b0o/incline.nvim\","],
+          ["    event = \"BufReadPre\","],
+          ["    keys = {"],
+          ["      {"],
+          ["        \"<leader>uI\","],
+          ["        function()"],
+          ["          require(\"incline\").toggle()"],
+          ["        end,"],
+          ["        desc = \"Toggle Incline\","],
+          ["      },"],
+          ["    },"],
+          ["    config = function()"],
+          ["      require(\"incline\").setup({"],
+          ["        highlight = {"],
+          ["          groups = {"],
+          ["            InclineNormal = { default = true, group = \"lualine_a_normal\" },"],
+          ["            InclineNormalNC = { default = true, group = \"Comment\" },"],
+          ["          },"],
+          ["        },"],
+          ["        window = { margin = { vertical = 0, horizontal = 1 } },"],
+          ["        render = function(props)"],
+          ["          local filename = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(props.buf), \":t\")"],
+          ["          local icon, color = require(\"nvim-web-devicons\").get_icon_color(filename)"],
+          ["          return { { icon, guifg = color }, { icon and \" \" or \"\" }, { filename } }"],
+          ["        end,"],
+          ["      })"],
+          ["    end,"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/lazygit.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["    \"kdheepak/lazygit.nvim\","],
+          ["    lazy = true,"],
+          ["    cmd = {"],
+          ["        \"LazyGit\","],
+          ["        \"LazyGitConfig\","],
+          ["        \"LazyGitCurrentFile\","],
+          ["        \"LazyGitFilter\","],
+          ["        \"LazyGitFilterCurrentFile\","],
+          ["    },"],
+          ["    -- optional for floating window border decoration"],
+          ["    dependencies = {"],
+          ["        \"nvim-lua/plenary.nvim\","],
+          ["    },"],
+          ["    -- setting the keybinding for LazyGit with 'keys' is recommended in"],
+          ["    -- order to load the plugin when the command is run for the first time"],
+          ["    keys = {"],
+          ["        { \"<leader>lg\", \"<cmd>LazyGit<cr>\", desc = \"LazyGit\" }"],
+          ["    }"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/lspsaga.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  \"nvimdev/lspsaga.nvim\","],
+          ["  event = \"LspAttach\","],
+          ["  config = function()"],
+          ["    require(\"lspsaga\").setup({"],
+          ["      ui = { border = \"rounded\" },"],
+          ["      symbol_in_winbar = { enable = false },"],
+          ["    })"],
+          [""],
+          ["    local keymap = vim.keymap.set"],
+          ["    keymap(\"n\", \"gd\", \"<cmd>Lspsaga goto_definition<CR>\", { silent = true })"],
+          ["    keymap(\"n\", \"gr\", \"<cmd>Lspsaga finder<CR>\", { silent = true })"],
+          ["    keymap(\"n\", \"K\", \"<cmd>Lspsaga hover_doc<CR>\", { silent = true })"],
+          ["    keymap(\"n\", \"<leader>ca\", \"<cmd>Lspsaga code_action<CR>\", { silent = true })"],
+          ["  end,"],
+          ["  dependencies = {"],
+          ["    \"nvim-treesitter/nvim-treesitter\","],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/lualine.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["local util = require(\"lazyvim.util\")"],
+          [""],
+          ["local function format(component, text, hl_group)"],
+          ["  if not hl_group then"],
+          ["    return text"],
+          ["  end"],
+          [""],
+          ["  ---@type table<string, string>"],
+          ["  component.hl_cache = component.hl_cache or {}"],
+          ["  local lualine_hl_group = component.hl_cache[hl_group]"],
+          ["  if not lualine_hl_group then"],
+          ["    local utils = require(\"lualine.utils.utils\")"],
+          ["    local mygui = function()"],
+          ["      local mybold = utils.extract_highlight_colors(hl_group, \"bold\") and \"bold\""],
+          ["      local myitalic = utils.extract_highlight_colors(hl_group, \"italic\") and \"italic\""],
+          ["      if mybold and myitalic then"],
+          ["        return mybold .. \",\" .. myitalic"],
+          ["      elseif mybold then"],
+          ["        return mybold"],
+          ["      elseif myitalic then"],
+          ["        return myitalic"],
+          ["      else"],
+          ["        return \"\""],
+          ["      end"],
+          ["    end"],
+          [""],
+          ["    lualine_hl_group = component:create_hl({"],
+          ["      fg = utils.extract_highlight_colors(hl_group, \"fg\"),"],
+          ["      gui = mygui(),"],
+          ["    }, \"LV_\" .. hl_group)"],
+          ["    component.hl_cache[hl_group] = lualine_hl_group"],
+          ["  end"],
+          ["  return component:format_hl(lualine_hl_group) .. text .. component:get_default_hl()"],
+          ["end"],
+          [""],
+          ["local function pretty_path(opts)"],
+          ["  opts = vim.tbl_extend(\"force\", {"],
+          ["    relative = \"cwd\","],
+          ["    modified_hl = \"MatchParen\","],
+          ["    filename_hl = \"Bold\","],
+          ["    dirpath_hl = \"Conceal\","],
+          ["  }, opts or {})"],
+          [""],
+          ["  return function(self)"],
+          ["    local path = vim.fn.expand(\"%:p\") --[[@as string]]"],
+          ["    if path == \"\" then"],
+          ["      return \"\""],
+          ["    end"],
+          [""],
+          ["    local root = util.root.get({ normalize = true })"],
+          ["    local cwd = util.root.cwd()"],
+          [""],
+          ["    if opts.relative == \"cwd\" and path:find(cwd, 1, true) == 1 then"],
+          ["      path = path:sub(#cwd + 2)"],
+          ["    else"],
+          ["      path = path:sub(#root + 2)"],
+          ["    end"],
+          [""],
+          ["    local sep = package.config:sub(1, 1)"],
+          ["    local parts = vim.split(path, \"[\\\\/]\")"],
+          [""],
+          ["    if #parts > 3 then"],
+          ["      parts = { parts[1], \"…\", parts[#parts - 1], parts[#parts] }"],
+          ["    end"],
+          [""],
+          ["    if opts.modified_hl and vim.bo.modified then"],
+          ["      parts[#parts] = format(self, parts[#parts], opts.modified_hl)"],
+          ["    else"],
+          ["      parts[#parts] = format(self, parts[#parts], opts.filename_hl)"],
+          ["    end"],
+          [""],
+          ["    local dirpath = \"\""],
+          ["    if #parts > 1 then"],
+          ["      dirpath = table.concat({ unpack(parts, 1, #parts - 1) }, sep)"],
+          ["      dirpath = format(self, dirpath .. sep, opts.dirpath_hl)"],
+          ["    end"],
+          ["    return dirpath .. parts[#parts]"],
+          ["  end"],
+          ["end"],
+          [""],
+          ["return {"],
+          ["  {"],
+          ["    \"nvim-lualine/lualine.nvim\","],
+          ["    opts = function(_, opts)"],
+          ["      opts.options = {"],
+          ["        section_separators = { left = \"\", right = \"\" },"],
+          ["        component_separators = { left = \"\", right = \"\" },"],
+          ["      }"],
+          ["      opts.sections.lualine_a = {"],
+          ["        {"],
+          ["          function()"],
+          ["            return \"\""],
+          ["          end,"],
+          ["          padding = { left = 1, right = 0 },"],
+          ["          separator = \"\","],
+          ["        },"],
+          ["        \"mode\","],
+          ["      }"],
+          ["      opts.sections.lualine_c[4] = { pretty_path() }"],
+          ["      opts.sections.lualine_y = { \"progress\" }"],
+          ["      opts.sections.lualine_z = {"],
+          ["        { \"location\", separator = \"\" },"],
+          ["        {"],
+          ["          function()"],
+          ["            return \"\""],
+          ["          end,"],
+          ["          padding = { left = 0, right = 1 },"],
+          ["        },"],
+          ["      }"],
+          ["      return opts"],
+          ["    end,"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/mason-lspconfig.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  {"],
+          ["    \"mason-org/mason-lspconfig.nvim\","],
+          ["    opts = { ensure_installed = { \"solidity_ls\", \"lua_ls\", \"rust_analyzer\" }, automatic_installation = true },"],
+          ["    dependencies = {"],
+          ["      { \"mason-org/mason.nvim\", opts = {} },"],
+          ["      \"neovim/nvim-lspconfig\","],
+          ["    },"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/mini-move.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  \"nvim-mini/mini.move\","],
+          ["  version = false,"],
+          ["  config = function()"],
+          ["    require(\"mini.move\").setup({"],
+          ["      mappings = {"],
+          ["        -- Move visual selection in Visual mode"],
+          ["        left = \"<M-h>\","],
+          ["        right = \"<M-l>\","],
+          ["        down = \"<M-j>\","],
+          ["        up = \"<M-k>\","],
+          [""],
+          ["        -- Move current line in Normal mode"],
+          ["        line_left = \"<M-h>\","],
+          ["        line_right = \"<M-l>\","],
+          ["        line_down = \"<M-j>\","],
+          ["        line_up = \"<M-k>\","],
+          ["      },"],
+          ["      options = {"],
+          ["        reindent_linewise = true,"],
+          ["      },"],
+          ["    })"],
+          ["  end,"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/nvim-cmp.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  {"],
+          ["    \"hrsh7th/nvim-cmp\","],
+          ["    lazy = false, -- load immediately for debugging"],
+          ["    dependencies = {"],
+          ["      \"hrsh7th/cmp-nvim-lsp\","],
+          ["      \"hrsh7th/cmp-buffer\", -- optionally add other sources here"],
+          ["    },"],
+          ["    config = function()"],
+          ["      local cmp = require(\"cmp\")"],
+          ["      cmp.setup({"],
+          ["        snippet = {"],
+          ["          expand = function(args) end,"],
+          ["        },"],
+          ["        mapping = {"],
+          ["          [\"<C-n>\"] = cmp.mapping.select_next_item(),"],
+          ["          [\"<C-p>\"] = cmp.mapping.select_prev_item(),"],
+          ["          [\"<CR>\"] = cmp.mapping.confirm({ select = true }),"],
+          ["        },"],
+          ["        sources = {"],
+          ["          { name = \"nvim_lsp\" },"],
+          ["          { name = \"buffer\" },"],
+          ["        },"],
+          ["      })"],
+          ["    end,"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/nvim-lspconfig.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  {"],
+          ["    \"neovim/nvim-lspconfig\","],
+          ["    lazy = false,"],
+          ["    dependencies = {"],
+          ["      \"mason-org/mason.nvim\","],
+          ["      \"creativenull/efmls-configs-nvim\","],
+          ["    },"],
+          ["    config = function()"],
+          ["      local lspconfig = require(\"lspconfig\")"],
+          ["      local lspconfig_util = require(\"lspconfig.util\")"],
+          ["      local capabilities = vim.lsp.protocol.make_client_capabilities()"],
+          [""],
+          ["      -- Rust Analyzer setup"],
+          ["      lspconfig.rust_analyzer.setup({"],
+          ["        cmd = { \"rust-analyzer\" },"],
+          ["        filetypes = { \"rust\" },"],
+          ["        root_dir = lspconfig_util.root_pattern(\".git\"),"],
+          ["        capabilities = capabilities,"],
+          ["        settings = {"],
+          ["          [\"rust-analyzer\"] = {"],
+          ["            diagnostics = { enable = false },"],
+          ["          },"],
+          ["        },"],
+          ["      })"],
+          [""],
+          ["      -- Solidity LS setup"],
+          ["      lspconfig.solidity_ls.setup({"],
+          ["        cmd = { \"vscode-solidity-server\", \"--stdio\" },"],
+          ["        filetypes = { \"solidity\" },"],
+          ["        root_dir = lspconfig_util.root_pattern("],
+          ["          \"hardhat.config.js\","],
+          ["          \"hardhat.config.ts\","],
+          ["          \"foundry.toml\","],
+          ["          \"remappings.txt\","],
+          ["          \"truffle.js\","],
+          ["          \"truffle-config.js\","],
+          ["          \"ape-config.yaml\","],
+          ["          \".git\","],
+          ["          \"package.json\""],
+          ["        ),"],
+          ["        capabilities = capabilities,"],
+          ["      })"],
+          [""],
+          ["      -- bash"],
+          ["      lspconfig.bashls.setup({"],
+          ["        capabilities = capabilities,"],
+          ["        filetypes = { \"sh\", \"aliasrc\" },"],
+          ["      })"],
+          [""],
+          ["      -- python"],
+          ["      lspconfig.pyright.setup({"],
+          ["        capabilities = capabilities,"],
+          ["        settings = {"],
+          ["          pyright = {"],
+          ["            disableOrganizeImports = false,"],
+          ["            analysis = {"],
+          ["              useLibraryCodeForTypes = true,"],
+          ["              autoSearchPaths = true,"],
+          ["              diagnosticMode = \"workspace\","],
+          ["              autoImportCompletions = true,"],
+          ["            },"],
+          ["          },"],
+          ["        },"],
+          ["      })"],
+          [""],
+          ["      -- formatters/linters"],
+          ["      local prettier_d = require(\"efmls-configs.formatters.prettier_d\")"],
+          ["      local solhint = require(\"efmls-configs.linters.solhint\")"],
+          [""],
+          ["      -- configure efm server"],
+          ["      lspconfig.efm.setup({"],
+          ["        filetypes = {"],
+          ["          \"solidity\","],
+          ["          \"lua\","],
+          ["          \"python\","],
+          ["          \"json\","],
+          ["          \"jsonc\","],
+          ["          \"sh\","],
+          ["          \"javascript\","],
+          ["          \"typescript\","],
+          ["          \"markdown\","],
+          ["        },"],
+          ["        init_options = {"],
+          ["          documentFormatting = true,"],
+          ["          documentRangeFormatting = true,"],
+          ["          hover = true,"],
+          ["          documentSymbol = true,"],
+          ["          codeAction = true,"],
+          ["          completion = true,"],
+          ["        },"],
+          ["        settings = {"],
+          ["          languages = {"],
+          ["            json = { prettier_d },"],
+          ["            jsonc = { prettier_d },"],
+          ["            javascript = { prettier_d },"],
+          ["            typescript = { prettier_d },"],
+          ["            solidity = {"],
+          ["              {"],
+          ["                linter = solhint,"],
+          ["                extra_args = { \"--config\", \".solhint.json\" },"],
+          ["              },"],
+          ["              prettier_d,"],
+          ["            },"],
+          ["          },"],
+          ["        },"],
+          ["        on_attach = function(client, bufnr)"],
+          ["          if client.server_capabilities.documentFormattingProvider then"],
+          ["            vim.api.nvim_create_autocmd(\"BufWritePre\", {"],
+          ["              buffer = bufnr,"],
+          ["              callback = function()"],
+          ["                vim.lsp.buf.format({ bufnr = bufnr })"],
+          ["              end,"],
+          ["            })"],
+          ["          end"],
+          ["        end,"],
+          ["      })"],
+          ["    end,"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/persistence-autoload.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  \"folke/persistence.nvim\","],
+          ["  opts = {},"],
+          ["  config = function(_, opts)"],
+          ["    require(\"persistence\").setup(opts)"],
+          ["    vim.api.nvim_create_autocmd(\"VimEnter\", {"],
+          ["      callback = function()"],
+          ["        if vim.fn.argc() == 0 then"],
+          ["          require(\"persistence\").load({ last = true })"],
+          ["        end"],
+          ["      end,"],
+          ["    })"],
+          ["  end,"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/rust-tools.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  \"simrat39/rust-tools.nvim\","],
+          ["  ft = \"rust\","],
+          ["  dependencies = { \"neovim/nvim-lspconfig\" },"],
+          ["  config = function()"],
+          ["    require(\"rust-tools\").setup({"],
+          ["      server = {"],
+          ["        settings = {"],
+          ["          [\"rust-analyzer\"] = {"],
+          ["            diagnostics = {"],
+          ["              enable = true,"],
+          ["            },"],
+          ["          },"],
+          ["        },"],
+          ["      },"],
+          ["    })"],
+          ["  end,"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/snacks.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  \"folke/snacks.nvim\","],
+          ["  opts = {"],
+          ["    explorer = {"],
+          ["      hidden = true, -- show hidden files"],
+          ["      ignored = true, -- show gitignored files"],
+          ["    },"],
+          ["    picker = {"],
+          ["      hidden = true, -- show hidden files in picker"],
+          ["      ignored = true, -- show gitignored files in picker"],
+          ["    },"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/solidity_lsp.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  {"],
+          ["    \"neovim/nvim-lspconfig\","],
+          ["    config = function()"],
+          ["      local lspconfig = require(\"lspconfig\")"],
+          ["      local util = require(\"lspconfig.util\")"],
+          ["      local configs = require(\"lspconfig.configs\")"],
+          [""],
+          ["      -- Define the server if it isn't already defined"],
+          ["      if not configs.nomic_solidity_ls then"],
+          ["        configs.nomic_solidity_ls = {"],
+          ["          default_config = {"],
+          ["            cmd = {"],
+          ["              \"$HOME/.nvm/versions/node/v22.21.1/bin/nomicfoundation-solidity-language-server\","],
+          ["              \"--stdio\","],
+          ["            },"],
+          ["            filetypes = { \"solidity\" },"],
+          ["            root_dir = util.root_pattern("],
+          ["              \"foundry.toml\","],
+          ["              \"hardhat.config.js\","],
+          ["              \"hardhat.config.ts\","],
+          ["              \"package.json\","],
+          ["              \".git\""],
+          ["            ),"],
+          ["            single_file_support = true,"],
+          ["          },"],
+          ["        }"],
+          ["      end"],
+          [""],
+          ["      -- Start it"],
+          ["      lspconfig.nomic_solidity_ls.setup({})"],
+          ["    end,"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/telescope.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  {"],
+          ["    \"nvim-telescope/telescope.nvim\","],
+          ["    opts = {"],
+          ["      defaults = {"],
+          ["        sorting_strategy = \"ascending\","],
+          ["        layout_strategy = \"flex\","],
+          ["        layout_config = {"],
+          ["          horizontal = { preview_cutoff = 80, preview_width = 0.55 },"],
+          ["          vertical = { mirror = true, preview_cutoff = 25 },"],
+          ["          prompt_position = \"top\","],
+          ["          width = 0.87,"],
+          ["          height = 0.80,"],
+          ["        },"],
+          ["      },"],
+          ["    },"],
+          ["  },"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/lua/plugins/toggleterm.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["return {"],
+          ["  \"akinsho/toggleterm.nvim\","],
+          ["  version = \"*\","],
+          ["  config = function()"],
+          ["    require(\"toggleterm\").setup()"],
+          ["    vim.keymap.set(\"n\", \"<leader>tt\", \"<cmd>ToggleTerm direction=horizontal<cr>\")"],
+          ["    vim.keymap.set(\"n\", \"<leader>tv\", \"<cmd>ToggleTerm direction=vertical<cr>\")"],
+          ["    vim.keymap.set(\"n\", \"<leader>tf\", \"<cmd>ToggleTerm direction=float<cr>\")"],
+          ["  end,"],
+          ["}"],
+          [""],
+        ]
+      },
+      "nvim/config/stylua.toml": {
+        type: "toml",
+        icon: "",
+        lines: [
+          ["indent_type = \"Spaces\""],
+          ["indent_width = 2"],
+          ["column_width = 120"],
+        ]
+      },
+      "shell/.zshrc": {
+        type: "shell",
+        icon: "$",
+        lines: [
+          ["# If you come from bash you might have to change your $PATH."],
+          ["# export PATH=$HOME/bin:/usr/local/bin:$PATH"],
+          [""],
+          ["# Path to your oh-my-zsh installation."],
+          ["export ZSH=\"$HOME/.oh-my-zsh\""],
+          ["export PATH=\"/opt/homebrew/opt/gnu-tar/libexec/gnubin:$PATH\""],
+          ["# Set name of the theme to load --- if set to \"random\", it will"],
+          ["# load a random theme each time oh-my-zsh is loaded, in which case,"],
+          ["# to know which specific one was loaded, run: echo $RANDOM_THEME"],
+          ["# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes"],
+          ["ZSH_THEME=\"robbyrussell\""],
+          [""],
+          ["# Set list of themes to pick from when loading at random"],
+          ["# Setting this variable when ZSH_THEME=random will cause zsh to load"],
+          ["# a theme from this variable instead of looking in $ZSH/themes/"],
+          ["# If set to an empty array, this variable will have no effect."],
+          ["# ZSH_THEME_RANDOM_CANDIDATES=( \"robbyrussell\" \"agnoster\" )"],
+          [""],
+          ["# Uncomment the following line to use case-sensitive completion."],
+          ["# CASE_SENSITIVE=\"true\""],
+          [""],
+          ["# Uncomment the following line to use hyphen-insensitive completion."],
+          ["# Case-sensitive completion must be off. _ and - will be interchangeable."],
+          ["# HYPHEN_INSENSITIVE=\"true\""],
+          [""],
+          ["# Uncomment one of the following lines to change the auto-update behavior"],
+          ["# zstyle ':omz:update' mode disabled  # disable automatic updates"],
+          ["# zstyle ':omz:update' mode auto      # update automatically without asking"],
+          ["# zstyle ':omz:update' mode reminder  # just remind me to update when it's time"],
+          [""],
+          ["# Uncomment the following line to change how often to auto-update (in days)."],
+          ["# zstyle ':omz:update' frequency 13"],
+          [""],
+          ["# Uncomment the following line if pasting URLs and other text is messed up."],
+          ["# DISABLE_MAGIC_FUNCTIONS=\"true\""],
+          [""],
+          ["# Uncomment the following line to disable colors in ls."],
+          ["# DISABLE_LS_COLORS=\"true\""],
+          [""],
+          ["# Uncomment the following line to disable auto-setting terminal title."],
+          ["# DISABLE_AUTO_TITLE=\"true\""],
+          [""],
+          ["# Uncomment the following line to enable command auto-correction."],
+          ["# ENABLE_CORRECTION=\"true\""],
+          [""],
+          ["# Uncomment the following line to display red dots whilst waiting for completion."],
+          ["# You can also set it to another string to have that shown instead of the default red dots."],
+          ["# e.g. COMPLETION_WAITING_DOTS=\"%F{yellow}waiting...%f\""],
+          ["# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)"],
+          ["# COMPLETION_WAITING_DOTS=\"true\""],
+          [""],
+          ["# Uncomment the following line if you want to disable marking untracked files"],
+          ["# under VCS as dirty. This makes repository status check for large repositories"],
+          ["# much, much faster."],
+          ["# DISABLE_UNTRACKED_FILES_DIRTY=\"true\""],
+          [""],
+          ["# Uncomment the following line if you want to change the command execution time"],
+          ["# stamp shown in the history command output."],
+          ["# You can set one of the optional three formats:"],
+          ["# \"mm/dd/yyyy\"|\"dd.mm.yyyy\"|\"yyyy-mm-dd\""],
+          ["# or set a custom format using the strftime function format specifications,"],
+          ["# see 'man strftime' for details."],
+          ["# HIST_STAMPS=\"mm/dd/yyyy\""],
+          [""],
+          ["# Would you like to use another custom folder than $ZSH/custom?"],
+          ["# ZSH_CUSTOM=/path/to/new-custom-folder"],
+          [""],
+          ["# Which plugins would you like to load?"],
+          ["# Standard plugins can be found in $ZSH/plugins/"],
+          ["# Custom plugins may be added to $ZSH_CUSTOM/plugins/"],
+          ["# Example format: plugins=(rails git textmate ruby lighthouse)"],
+          ["# Add wisely, as too many plugins slow down shell startup."],
+          ["plugins=(git)"],
+          [""],
+          ["source $ZSH/oh-my-zsh.sh"],
+          [""],
+          ["# User configuration"],
+          [""],
+          ["# export MANPATH=\"/usr/local/man:$MANPATH\""],
+          [""],
+          ["# You may need to manually set your language environment"],
+          ["# export LANG=en_US.UTF-8"],
+          [""],
+          ["# Preferred editor for local and remote sessions"],
+          ["# if [[ -n $SSH_CONNECTION ]]; then"],
+          ["#   export EDITOR='vim'"],
+          ["# else"],
+          ["#   export EDITOR='mvim'"],
+          ["# fi"],
+          [""],
+          ["# Compilation flags"],
+          ["# export ARCHFLAGS=\"-arch x86_64\""],
+          [""],
+          ["# Set personal aliases, overriding those provided by oh-my-zsh libs,"],
+          ["# plugins, and themes. Aliases can be placed here, though oh-my-zsh"],
+          ["# users are encouraged to define aliases within the ZSH_CUSTOM folder."],
+          ["# For a full list of active aliases, run `alias`."],
+          ["#"],
+          ["# Example aliases"],
+          ["# alias zshconfig=\"mate ~/.zshrc\""],
+          ["# alias ohmyzsh=\"mate ~/.oh-my-zsh\""],
+          [""],
+          ["export PATH=\"$PATH:$HOME/.huff/bin\""],
+          [""],
+          ["export NARGO_HOME=\"$HOME/.nargo\""],
+          [""],
+          ["export PATH=\"$PATH:$NARGO_HOME/bin\""],
+          [""],
+          ["export LC_ALL=\"en_US.UTF-8\""],
+          [""],
+          ["export GPG_TTY=$(tty)"],
+          [""],
+          ["export NVM_DIR=\"$HOME/.nvm\""],
+          ["[ -s \"$NVM_DIR/nvm.sh\" ] && \\. \"$NVM_DIR/nvm.sh\"  # This loads nvm"],
+          ["[ -s \"$NVM_DIR/bash_completion\" ] && \\. \"$NVM_DIR/bash_completion\"  # This loads nvm bash_completion"],
+          ["export FOUNDRY_DISABLE_NIGHTLY_WARNING=1"],
+          ["export PATH=\"$HOME/.npm-global/bin:$PATH\""],
+          [""],
+          ["export PATH=\"$HOME/.local/bin:$PATH\""],
+          [""],
+          ["# bun completions"],
+          ["[ -s \"$HOME/.bun/_bun\" ] && source \"$HOME/.bun/_bun\""],
+          [""],
+          ["# bun"],
+          ["export BUN_INSTALL=\"$HOME/.bun\""],
+          ["export PATH=\"$BUN_INSTALL/bin:$PATH\""],
+          [""],
+          ["# force Homebrew first"],
+          ["export PATH=\"/opt/homebrew/bin:/opt/homebrew/sbin:$PATH\""],
+          [""],
+          ["# remove old pnpm-home path if injected from anywhere"],
+          ["typeset -U path PATH"],
+          ["path=(${path:#$HOME/Library/pnpm})"],
+          [""],
+          ["export PATH=\"$HOME/.local/share/solana/install/active_release/bin:$PATH\""],
+          ["export PATH=\"$HOME/.local/share/solana/install/active_release/bin:$PATH\""],
+          ["export PATH=\"$HOME/.local/share/solana/install/active_release/bin:$PATH\""],
+          [""],
+          ["# opencode"],
+          ["export PATH=$HOME/.opencode/bin:$PATH"],
+          [""],
+        ]
+      },
+      "wezterm/wezterm.lua": {
+        type: "lua",
+        icon: "",
+        lines: [
+          ["local wezterm = require(\"wezterm\")"],
+          ["local config = wezterm.config_builder()"],
+          ["local action = wezterm.action"],
+          [""],
+          ["config.default_prog = { \"/bin/zsh\", \"-lc\", \"unset TMUX; exec tmux new-session -A -s main\" }"],
+          [""],
+          ["config.font = wezterm.font({"],
+          ["	family = \"JetBrains Mono\","],
+          ["	weight = \"Medium\","],
+          ["	harfbuzz_features = { \"calt=0\", \"clig=0\", \"liga=0\" }, -- disable ligatures"],
+          ["})"],
+          ["config.font_size = 14.0"],
+          ["config.line_height = 1.0"],
+          ["config.freetype_load_target = \"Light\""],
+          [""],
+          ["config.window_padding = { left = \"0.5cell\", right = \"0.5cell\", top = \"0.5cell\", bottom = \"0.5cell\" }"],
+          ["config.default_cursor_style = \"BlinkingBar\""],
+          [""],
+          ["config.window_decorations = \"RESIZE\""],
+          ["config.window_background_opacity = 0.90"],
+          ["config.macos_window_background_blur = 30"],
+          ["config.max_fps = 120 -- Default is often 60"],
+          ["config.window_decorations = \"RESIZE\" -- Removes titlebar, keeps border"],
+          ["config.hide_tab_bar_if_only_one_tab = true"],
+          ["config.color_scheme = \"Dark Pastel\""],
+          [""],
+          ["-- https://github.com/wez/wezterm/issues/3299#issuecomment-2145712082"],
+          ["wezterm.on(\"gui-startup\", function(cmd)"],
+          ["	local active = wezterm.gui.screens().active"],
+          ["	local tab, pane, window = wezterm.mux.spawn_window(cmd or {})"],
+          ["	window:guiwindow():setposition(active.x, active.y)"],
+          ["	window:guiwindow():set_innersize(active.width, active.height)"],
+          ["end)"],
+          [""],
+          ["config.keys = {"],
+          ["	{ key = \"k\", mods = \"CMD\", action = action.ClearScrollback(\"ScrollbackAndViewport\") },"],
+          ["	{ key = \"w\", mods = \"CMD|SHIFT\", action = action.CloseCurrentTab({ confirm = false }) },"],
+          ["	{ key = \"p\", mods = \"CMD|SHIFT\", action = action.ActivateCommandPalette },"],
+          [""],
+          ["	{ key = \"w\", mods = \"CMD\", action = action.SendString(\"\\x02x\") }, -- kill pane (or confirm)"],
+          ["	{ key = \"n\", mods = \"CMD\", action = action.SendString(\"\\x02c\") }, -- new window"],
+          [""],
+          ["	{ key = \"d\", mods = \"CMD\", action = action.SendString(\"\\x02%\") }, -- split left/right"],
+          ["	{ key = \"d\", mods = \"CMD|SHIFT\", action = action.SendString('\\x02\"') }, -- split top/bottom"],
+          ["	{ key = \"t\", mods = \"CMD\", action = action.SendString(\"\\x02c\") }, -- new tmux window (not new wezterm tab)"],
+          [""],
+          ["	-- shell editing keys"],
+          ["	{ key = \"LeftArrow\", mods = \"OPT\", action = action.SendString(\"\\x1bb\") },"],
+          ["	{ key = \"RightArrow\", mods = \"OPT\", action = action.SendString(\"\\x1bf\") },"],
+          ["	{ key = \"LeftArrow\", mods = \"CMD\", action = action.SendString(\"\\x01\") }, -- Home"],
+          ["	{ key = \"RightArrow\", mods = \"CMD\", action = action.SendString(\"\\x05\") }, -- End"],
+          ["	{ key = \"Backspace\", mods = \"CMD\", action = action.SendKey({ key = \"u\", mods = \"CTRL\" }) },"],
+          ["}"],
+          [""],
+          ["return config"],
+          [""],
+        ]
+      },
+    // dotfiles actual files end
     };
+
+    const fileAliases = {
+      "dotfiles/nvim/config/init.lua": "nvim/config/init.lua",
+      "dotfiles/nvim/config/README.md": "nvim/config/README.md",
+      "dotfiles/nvim/config/.gitignore": "nvim/config/.gitignore",
+      "dotfiles/nvim/config/.neoconf.json": "nvim/config/.neoconf.json",
+      "dotfiles/nvim/config/lazyvim.json": "nvim/config/lazyvim.json",
+      "dotfiles/nvim/config/lazy-lock.json": "nvim/config/lazy-lock.json",
+      "dotfiles/nvim/config/stylua.toml": "nvim/config/stylua.toml",
+      "dotfiles/nvim/config/LICENSE": "nvim/config/LICENSE",
+      "dotfiles/nvim/config/lua/config/init.lua": "nvim/config/lua/config/init.lua",
+      "dotfiles/nvim/config/lua/config/options.lua": "nvim/config/lua/config/options.lua",
+      "dotfiles/nvim/config/lua/config/keymaps.lua": "nvim/config/lua/config/keymaps.lua",
+      "dotfiles/nvim/config/lua/config/autocmds.lua": "nvim/config/lua/config/autocmds.lua",
+      "dotfiles/nvim/config/lua/config/lazy.lua": "nvim/config/lua/config/lazy.lua",
+      "dotfiles/nvim/config/lua/plugins/persistence-autoload.lua": "nvim/config/lua/plugins/persistence-autoload.lua",
+      "dotfiles/nvim/config/lua/plugins/example.lua": "nvim/config/lua/plugins/example.lua",
+      "dotfiles/nvim/config/lua/plugins/lazygit.lua": "nvim/config/lua/plugins/lazygit.lua",
+      "dotfiles/nvim/config/lua/plugins/toggleterm.lua": "nvim/config/lua/plugins/toggleterm.lua",
+      "dotfiles/nvim/config/lua/plugins/mini-move.lua": "nvim/config/lua/plugins/mini-move.lua",
+      "dotfiles/nvim/config/lua/plugins/conform.lua": "nvim/config/lua/plugins/conform.lua",
+      "dotfiles/nvim/config/lua/plugins/rust-tools.lua": "nvim/config/lua/plugins/rust-tools.lua",
+      "dotfiles/nvim/config/lua/plugins/snacks.lua": "nvim/config/lua/plugins/snacks.lua",
+      "dotfiles/nvim/config/lua/plugins/amp.lua": "nvim/config/lua/plugins/amp.lua",
+      "dotfiles/nvim/config/lua/plugins/colorscheme.lua": "nvim/config/lua/plugins/colorscheme.lua",
+      "dotfiles/nvim/config/lua/plugins/nvim-lspconfig.lua": "nvim/config/lua/plugins/nvim-lspconfig.lua",
+      "dotfiles/nvim/config/lua/plugins/solidity_lsp.lua": "nvim/config/lua/plugins/solidity_lsp.lua",
+      "dotfiles/nvim/config/lua/plugins/devicons.lua": "nvim/config/lua/plugins/devicons.lua",
+      "dotfiles/nvim/config/lua/plugins/lualine.lua": "nvim/config/lua/plugins/lualine.lua",
+      "dotfiles/nvim/config/lua/plugins/lspsaga.lua": "nvim/config/lua/plugins/lspsaga.lua",
+      "dotfiles/nvim/config/lua/plugins/mason-lspconfig.lua": "nvim/config/lua/plugins/mason-lspconfig.lua",
+      "dotfiles/nvim/config/lua/plugins/nvim-cmp.lua": "nvim/config/lua/plugins/nvim-cmp.lua",
+      "dotfiles/nvim/config/lua/plugins/fire.lua": "nvim/config/lua/plugins/fire.lua",
+      "dotfiles/nvim/config/lua/plugins/telescope.lua": "nvim/config/lua/plugins/telescope.lua",
+      "dotfiles/nvim/config/lua/plugins/incline.lua": "nvim/config/lua/plugins/incline.lua",
+      "dotfiles/nvim/config/lua/plugins/fire_ui_off.lua": "nvim/config/lua/plugins/fire_ui_off.lua",
+      "dotfiles/shell/.zshrc": "shell/.zshrc",
+      "dotfiles/wezterm/wezterm.lua": "wezterm/wezterm.lua"
+    };
+
+    function resolveFilePath(file) {
+      return fileAliases[file] || file;
+    }
+
+    function fileRecord(file) {
+      return files[resolveFilePath(file)] || files[file];
+    }
 
     const treeNodes = [
       { kind: "file", path: "README.md", depth: 0, iconClass: "icon-md" },
-      { kind: "folder", name: "lua", depth: 0 },
-      { kind: "file", path: "lua/profile.lua", parent: "lua", depth: 1, iconClass: "icon-lua" },
-      { kind: "folder", name: "src", depth: 0 },
-      { kind: "file", path: "src/Standards.sol", parent: "src", depth: 1, iconClass: "icon-sol" },
-      { kind: "file", path: "src/Projects.sol", parent: "src", depth: 1, iconClass: "icon-sol" },
-      { kind: "folder", name: "docs", depth: 0 },
-      { kind: "file", path: "docs/contact.txt", parent: "docs", depth: 1, iconClass: "icon-text" },
-      { kind: "file", path: "docs/help.md", parent: "docs", depth: 1, iconClass: "icon-md" },
-      { kind: "file", path: ".env.example", depth: 0, iconClass: "icon-env" },
-      { kind: "file", path: ".gitignore", depth: 0, iconClass: "icon-git" }
+      { kind: "folder", name: "dotfiles", path: "dotfiles", depth: 0 },
+      { kind: "file", path: "dotfiles/README.md", parent: "dotfiles", depth: 1, iconClass: "icon-md" },
+      { kind: "folder", name: "nvim", path: "dotfiles/nvim", parent: "dotfiles", depth: 1 },
+      { kind: "folder", name: "tmux", path: "dotfiles/tmux", parent: "dotfiles", depth: 1 },
+      { kind: "file", path: "dotfiles/tmux/.tmux.conf", parent: "dotfiles/tmux", depth: 2, iconClass: "icon-text" },
+      { kind: "folder", name: "config", path: "dotfiles/nvim/config", parent: "dotfiles/nvim", depth: 2 },
+      { kind: "file", path: "dotfiles/nvim/config/init.lua", parent: "dotfiles/nvim/config", depth: 3, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/README.md", parent: "dotfiles/nvim/config", depth: 3, iconClass: "icon-md" },
+      { kind: "file", path: "dotfiles/nvim/config/lazyvim.json", parent: "dotfiles/nvim/config", depth: 3, iconClass: "icon-json" },
+      { kind: "file", path: "dotfiles/nvim/config/lazy-lock.json", parent: "dotfiles/nvim/config", depth: 3, iconClass: "icon-json" },
+      { kind: "file", path: "dotfiles/nvim/config/stylua.toml", parent: "dotfiles/nvim/config", depth: 3, iconClass: "icon-toml" },
+      { kind: "file", path: "dotfiles/nvim/config/.gitignore", parent: "dotfiles/nvim/config", depth: 3, iconClass: "icon-git" },
+      { kind: "file", path: "dotfiles/nvim/config/.neoconf.json", parent: "dotfiles/nvim/config", depth: 3, iconClass: "icon-json" },
+      { kind: "folder", name: "lua", path: "dotfiles/nvim/config/lua", parent: "dotfiles/nvim/config", depth: 3 },
+      { kind: "folder", name: "config", path: "dotfiles/nvim/config/lua/config", parent: "dotfiles/nvim/config/lua", depth: 4 },
+      { kind: "file", path: "dotfiles/nvim/config/lua/config/init.lua", parent: "dotfiles/nvim/config/lua/config", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/config/options.lua", parent: "dotfiles/nvim/config/lua/config", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/config/keymaps.lua", parent: "dotfiles/nvim/config/lua/config", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/config/autocmds.lua", parent: "dotfiles/nvim/config/lua/config", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/config/lazy.lua", parent: "dotfiles/nvim/config/lua/config", depth: 5, iconClass: "icon-lua" },
+      { kind: "folder", name: "plugins", path: "dotfiles/nvim/config/lua/plugins", parent: "dotfiles/nvim/config/lua", depth: 4 },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/persistence-autoload.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/example.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/lazygit.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/toggleterm.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/mini-move.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/conform.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/rust-tools.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/snacks.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/amp.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/colorscheme.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/nvim-lspconfig.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/solidity_lsp.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/devicons.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/lualine.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/lspsaga.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/mason-lspconfig.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/nvim-cmp.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/fire.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/telescope.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/incline.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "file", path: "dotfiles/nvim/config/lua/plugins/fire_ui_off.lua", parent: "dotfiles/nvim/config/lua/plugins", depth: 5, iconClass: "icon-lua" },
+      { kind: "folder", name: "shell", path: "dotfiles/shell", parent: "dotfiles", depth: 1 },
+      { kind: "file", path: "dotfiles/shell/.zshrc", parent: "dotfiles/shell", depth: 2, iconClass: "icon-text" },
+      { kind: "folder", name: "wezterm", path: "dotfiles/wezterm", parent: "dotfiles", depth: 1 },
+      { kind: "file", path: "dotfiles/wezterm/wezterm.lua", parent: "dotfiles/wezterm", depth: 2, iconClass: "icon-lua" }
     ];
 
     const links = {
@@ -1118,11 +3686,28 @@
       cursor: 0,
       explorer: true,
       explorerIndex: 0,
-      expanded: ["lua", "src", "docs"],
+      expanded: ["dotfiles"],
       window: "editor",
       leader: "",
-      lastKey: "SPC",
-      pendingG: false
+      percent: 0,
+      recentKeys: ["SPC", "", ""],
+      pendingG: false,
+      pendingY: false,
+      visual: null,
+      explorerFilter: "",
+      yank: "",
+      terminal: {
+        history: [],
+        draft: "",
+        cursor: 0,
+        broken: false,
+        products: [],
+        productsLoaded: false,
+        productsPromise: null,
+        krakenPairs: [],
+        krakenPairsLoaded: false,
+        krakenPairsPromise: null
+      }
     };
 
     const main = document.querySelector("#main");
@@ -1131,7 +3716,11 @@
     const editorPane = document.querySelector("#editorPane");
     const terminalPane = document.querySelector("#terminalPane");
     const terminalBody = document.querySelector("#terminalBody");
+    const terminalCommandForm = document.querySelector("#terminalCommandForm");
+    const terminalCommand = document.querySelector("#terminalCommand");
     const tree = document.querySelector("#tree");
+    const explorerFilter = document.querySelector("#explorerFilter");
+    const explorerCount = document.querySelector("#explorerCount");
     const tabline = document.querySelector("#tabline");
     const tabs = document.querySelector("#tabs");
     const buffer = document.querySelector("#buffer");
@@ -1139,18 +3728,21 @@
     const command = document.querySelector("#command");
     const commandForm = document.querySelector("#commandForm");
     const message = document.querySelector("#message");
+    const modeChip = document.querySelector(".mode-chip");
     const mode = document.querySelector("#mode");
     const position = document.querySelector("#position");
     const filetype = document.querySelector("#filetype");
     const statusFileIcon = document.querySelector("#statusFileIcon");
     const statusFileName = document.querySelector("#statusFileName");
-    const statusPathIcon = document.querySelector("#statusPathIcon");
-    const statusPath = document.querySelector("#statusPath");
     const leaderState = document.querySelector("#leaderState");
-    const lastKey = document.querySelector("#lastKey");
+    const recentKeys = document.querySelector("#recentKeys");
+    const bufCount = document.querySelector("#bufCount");
     const whichKey = document.querySelector("#whichKey");
     const wkTitle = document.querySelector("#wkTitle");
     const wkGrid = document.querySelector("#wkGrid");
+    const yankToast = document.querySelector("#yankToast");
+
+    const coinbaseQuoteOrder = ["USD", "USDC", "USDT", "EUR", "GBP", "BTC"];
 
     function showCommandLine() {
       commandForm.classList.add("is-visible");
@@ -1185,31 +3777,627 @@
       return html;
     }
 
+    function plainLine(parts) {
+      let text = "";
+      for (let i = 0; i < parts.length; i += 1) {
+        if (["comment", "keyword", "type", "string", "fn", "prop", "muted", "empty"].includes(parts[i]) && i + 1 < parts.length) {
+          text += parts[i + 1];
+          i += 1;
+        } else {
+          text += parts[i];
+        }
+      }
+      return text;
+    }
+
+    function renderFileLine(file, line) {
+      if (line.length === 1) {
+        return renderSyntaxLine(file.type, line[0]);
+      }
+      return renderLine(line);
+    }
+
+    function renderSyntaxLine(fileType, raw) {
+      const text = String(raw || "");
+      if (fileType === "lua") {
+        const keywords = new Set([
+          "and", "break", "do", "else", "elseif", "end", "false", "for", "function",
+          "if", "in", "local", "nil", "not", "or", "repeat", "return", "then",
+          "true", "until", "while", "require", "vim", "setup", "config"
+        ]);
+        let html = "";
+        for (let i = 0; i < text.length;) {
+          const ch = text[i];
+          const next = text[i + 1];
+
+          if (ch === "-" && next === "-") {
+            html += `<span class="comment">${escapeHtml(text.slice(i))}</span>`;
+            break;
+          }
+
+          if (ch === "\"" || ch === "'") {
+            const quote = ch;
+            let j = i + 1;
+            let escaped = false;
+            while (j < text.length) {
+              const c = text[j];
+              if (!escaped && c === quote) {
+                j += 1;
+                break;
+              }
+              escaped = !escaped && c === "\\";
+              j += 1;
+            }
+            html += `<span class="string">${escapeHtml(text.slice(i, j))}</span>`;
+            i = j;
+            continue;
+          }
+
+          if (/\s/.test(ch)) {
+            let j = i + 1;
+            while (j < text.length && /\s/.test(text[j])) j += 1;
+            html += escapeHtml(text.slice(i, j));
+            i = j;
+            continue;
+          }
+
+          if (/[A-Za-z_]/.test(ch)) {
+            let j = i + 1;
+            while (j < text.length && /[A-Za-z0-9_]/.test(text[j])) j += 1;
+            const word = text.slice(i, j);
+            if (keywords.has(word)) {
+              html += `<span class="keyword">${escapeHtml(word)}</span>`;
+            } else {
+              html += escapeHtml(word);
+            }
+            i = j;
+            continue;
+          }
+
+          if (/\d/.test(ch)) {
+            let j = i + 1;
+            while (j < text.length && /[\d.]/.test(text[j])) j += 1;
+            html += `<span class="yellow">${escapeHtml(text.slice(i, j))}</span>`;
+            i = j;
+            continue;
+          }
+
+          html += escapeHtml(ch);
+          i += 1;
+        }
+        return html;
+      }
+
+      if (fileType === "shell") {
+        const keywords = new Set([
+          "export", "source", "typeset", "local", "unset", "exec", "if", "then",
+          "else", "fi", "case", "esac", "while", "do", "done", "for", "in",
+          "function", "readonly"
+        ]);
+        let html = "";
+        for (let i = 0; i < text.length;) {
+          const ch = text[i];
+          const next = text[i + 1];
+
+          if (ch === "#") {
+            html += `<span class="comment">${escapeHtml(text.slice(i))}</span>`;
+            break;
+          }
+
+          if (ch === "\"" || ch === "'") {
+            const quote = ch;
+            let j = i + 1;
+            let escaped = false;
+            while (j < text.length) {
+              const c = text[j];
+              if (!escaped && c === quote) {
+                j += 1;
+                break;
+              }
+              escaped = !escaped && c === "\\";
+              j += 1;
+            }
+            html += `<span class="string">${escapeHtml(text.slice(i, j))}</span>`;
+            i = j;
+            continue;
+          }
+
+          if (/\s/.test(ch)) {
+            let j = i + 1;
+            while (j < text.length && /\s/.test(text[j])) j += 1;
+            html += escapeHtml(text.slice(i, j));
+            i = j;
+            continue;
+          }
+
+          if (/[A-Za-z_]/.test(ch)) {
+            let j = i + 1;
+            while (j < text.length && /[A-Za-z0-9_]/.test(text[j])) j += 1;
+            const word = text.slice(i, j);
+            html += keywords.has(word)
+              ? `<span class="keyword">${escapeHtml(word)}</span>`
+              : escapeHtml(word);
+            i = j;
+            continue;
+          }
+
+          if (ch === "$") {
+            let j = i + 1;
+            if (text[j] === "{") {
+              j += 1;
+              while (j < text.length && text[j] !== "}") j += 1;
+              if (text[j] === "}") j += 1;
+            } else {
+              while (j < text.length && /[A-Za-z0-9_]/.test(text[j])) j += 1;
+            }
+            html += `<span class="prop">${escapeHtml(text.slice(i, j))}</span>`;
+            i = j;
+            continue;
+          }
+
+          html += escapeHtml(ch);
+          i += 1;
+        }
+        return html;
+      }
+
+      return escapeHtml(text);
+    }
+
+    let yankToastTimer = null;
+
+    function showYankToast(lines) {
+      if (!yankToast) return;
+      const count = Math.max(1, lines);
+      yankToast.innerHTML = `
+        <div class="yank-toast-head"><span class="icon">󰈙</span><span>Message</span></div>
+        <div class="yank-toast-body">${count} line${count === 1 ? "" : "s"} yanked</div>
+      `;
+      yankToast.hidden = false;
+      clearTimeout(yankToastTimer);
+      yankToastTimer = window.setTimeout(() => {
+        yankToast.hidden = true;
+      }, 1800);
+    }
+
+    function treeNodeText(node) {
+      return (node.path || node.name || "").toLowerCase();
+    }
+
+    function matchesTreeNode(node, query) {
+      if (!query) return true;
+      return treeNodeText(node).includes(query);
+    }
+
+    const treeChildren = treeNodes.reduce((map, node) => {
+      const key = node.parent ?? "";
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(node);
+      return map;
+    }, new Map());
+
+    function childrenOf(parentPath) {
+      return treeChildren.get(parentPath ?? "") || [];
+    }
+
     function visibleTreeNodes() {
-      return treeNodes.filter((node) => !node.parent || state.expanded.includes(node.parent));
+      const query = state.explorerFilter.trim().toLowerCase();
+      const collect = (parentPath, searchMode = false) => {
+        const nodes = [];
+        for (const node of childrenOf(parentPath)) {
+          if (node.kind === "folder") {
+            const nodeMatches = !query || matchesTreeNode(node, query);
+            const expanded = state.expanded.includes(node.path);
+            if (searchMode) {
+              const descendants = collect(node.path, true);
+              if (nodeMatches || descendants.length) {
+                nodes.push(node, ...descendants);
+              }
+            } else {
+              nodes.push(node);
+              if (expanded) {
+                nodes.push(...collect(node.path, false));
+              }
+            }
+          } else if (matchesTreeNode(node, query)) {
+            nodes.push(node);
+          }
+        }
+        return nodes;
+      };
+
+      if (!query) return collect(undefined, false);
+
+      return collect(undefined, true);
     }
 
     function iconClassFor(file) {
       const node = treeNodes.find((item) => item.path === file);
-      return node?.iconClass || "icon-text";
+      return node?.iconClass || fileRecord(file)?.iconClass || "icon-text";
     }
 
     function shortFileName(file) {
       return file.split("/").at(-1) || file;
     }
 
+    function updateModeIndicator() {
+      if (state.leader) {
+        mode.textContent = "LEADER";
+        modeChip.classList.remove("is-insert");
+        return;
+      }
+
+      if (state.visual && state.window === "editor") {
+        mode.textContent = "VISUAL";
+        modeChip.classList.remove("is-insert");
+        return;
+      }
+
+      if (document.activeElement === command) {
+        mode.textContent = "COMMAND";
+        modeChip.classList.remove("is-insert");
+        return;
+      }
+
+      if (document.activeElement === terminalCommand || document.activeElement === explorerFilter) {
+        mode.textContent = "INSERT";
+        modeChip.classList.add("is-insert");
+        return;
+      }
+
+      mode.textContent = "NORMAL";
+      modeChip.classList.remove("is-insert");
+    }
+
+    function renderTerminal() {
+      terminalPane.classList.toggle("is-broken", state.terminal.broken);
+      document.body.classList.toggle("page-broken", state.terminal.broken);
+      const history = state.terminal.history.slice(-8).map((entry) => {
+        const output = entry.output.map((line) => {
+          const content = line.html ?? escapeHtml(line.text || "");
+          return `<div class="term-line ${line.cls || ""}">${content}</div>`;
+        }).join("");
+        return `
+          <div class="term-line"><span class="type">➜</span>  ${escapeHtml(entry.command)}</div>
+          ${output}
+        `;
+      }).join("");
+      const draft = state.terminal.draft;
+      const cursor = Math.max(0, Math.min(state.terminal.cursor, draft.length));
+      const before = escapeHtml(draft.slice(0, cursor));
+      const after = escapeHtml(draft.slice(cursor));
+      const prompt = `
+        <div class="term-line term-prompt">
+          <span class="term-arrow">➜</span>
+          <span class="term-user">zakrad</span>
+          <span class="term-git">git:</span>
+          <span class="term-branch">(main)</span>
+          <span class="term-input">${before}<span class="term-cursor">${terminalCommand === document.activeElement ? "█" : ""}</span>${after}</span>
+        </div>
+      `;
+      terminalBody.innerHTML = `${history}${prompt}`;
+      terminalBody.scrollTop = terminalBody.scrollHeight;
+    }
+
+    function terminalLine(text, cls = "") {
+      return { text, cls };
+    }
+
+    function terminalHtml(html, cls = "") {
+      return { html, cls };
+    }
+
+    async function ensureCoinbaseProducts() {
+      if (state.terminal.productsLoaded) return state.terminal.products;
+      if (!state.terminal.productsPromise) {
+        state.terminal.productsPromise = fetch("https://api.exchange.coinbase.com/products", {
+          headers: { accept: "application/json" }
+        })
+          .then((response) => {
+            if (!response.ok) throw new Error(`products HTTP ${response.status}`);
+            return response.json();
+          })
+          .then((products) => {
+            state.terminal.products = (Array.isArray(products) ? products : [])
+              .filter((product) => product?.status === "online");
+            state.terminal.productsLoaded = true;
+            return state.terminal.products;
+          })
+          .catch((error) => {
+            state.terminal.productsLoaded = false;
+            state.terminal.products = [];
+            throw error;
+          })
+          .finally(() => {
+            state.terminal.productsPromise = null;
+          });
+      }
+
+      return state.terminal.productsPromise;
+    }
+
+    function resolveCoinbaseProduct(query) {
+      const normalized = query.trim().toUpperCase();
+      if (!normalized) return null;
+
+      const products = state.terminal.products;
+      const directId = products.find((product) => product.id === normalized || product.id === normalized.replace("/", "-"));
+      if (directId) return directId;
+
+      const pairId = normalized.replace("/", "-");
+      const directPair = products.find((product) => product.id === pairId);
+      if (directPair) return directPair;
+
+      const [base, quote] = normalized.split(/[\s/-]+/).filter(Boolean);
+      if (base && quote) {
+        const exactPair = products.find((product) => product.base_currency === base && product.quote_currency === quote);
+        if (exactPair) return exactPair;
+      }
+
+      const candidates = products.filter((product) => product.base_currency === normalized);
+      if (!candidates.length) return null;
+
+      for (const quoteCurrency of coinbaseQuoteOrder) {
+        const preferred = candidates.find((product) => product.quote_currency === quoteCurrency);
+        if (preferred) return preferred;
+      }
+
+      return candidates[0];
+    }
+
+    async function fetchCoinbaseTicker(query) {
+      const symbol = query.trim();
+      if (!symbol) return { error: "missing ticker" };
+
+      try {
+        await ensureCoinbaseProducts();
+        const product = resolveCoinbaseProduct(symbol);
+        if (!product) {
+          return { error: `no Coinbase pair found for ${symbol}` };
+        }
+
+        const response = await fetch(`https://api.exchange.coinbase.com/products/${encodeURIComponent(product.id)}/ticker`, {
+          headers: { accept: "application/json" }
+        });
+
+        if (!response.ok) {
+          return { error: `ticker HTTP ${response.status}` };
+        }
+
+        const data = await response.json();
+        return {
+          product,
+          price: data.price,
+          bid: data.bid,
+          ask: data.ask,
+          volume: data.volume,
+          time: data.time
+        };
+      } catch (error) {
+        return { error: error instanceof Error ? error.message : "ticker lookup failed" };
+      }
+    }
+
+    function normalizeKrakenSymbol(symbol) {
+      return symbol.trim().toUpperCase().replaceAll(" ", "");
+    }
+
+    async function ensureKrakenPairs() {
+      if (state.terminal.krakenPairsLoaded) return state.terminal.krakenPairs;
+      if (!state.terminal.krakenPairsPromise) {
+        state.terminal.krakenPairsPromise = fetch("https://api.kraken.com/0/public/AssetPairs")
+          .then((response) => {
+            if (!response.ok) throw new Error(`kraken pairs HTTP ${response.status}`);
+            return response.json();
+          })
+          .then((payload) => {
+            const result = payload?.result || {};
+            state.terminal.krakenPairs = Object.entries(result).map(([key, pair]) => ({
+              key,
+              altname: pair?.altname || key,
+              wsname: pair?.wsname || "",
+              base: pair?.base || "",
+              quote: pair?.quote || "",
+              status: pair?.status || ""
+            })).filter((pair) => pair.status !== "delisted");
+            state.terminal.krakenPairsLoaded = true;
+            return state.terminal.krakenPairs;
+          })
+          .catch((error) => {
+            state.terminal.krakenPairsLoaded = false;
+            state.terminal.krakenPairs = [];
+            throw error;
+          })
+          .finally(() => {
+            state.terminal.krakenPairsPromise = null;
+          });
+      }
+
+      return state.terminal.krakenPairsPromise;
+    }
+
+    function resolveKrakenPair(query) {
+      const normalized = normalizeKrakenSymbol(query);
+      if (!normalized) return null;
+
+      const pairs = state.terminal.krakenPairs;
+      const quoteOrder = ["USD", "USDT", "EUR", "GBP", "BTC", "XBT", "CAD", "AUD"];
+      const aliasMap = { BTC: "XBT", XBT: "XBT" };
+      const normalizeBase = (value) => aliasMap[value] || value;
+
+      const parts = normalized.split(/[\s/-]+/).filter(Boolean);
+      const baseOnly = normalizeBase(parts[0] || normalized);
+      const requestedQuote = normalizeBase(parts[1] || "");
+
+      const pairVariants = new Set([
+        normalized,
+        normalized.replace("/", ""),
+        normalized.replace("/", "-"),
+        normalized.replace("-", ""),
+        normalized.replaceAll("_", "")
+      ]);
+
+      const direct = pairs.find((pair) =>
+        pairVariants.has(pair.altname?.toUpperCase()) ||
+        pairVariants.has((pair.wsname || "").toUpperCase()) ||
+        pairVariants.has(pair.key.toUpperCase())
+      );
+      if (direct) return direct;
+
+      const baseMatches = pairs.filter((pair) => {
+        const altname = normalizeBase((pair.altname || "").toUpperCase());
+        const wsname = normalizeBase((pair.wsname || "").toUpperCase());
+        return altname.startsWith(baseOnly) || wsname.startsWith(`${baseOnly}/`);
+      });
+      if (!baseMatches.length) return null;
+
+      if (requestedQuote) {
+        const requested = baseMatches.find((pair) => {
+          const altname = (pair.altname || "").toUpperCase();
+          const wsname = (pair.wsname || "").toUpperCase();
+          return altname.endsWith(requestedQuote) || wsname.endsWith(`/${requestedQuote}`);
+        });
+        if (requested) return requested;
+      }
+
+      for (const quoteCurrency of quoteOrder) {
+        const preferred = baseMatches.find((pair) =>
+          (pair.altname || "").toUpperCase().endsWith(quoteCurrency) ||
+          (pair.wsname || "").toUpperCase().endsWith(`/${quoteCurrency}`)
+        );
+        if (preferred) return preferred;
+      }
+
+      return baseMatches[0];
+    }
+
+    async function fetchKrakenTicker(query) {
+      const symbol = query.trim();
+      if (!symbol) return { error: "missing ticker" };
+
+      try {
+        await ensureKrakenPairs();
+        const pair = resolveKrakenPair(symbol);
+        if (!pair) return { error: `no Kraken pair found for ${symbol}` };
+
+        const response = await fetch(`https://api.kraken.com/0/public/Ticker?pair=${encodeURIComponent(pair.key)}`, {
+          headers: { accept: "application/json" }
+        });
+        if (!response.ok) return { error: `ticker HTTP ${response.status}` };
+
+        const payload = await response.json();
+        const result = payload?.result || {};
+        const pairData = result[pair.key] || result[Object.keys(result)[0]];
+        if (!pairData) return { error: `no Kraken ticker for ${symbol}` };
+
+        return {
+          product: {
+            id: pair.key,
+            display_name: pair.wsname || pair.altname || pair.key
+          },
+          price: pairData.c?.[0],
+          time: new Date().toISOString()
+        };
+      } catch (error) {
+        return { error: error instanceof Error ? error.message : "ticker lookup failed" };
+      }
+    }
+
+    async function fetchTerminalQuote(query) {
+      const coinbase = await fetchCoinbaseTicker(query);
+      const kraken = await fetchKrakenTicker(query);
+      if (!coinbase.error) return coinbase;
+      if (!kraken.error) return kraken;
+      return coinbase;
+    }
+
+    function terminalHistoryEntry(command, output) {
+      state.terminal.history.push({ command, output });
+      if (state.terminal.history.length > 8) state.terminal.history = state.terminal.history.slice(-8);
+      renderTerminal();
+    }
+
+    function describeBuffers() {
+      return state.open.map((file, index) => terminalLine(`${index + 1}. ${file}${file === state.active ? " (active)" : ""}`, file === state.active ? "green" : "term-meta"));
+    }
+
+    function describeTree() {
+      return visibleTreeNodes().map((node) => {
+        const label = node.kind === "folder" ? `${node.name}/` : node.path;
+        return terminalLine(`- ${label}`, node.kind === "folder" ? "term-meta" : "");
+      });
+    }
+
+    async function runTerminalCommand(raw) {
+      const command = raw.trim();
+      terminalCommand.value = "";
+      state.terminal.draft = "";
+      state.terminal.cursor = 0;
+      if (!command) return;
+
+      const normalized = command.toLowerCase();
+      let output = [];
+
+      if (normalized === "clear") {
+        state.terminal.history = [];
+        state.terminal.broken = false;
+        document.body.classList.remove("page-broken");
+        renderTerminal();
+        return;
+      } else if (/^price\s+/i.test(command)) {
+        const query = command.replace(/^price\s+/i, "").trim();
+        const quote = await fetchTerminalQuote(query);
+        if (quote.error) {
+          output = [
+            terminalLine(quote.error, "red"),
+            terminalLine("try: BTC, ETH, SOL, XMR, XRP, or price BTC", "term-meta")
+          ];
+        } else {
+          const price = Number.parseFloat(quote.price);
+          const timestamp = new Date(quote.time);
+          const prettyTime = Number.isNaN(timestamp.getTime())
+            ? quote.time
+            : timestamp.toLocaleString(undefined, {
+                month: "short",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false
+              });
+          output = [
+            terminalLine(`${quote.product.display_name || quote.product.id}`, "term-meta"),
+            terminalLine(`last  $${Number.isFinite(price) ? price.toFixed(2) : quote.price}`, "green"),
+            terminalLine(`time  ${prettyTime}`, "term-meta")
+          ];
+        }
+      } else {
+        output = [
+          terminalLine(`command not found: ${command}`, "red"),
+          terminalLine("try: price BTC", "term-meta")
+        ];
+      }
+
+      terminalHistoryEntry(command, output);
+    }
+
     function renderExplorer() {
       main.classList.toggle("explorer-hidden", !state.explorer);
       const nodes = visibleTreeNodes();
+      const totalNodes = state.explorerFilter.trim()
+        ? treeNodes.filter((node) => !node.parent || state.expanded.includes(node.parent))
+        : nodes;
       state.explorerIndex = Math.max(0, Math.min(nodes.length - 1, state.explorerIndex));
+      explorerFilter.value = state.explorerFilter;
+      explorerCount.textContent = `${nodes.length}/${totalNodes.length}`;
       tree.innerHTML = nodes.map((node, index) => {
         const indent = `<span class="tree-indent ${node.depth ? "has-guide" : ""}" style="--depth:${node.depth}"></span>`;
         const isSelected = state.window === "explorer" && index === state.explorerIndex;
         if (node.kind === "folder") {
-          const isExpanded = state.expanded.includes(node.name);
+          const isExpanded = state.expanded.includes(node.path);
           return `
             <li>
-              <button class="tree-item is-folder ${isSelected ? "is-selected" : ""}" data-folder="${node.name}" tabindex="-1">
+              <button class="tree-item is-folder ${isSelected ? "is-selected" : ""}" data-folder="${node.path}" tabindex="-1">
                 ${indent}
                 <span class="file-icon icon-folder">${isExpanded ? "" : ""}</span>
                 <span class="file-name">${node.name}</span>
@@ -1228,13 +4416,30 @@
           <li>
             <button class="tree-item ${isCurrent ? "is-active" : ""} ${isSelected ? "is-selected" : ""} ${isOpen ? "is-open" : ""}" data-file="${file}">
               ${indent}
-              <span class="file-icon ${node.iconClass}">${files[file].icon}</span>
+              <span class="file-icon ${node.iconClass}">${fileRecord(file)?.icon || ""}</span>
               <span class="file-name">${label}</span>
               <span class="file-mark">${isOpen ? "●" : ""}</span>
             </button>
           </li>
         `;
       }).join("");
+
+      const selected = tree.querySelector(".tree-item.is-selected");
+      if (selected) {
+        const head = explorer.querySelector(".explorer-head");
+        const headHeight = head ? head.getBoundingClientRect().height : 0;
+        const itemHeight = selected.getBoundingClientRect().height || 24;
+        const topGuard = headHeight + itemHeight * 4;
+        const bottomGuard = explorer.clientHeight - itemHeight * 4;
+        const top = selected.offsetTop - explorer.scrollTop;
+        const bottom = top + itemHeight;
+
+        if (top < topGuard) {
+          explorer.scrollTop = Math.max(0, selected.offsetTop - topGuard);
+        } else if (bottom > bottomGuard) {
+          explorer.scrollTop = Math.max(0, selected.offsetTop - bottomGuard + itemHeight);
+        }
+      }
     }
 
     function renderWindows() {
@@ -1242,7 +4447,6 @@
       explorer.classList.toggle("is-window-active", state.window === "explorer");
       editorPane.classList.toggle("is-window-active", state.window === "editor");
       terminalPane.classList.toggle("is-window-active", state.window === "terminal");
-      leaderState.textContent = `window: ${state.window}`;
     }
 
     function renderTabs() {
@@ -1252,7 +4456,7 @@
       tabs.innerHTML = showTabs
         ? state.open.map((file) => `
             <button class="tab ${file === state.active ? "is-active" : ""}" data-file="${file}">
-              <span class="${iconClassFor(file)}">${files[file].icon}</span>
+              <span class="${iconClassFor(file)}">${fileRecord(file)?.icon || ""}</span>
               <span>${state.pinned.includes(file) ? "󰐃" : ""}</span>
               <span>${file}</span>
               <span class="tab-close" data-close="${file}" aria-label="close ${file}">×</span>
@@ -1262,37 +4466,38 @@
     }
 
     function renderBuffer() {
-      if (!state.active || !files[state.active]) {
+      const file = fileRecord(state.active);
+      if (!state.active || !file) {
         winbar.innerHTML = `<span class="file-badge"><span></span><span>empty</span></span>`;
         buffer.innerHTML = `<div class="line"><span class="line-number">~</span><span class="line-text empty">No buffer. Press <span class="type">SPC e</span> and open a file.</span></div>`;
         filetype.textContent = "none";
         statusFileIcon.textContent = "";
         statusFileIcon.className = "";
         statusFileName.textContent = "empty";
-        statusPathIcon.textContent = "";
-        statusPathIcon.className = "";
-        statusPath.textContent = "empty";
         position.textContent = "0:0";
+        leaderState.textContent = "0%";
+        state.percent = 0;
         return;
       }
 
-      const file = files[state.active];
       const last = file.lines.length - 1;
       state.cursor = Math.max(0, Math.min(last, state.cursor));
+      if (state.visual && state.visual.file !== state.active) state.visual = null;
       const iconClass = iconClassFor(state.active);
       winbar.innerHTML = `<span class="file-badge"><span class="${iconClass}">${file.icon}</span><span>${shortFileName(state.active)}</span></span>`;
       filetype.textContent = file.type;
       statusFileIcon.textContent = file.icon;
       statusFileIcon.className = iconClass;
       statusFileName.textContent = shortFileName(state.active);
-      statusPathIcon.textContent = file.icon;
-      statusPathIcon.className = iconClass;
-      statusPath.textContent = state.active;
-      position.textContent = `${Math.round(((state.cursor + 1) / file.lines.length) * 100)}% ${state.cursor + 1}:1`;
+      state.percent = Math.round(((state.cursor + 1) / file.lines.length) * 100);
+      if (!state.leader) leaderState.textContent = `${state.percent}%`;
+      position.textContent = `${state.cursor + 1}:1`;
+      const visualStart = state.visual ? Math.min(state.visual.anchor, state.cursor) : -1;
+      const visualEnd = state.visual ? Math.max(state.visual.anchor, state.cursor) : -1;
       buffer.innerHTML = file.lines.map((line, index) => `
-        <div class="line ${index === state.cursor ? "is-cursor" : ""}">
+        <div class="line ${index === state.cursor ? "is-cursor" : ""} ${state.visual && index >= visualStart && index <= visualEnd ? "is-visual" : ""}">
           <span class="line-number">${index + 1}</span>
-          <span class="line-text">${renderLine(line)}</span>
+          <span class="line-text">${renderFileLine(file, line)}</span>
         </div>
       `).join("");
 
@@ -1325,21 +4530,46 @@
         "`": "󰁯",
         "?": "󰋗"
       };
+      const iconTones = {
+        e: "is-green",
+        b: "is-blue",
+        f: "is-peach",
+        w: "is-mauve",
+        h: "is-yellow",
+        j: "is-sky",
+        k: "is-teal",
+        l: "is-lavender",
+        n: "is-pink",
+        o: "is-red",
+        q: "is-red",
+        d: "is-flamingo",
+        D: "is-maroon",
+        g: "is-green",
+        P: "is-yellow",
+        r: "is-sky",
+        "`": "is-overlay",
+        "?": "is-mauve"
+      };
       wkGrid.innerHTML = rows.map(([key, desc]) => `
         <div class="wk-row">
-          <span class="wk-icon">${icons[key] || "󰌌"}</span>
           <span class="wk-key">${key}</span>
+          <span class="wk-arrow">→</span>
+          <span class="wk-icon ${iconTones[key] || "is-blue"}">${icons[key] || "󰌌"}</span>
           <span class="wk-desc">${desc}</span>
         </div>
-      `).join("");
+      `).join("") + `
+        <div class="wk-footer">
+          <span><kbd>ESC</kbd> close</span>
+        </div>
+      `;
       whichKey.hidden = false;
     }
 
     function hideWhichKey() {
       state.leader = "";
-      mode.textContent = "NORMAL";
-      leaderState.textContent = `window: ${state.window}`;
+      leaderState.textContent = `${state.percent}%`;
       whichKey.hidden = true;
+      updateModeIndicator();
     }
 
     function render() {
@@ -1347,20 +4577,29 @@
       renderTabs();
       renderBuffer();
       renderWindows();
-      lastKey.textContent = state.lastKey;
+      renderTerminal();
+      updateModeIndicator();
+      recentKeys.textContent = state.recentKeys.filter(Boolean).join(" ");
+      bufCount.textContent = state.open.length;
     }
 
     function activateBuffer(file) {
-      if (!files[file]) return;
+      if (!fileRecord(file)) return;
       if (state.active && state.active !== file) state.previous = state.active;
       state.active = file;
       state.cursor = 0;
     }
 
     function openFile(file) {
-      if (!files[file]) return;
+      if (!fileRecord(file)) return;
       const node = treeNodes.find((item) => item.path === file);
-      if (node?.parent && !state.expanded.includes(node.parent)) state.expanded.push(node.parent);
+      const expandParents = (parentPath) => {
+        if (!parentPath) return;
+        const parent = treeNodes.find((item) => item.path === parentPath);
+        if (parent?.parent) expandParents(parent.parent);
+        if (!state.expanded.includes(parentPath)) state.expanded.push(parentPath);
+      };
+      if (node?.parent) expandParents(node.parent);
       if (!state.open.includes(file)) state.open.push(file);
       activateBuffer(file);
       state.window = "editor";
@@ -1386,7 +4625,11 @@
       }
       hideWhichKey();
       render();
-      const focusTarget = state.window === "terminal" ? terminalBody : buffer;
+      const focusTarget = state.window === "terminal"
+        ? terminalCommand
+        : state.window === "explorer"
+          ? explorer
+          : buffer;
       focusTarget.focus({ preventScroll: true });
     }
 
@@ -1416,7 +4659,7 @@
         return;
       }
       if (node.kind === "folder") {
-        toggleFolder(node.name);
+        toggleFolder(node.path);
         return;
       }
       openFile(node.path);
@@ -1451,6 +4694,18 @@
       message.textContent = state.active;
       hideWhichKey();
       render();
+    }
+
+    function selectBufferByNumber(digit) {
+      if (!state.open.length) return false;
+      const index = digit === 0 ? 9 : digit - 1;
+      if (index < 0 || index >= state.open.length) return false;
+      activateBuffer(state.open[index]);
+      message.textContent = state.active;
+      hideWhichKey();
+      render();
+      buffer.focus({ preventScroll: true });
+      return true;
     }
 
     function switchAlternate() {
@@ -1516,25 +4771,130 @@
 
     function moveCursor(delta) {
       if (!state.active) return;
-      const last = files[state.active].lines.length - 1;
+      const record = fileRecord(state.active);
+      if (!record) return;
+      const last = record.lines.length - 1;
       state.cursor = Math.max(0, Math.min(last, state.cursor + delta));
       renderBuffer();
     }
 
+    function enterVisualLineMode() {
+      if (!state.active || state.window !== "editor") return;
+      if (state.visual && state.visual.file === state.active) {
+        state.visual = null;
+        message.textContent = "visual mode off";
+      } else {
+        state.visual = { file: state.active, anchor: state.cursor };
+        message.textContent = "visual line mode";
+      }
+      renderBuffer();
+      updateModeIndicator();
+    }
+
+    async function yankVisualSelection() {
+      const file = fileRecord(state.active);
+      if (!state.visual || state.visual.file !== state.active || !file) return false;
+      const start = Math.max(0, Math.min(state.visual.anchor, state.cursor));
+      const end = Math.max(0, Math.max(state.visual.anchor, state.cursor));
+      const text = file.lines.slice(start, end + 1).map((line) => plainLine(line)).join("\n");
+      state.yank = text;
+      state.visual = null;
+      message.textContent = `yanked ${end - start + 1} lines`;
+      showYankToast(end - start + 1);
+      try {
+        if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
+      } catch {
+        // clipboard fallback stays in state.yank
+      }
+      renderBuffer();
+      updateModeIndicator();
+      return true;
+    }
+
+    async function yankCurrentLine() {
+      const file = fileRecord(state.active);
+      if (!state.active || !file) return false;
+      const line = file.lines[state.cursor];
+      const text = plainLine(line);
+      state.yank = text;
+      message.textContent = "yanked 1 line";
+      showYankToast(1);
+      try {
+        if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
+      } catch {
+        // clipboard fallback stays in state.yank
+      }
+      updateModeIndicator();
+      return true;
+    }
+
     function toggleExplorer() {
       state.explorer = !state.explorer;
-      if (!state.explorer && state.window === "explorer") state.window = "editor";
+      if (state.explorer) {
+        state.window = "explorer";
+        const nodes = visibleTreeNodes();
+        const activeIndex = nodes.findIndex((node) => node.path === state.active);
+        state.explorerIndex = activeIndex >= 0 ? activeIndex : 0;
+      } else if (state.window === "explorer") {
+        state.window = "editor";
+      }
       message.textContent = state.explorer ? "neo-tree opened" : "neo-tree hidden";
       hideWhichKey();
       render();
+      if (state.explorer) explorer.focus({ preventScroll: true });
+      else explorerFilter.blur();
     }
+
+    explorerFilter.addEventListener("input", () => {
+      state.explorerFilter = explorerFilter.value;
+      state.explorerIndex = 0;
+      renderExplorer();
+      updateModeIndicator();
+    });
+
+    terminalCommandForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      void runTerminalCommand(terminalCommand.value);
+      terminalCommand.focus({ preventScroll: true });
+    });
+
+    terminalCommand.addEventListener("input", () => {
+      state.terminal.draft = terminalCommand.value;
+      state.terminal.cursor = terminalCommand.selectionStart ?? terminalCommand.value.length;
+      renderTerminal();
+      updateModeIndicator();
+    });
+
+    terminalCommand.addEventListener("focus", () => {
+      state.terminal.cursor = terminalCommand.selectionStart ?? terminalCommand.value.length;
+      renderTerminal();
+      updateModeIndicator();
+    });
+
+    terminalCommand.addEventListener("blur", () => {
+      renderTerminal();
+      updateModeIndicator();
+    });
+
+    terminalCommand.addEventListener("keyup", () => {
+      state.terminal.cursor = terminalCommand.selectionStart ?? terminalCommand.value.length;
+      renderTerminal();
+    });
+
+    terminalCommand.addEventListener("click", () => {
+      state.terminal.cursor = terminalCommand.selectionStart ?? terminalCommand.value.length;
+      renderTerminal();
+      updateModeIndicator();
+    });
+
+    terminalPane.addEventListener("click", () => {
+      if (state.window === "terminal") terminalCommand.focus({ preventScroll: true });
+    });
 
     function runCommand(raw) {
       const input = raw.trim().replace(/^:/, "");
       if (!input) {
         hideCommandLine();
-        mode.textContent = "NORMAL";
-        buffer.focus({ preventScroll: true });
         return;
       }
       if (input === "q" || input === "bd") {
@@ -1565,18 +4925,20 @@
         message.textContent = `not an editor command: ${input}`;
       }
       hideCommandLine();
-      mode.textContent = "NORMAL";
-      buffer.focus({ preventScroll: true });
     }
 
     function handleLeaderKey(key) {
+      if (key === "Shift" || key === "Control" || key === "Alt" || key === "Meta" || key === "CapsLock") {
+        return true;
+      }
+
       if (!state.leader) {
         if (key === " ") {
           state.leader = "root";
-          mode.textContent = "LEADER";
           leaderState.textContent = "leader: SPC";
           message.textContent = "which-key";
           renderWhichKey("root");
+          updateModeIndicator();
           return true;
         }
         return false;
@@ -1663,7 +5025,7 @@
     tree.addEventListener("click", (event) => {
       const folder = event.target.closest("[data-folder]");
       if (folder) {
-        const index = visibleTreeNodes().findIndex((node) => node.name === folder.dataset.folder);
+        const index = visibleTreeNodes().findIndex((node) => node.path === folder.dataset.folder);
         if (index >= 0) state.explorerIndex = index;
         toggleFolder(folder.dataset.folder);
         return;
@@ -1696,23 +5058,45 @@
 
     command.addEventListener("focus", () => {
       hideWhichKey();
-      mode.textContent = "COMMAND";
-      message.textContent = "command mode";
+      updateModeIndicator();
     });
 
     document.addEventListener("keydown", (event) => {
       if (event.key.length === 1 || event.key.startsWith("Arrow") || event.key === "Enter" || event.key === "Escape") {
-        state.lastKey = event.key === " " ? "SPC" : event.key;
-        lastKey.textContent = state.lastKey;
+        const k = event.key === " " ? "SPC" : event.key === "Escape" ? "ESC" : event.key;
+        state.recentKeys = [state.recentKeys[1], state.recentKeys[2], k];
+        recentKeys.textContent = state.recentKeys.filter(Boolean).join(" ");
       }
 
       if (document.activeElement === command) {
         if (event.key === "Escape") {
           event.preventDefault();
           hideCommandLine();
-          mode.textContent = "NORMAL";
           message.textContent = "normal mode";
           buffer.focus({ preventScroll: true });
+          updateModeIndicator();
+        }
+        return;
+      }
+
+      if (document.activeElement === explorerFilter) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          state.explorerFilter = "";
+          explorerFilter.value = "";
+          renderExplorer();
+          buffer.focus({ preventScroll: true });
+          updateModeIndicator();
+        }
+        return;
+      }
+
+      if (document.activeElement === terminalCommand) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          terminalCommand.blur();
+          buffer.focus({ preventScroll: true });
+          updateModeIndicator();
         }
         return;
       }
@@ -1721,6 +5105,13 @@
         event.preventDefault();
         hideWhichKey();
         return;
+      }
+
+      if (!state.leader && !event.ctrlKey && !event.metaKey && !event.altKey && /^[0-9]$/.test(event.key)) {
+        if (selectBufferByNumber(Number(event.key))) {
+          event.preventDefault();
+          return;
+        }
       }
 
       if (handleLeaderKey(event.key)) {
@@ -1732,6 +5123,50 @@
         event.preventDefault();
         showCommandLine();
         return;
+      }
+
+      if (state.window === "editor") {
+        if (event.key === "V") {
+          event.preventDefault();
+          enterVisualLineMode();
+          return;
+        }
+
+        if (event.key === "y" && state.visual) {
+          event.preventDefault();
+          void yankVisualSelection();
+          return;
+        }
+
+        if (event.key === "y" && state.pendingY) {
+          event.preventDefault();
+          state.pendingY = false;
+          void yankCurrentLine();
+          return;
+        }
+
+        if (event.key === "y") {
+          event.preventDefault();
+          state.pendingY = true;
+          message.textContent = "y";
+          return;
+        }
+      }
+
+      if (event.key === "i") {
+        if (state.window === "terminal" && document.activeElement !== terminalCommand) {
+          event.preventDefault();
+          terminalCommand.focus({ preventScroll: true });
+          updateModeIndicator();
+          return;
+        }
+
+        if (state.window === "explorer" && document.activeElement !== explorerFilter) {
+          event.preventDefault();
+          explorerFilter.focus({ preventScroll: true });
+          updateModeIndicator();
+          return;
+        }
       }
 
       if (state.window === "explorer") {
@@ -1749,15 +5184,31 @@
 
         if (event.key === "Enter" || event.key === "l" || event.key === "ArrowRight") {
           event.preventDefault();
-          openExplorerSelection();
+          const node = visibleTreeNodes()[state.explorerIndex];
+          if (node?.kind === "folder") {
+            if (!state.expanded.includes(node.path)) {
+              toggleFolder(node.path);
+            } else {
+              openExplorerSelection();
+            }
+          } else {
+            openExplorerSelection();
+          }
           return;
         }
 
         if (event.key === "h" || event.key === "ArrowLeft") {
           event.preventDefault();
           const node = visibleTreeNodes()[state.explorerIndex];
-          if (node?.kind === "folder" && state.expanded.includes(node.name)) toggleFolder(node.name);
-          else message.textContent = "folder closed";
+          if (node?.kind === "folder" && state.expanded.includes(node.path)) {
+            toggleFolder(node.path);
+          } else if (node?.parent) {
+            const parentIndex = visibleTreeNodes().findIndex((item) => item.path === node.parent);
+            if (parentIndex >= 0) state.explorerIndex = parentIndex;
+            renderExplorer();
+          } else {
+            message.textContent = "folder closed";
+          }
           return;
         }
       }
@@ -1765,6 +5216,7 @@
       if (event.key === "j" || event.key === "ArrowDown") {
         event.preventDefault();
         state.pendingG = false;
+        state.pendingY = false;
         moveCursor(1);
         return;
       }
@@ -1772,26 +5224,31 @@
       if (event.key === "k" || event.key === "ArrowUp") {
         event.preventDefault();
         state.pendingG = false;
+        state.pendingY = false;
         moveCursor(-1);
         return;
       }
 
       if (event.key === "h" || event.key === "ArrowLeft") {
         event.preventDefault();
+        state.pendingY = false;
         cycleBuffer(-1);
         return;
       }
 
       if (event.key === "l" || event.key === "ArrowRight") {
         event.preventDefault();
+        state.pendingY = false;
         cycleBuffer(1);
         return;
       }
 
       if (event.key === "G") {
         event.preventDefault();
-        if (state.active) state.cursor = files[state.active].lines.length - 1;
+        const record = fileRecord(state.active);
+        if (state.active && record) state.cursor = record.lines.length - 1;
         state.pendingG = false;
+        state.pendingY = false;
         renderBuffer();
         return;
       }
@@ -1801,6 +5258,7 @@
         if (state.pendingG) {
           state.cursor = 0;
           state.pendingG = false;
+          state.pendingY = false;
           renderBuffer();
         } else {
           state.pendingG = true;
@@ -1810,6 +5268,7 @@
     });
 
     render();
+    renderTerminal();
     buffer.focus({ preventScroll: true });
   </script>
 </body>
