@@ -8,17 +8,19 @@
   <link rel="icon" type="image/svg+xml" href="https://commons.wikimedia.org/wiki/Special:FilePath/Neovim-mark-flat.svg">
   <style>
     @font-face {
-      font-family: "JetBrainsMono Nerd Font Local";
-      src: local("JetBrainsMono Nerd Font Mono"),
-        url("file:///path/to/JetBrainsMonoNerdFontMono-Regular.ttf") format("truetype");
+      font-family: "JetBrainsMono Nerd Font Site";
+      src: url("./fonts/JetBrainsMonoNerdFontMono-Regular.ttf") format("truetype");
       font-weight: 400;
+      font-style: normal;
+      font-display: swap;
     }
 
     @font-face {
-      font-family: "JetBrainsMono Nerd Font Local";
-      src: local("JetBrainsMono Nerd Font Mono Medium"),
-        url("file:///path/to/JetBrainsMonoNerdFontMono-Medium.ttf") format("truetype");
+      font-family: "JetBrainsMono Nerd Font Site";
+      src: url("./fonts/JetBrainsMonoNerdFontMono-Medium.ttf") format("truetype");
       font-weight: 500;
+      font-style: normal;
+      font-display: swap;
     }
 
     :root {
@@ -49,7 +51,7 @@
       --sapphire: #4ba8fa;
       --blue: #00bfff;
       --lavender: #00bbcc;
-      --mono: "JetBrainsMono Nerd Font Local", "JetBrainsMono Nerd Font Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+      --mono: "JetBrainsMono Nerd Font Site", "JetBrainsMono Nerd Font Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
     }
 
     * {
@@ -3908,9 +3910,7 @@
 
     const coinbaseQuoteOrder = ["USD", "USDC", "USDT", "EUR", "GBP", "BTC"];
     const commandCompletions = [
-      { value: "markdownPreview", kind: "preview" },
-      { value: "markdownPreview tab", kind: "new tab" },
-      { value: "markdownPreview page", kind: "same page" }
+      { value: "markdownPreview", kind: "preview" }
     ];
     let commandCompletionItems = [];
     let commandCompletionIndex = 0;
@@ -4054,7 +4054,7 @@
       };
     }
 
-    function showMarkdownPreview(target = "page") {
+    function showMarkdownPreview() {
       const markdown = activeMarkdownReadme();
       if (!markdown) {
         message.textContent = "markdownPreview requires an active README.md";
@@ -4062,17 +4062,6 @@
       }
 
       const body = renderMarkdownPreview(markdown.text);
-      if (target === "tab") {
-        const tab = window.open("", "_blank", "noopener");
-        if (!tab) {
-          message.textContent = "markdown preview tab blocked";
-          return;
-        }
-        tab.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(markdown.path)}</title><style>body{margin:32px;background:#000;color:#c1c9e6;font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}h1,h2,h3{color:#fff}code,pre{background:#111827;color:#a6e3a1}code{padding:1px 4px}pre{padding:12px;overflow:auto;border:1px solid #3a3d4a}</style></head><body>${body}</body></html>`);
-        tab.document.close();
-        message.textContent = "markdown preview opened";
-        return;
-      }
 
       markdownPreviewTitle.textContent = markdown.path;
       markdownPreviewBody.innerHTML = body;
@@ -5206,9 +5195,8 @@
         cycleBuffer(-1);
       } else if (input === "Neotree" || input === "NvimTreeToggle") {
         toggleExplorer();
-      } else if (/^markdownPreview!?(\s+tab|\s+page)?$/i.test(input)) {
-        const target = /!|\stab$/i.test(input) ? "tab" : "page";
-        showMarkdownPreview(target);
+      } else if (/^markdownPreview!?$/i.test(input)) {
+        showMarkdownPreview();
       } else if (input.startsWith("e ")) {
         const query = input.slice(2).trim();
         const match = Object.keys(files).find((file) => file.includes(query));
@@ -5432,11 +5420,27 @@
         recentKeys.textContent = state.recentKeys.filter(Boolean).join(" ");
       }
 
-      if (!markdownPreview.hidden && event.key === "Escape") {
-        event.preventDefault();
-        hideMarkdownPreview();
-        buffer.focus({ preventScroll: true });
-        return;
+      if (!markdownPreview.hidden) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          hideMarkdownPreview();
+          buffer.focus({ preventScroll: true });
+          return;
+        }
+
+        const previewLineHeight = parseFloat(getComputedStyle(markdownPreviewBody).lineHeight) || 22;
+        const previewScrollLines = 3;
+        if (event.key === "j" || event.key === "ArrowDown") {
+          event.preventDefault();
+          markdownPreviewBody.scrollBy({ top: previewLineHeight * previewScrollLines, behavior: "smooth" });
+          return;
+        }
+
+        if (event.key === "k" || event.key === "ArrowUp") {
+          event.preventDefault();
+          markdownPreviewBody.scrollBy({ top: -previewLineHeight * previewScrollLines, behavior: "smooth" });
+          return;
+        }
       }
 
       if (document.activeElement === command) {
