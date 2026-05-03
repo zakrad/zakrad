@@ -726,17 +726,40 @@
     }
 
     .cmdline {
-      min-height: 25px;
+      position: fixed;
+      top: 78px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(480px, calc(100vw - 56px));
+      min-height: 28px;
       gap: 8px;
-      padding: 0 10px;
+      padding: 14px 12px 8px;
       color: var(--subtext1);
-      background: var(--base);
+      background: var(--mantle);
+      border: 1px solid var(--blue);
+      border-radius: 3px;
       display: none;
-      border-top: 0;
+      z-index: 90;
+      box-shadow: none;
     }
 
     .cmdline.is-visible {
       display: flex;
+    }
+
+    .cmdline-title {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0 10px;
+      color: var(--subtext1);
+      background: var(--mantle);
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: 0;
+      pointer-events: none;
     }
 
     .terminal-body {
@@ -891,6 +914,49 @@
       white-space: nowrap;
     }
 
+    .cmd-menu {
+      position: fixed;
+      top: 128px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 91;
+      width: min(480px, calc(100vw - 56px));
+      margin: 0;
+      padding: 4px 0;
+      list-style: none;
+      color: var(--subtext1);
+      background: var(--mantle);
+      border: 1px solid var(--blue);
+      border-radius: 3px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, .42);
+    }
+
+    .cmd-menu[hidden] {
+      display: none;
+    }
+
+    .cmd-menu-item {
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      color: var(--subtext1);
+      cursor: pointer;
+    }
+
+    .cmd-menu-item.is-selected,
+    .cmd-menu-item:hover {
+      color: var(--text);
+      background: var(--cursorline);
+    }
+
+    .cmd-menu-kind {
+      color: var(--purple);
+      font-size: 12px;
+      margin-left: auto;
+    }
+
     .which-key {
       position: fixed;
       right: 12px;
@@ -982,6 +1048,89 @@
 
     .yank-toast[hidden] {
       display: none;
+    }
+
+    .markdown-preview {
+      position: fixed;
+      inset: 48px 58px 52px;
+      z-index: 110;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      color: var(--text);
+      background: var(--base);
+      border: 1px solid var(--blue);
+      border-radius: 3px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .58);
+      overflow: hidden;
+    }
+
+    .markdown-preview[hidden] {
+      display: none;
+    }
+
+    .markdown-preview-head {
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--surface2);
+      color: var(--subtext1);
+      background: var(--mantle);
+    }
+
+    .markdown-preview-title {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .markdown-preview-close {
+      margin-left: auto;
+      border: 0;
+      color: var(--overlay2);
+      background: transparent;
+      font: 700 22px/1 var(--mono);
+      cursor: pointer;
+    }
+
+    .markdown-preview-body {
+      min-height: 0;
+      overflow: auto;
+      padding: 22px 28px 30px;
+      font: 14px/1.55 var(--mono);
+      outline: 0;
+    }
+
+    .markdown-preview-body h1,
+    .markdown-preview-body h2,
+    .markdown-preview-body h3 {
+      margin: 0 0 12px;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .markdown-preview-body h1 { font-size: 24px; }
+    .markdown-preview-body h2 { font-size: 19px; margin-top: 22px; }
+    .markdown-preview-body h3 { font-size: 16px; margin-top: 18px; }
+
+    .markdown-preview-body p,
+    .markdown-preview-body ul,
+    .markdown-preview-body ol,
+    .markdown-preview-body pre {
+      margin: 0 0 12px;
+    }
+
+    .markdown-preview-body code {
+      color: var(--green);
+      background: var(--mantle);
+      padding: 1px 4px;
+    }
+
+    .markdown-preview-body pre {
+      padding: 12px;
+      overflow: auto;
+      background: var(--mantle);
+      border: 1px solid var(--surface2);
     }
 
     .wk-title {
@@ -1180,10 +1329,11 @@
       </footer>
 
       <form class="cmdline" id="commandForm">
-        <span class="cmd-prefix">:</span>
-        <input class="cmd-input" id="command" autocomplete="off" spellcheck="false" aria-label="vim command" placeholder="SPC shows which-key | SPC e explorer | SPC w h/j/k/l windows | SPC b d buffer delete">
-        <span class="msg" id="message">press Space</span>
+        <span class="cmdline-title">Cmdline</span>
+        <input class="cmd-input" id="command" autocomplete="off" spellcheck="false" aria-label="vim command">
+        <span class="msg" id="message" hidden>press Space</span>
       </form>
+      <ul class="cmd-menu" id="commandMenu" hidden></ul>
     </section>
   </main>
 
@@ -1196,6 +1346,15 @@
   </section>
 
   <div class="yank-toast" id="yankToast" hidden></div>
+
+  <section class="markdown-preview" id="markdownPreview" hidden aria-label="markdown preview">
+    <div class="markdown-preview-head">
+      <span></span>
+      <span class="markdown-preview-title" id="markdownPreviewTitle">Markdown Preview</span>
+      <button class="markdown-preview-close" id="markdownPreviewClose" type="button" aria-label="close markdown preview">×</button>
+    </div>
+    <div class="markdown-preview-body" id="markdownPreviewBody" tabindex="0"></div>
+  </section>
 
   <script>
     const files = {
@@ -3727,6 +3886,7 @@
     const winbar = document.querySelector("#winbar");
     const command = document.querySelector("#command");
     const commandForm = document.querySelector("#commandForm");
+    const commandMenu = document.querySelector("#commandMenu");
     const message = document.querySelector("#message");
     const modeChip = document.querySelector(".mode-chip");
     const mode = document.querySelector("#mode");
@@ -3741,8 +3901,19 @@
     const wkTitle = document.querySelector("#wkTitle");
     const wkGrid = document.querySelector("#wkGrid");
     const yankToast = document.querySelector("#yankToast");
+    const markdownPreview = document.querySelector("#markdownPreview");
+    const markdownPreviewTitle = document.querySelector("#markdownPreviewTitle");
+    const markdownPreviewBody = document.querySelector("#markdownPreviewBody");
+    const markdownPreviewClose = document.querySelector("#markdownPreviewClose");
 
     const coinbaseQuoteOrder = ["USD", "USDC", "USDT", "EUR", "GBP", "BTC"];
+    const commandCompletions = [
+      { value: "markdownPreview", kind: "preview" },
+      { value: "markdownPreview tab", kind: "new tab" },
+      { value: "markdownPreview page", kind: "same page" }
+    ];
+    let commandCompletionItems = [];
+    let commandCompletionIndex = 0;
 
     function showCommandLine() {
       commandForm.classList.add("is-visible");
@@ -3752,6 +3923,7 @@
     function hideCommandLine() {
       commandForm.classList.remove("is-visible");
       command.value = "";
+      hideCommandMenu();
       command.blur();
     }
 
@@ -3795,6 +3967,123 @@
         return renderSyntaxLine(file.type, line[0]);
       }
       return renderLine(line);
+    }
+
+    function renderMarkdownPreview(markdown) {
+      const lines = markdown.split("\n");
+      let html = "";
+      let list = "";
+      let listType = "";
+      let inCode = false;
+      let code = [];
+
+      const closeList = () => {
+        if (!list) return;
+        html += `<${listType}>${list}</${listType}>`;
+        list = "";
+        listType = "";
+      };
+
+      const closeCode = () => {
+        if (!inCode) return;
+        html += `<pre><code>${escapeHtml(code.join("\n"))}</code></pre>`;
+        code = [];
+        inCode = false;
+      };
+
+      for (const rawLine of lines) {
+        const line = rawLine.trimEnd();
+        if (line.startsWith("```")) {
+          if (inCode) closeCode();
+          else {
+            closeList();
+            inCode = true;
+          }
+          continue;
+        }
+
+        if (inCode) {
+          code.push(rawLine);
+          continue;
+        }
+
+        if (!line.trim()) {
+          closeList();
+          continue;
+        }
+
+        const heading = line.match(/^(#{1,3})\s+(.*)$/);
+        if (heading) {
+          closeList();
+          const level = heading[1].length;
+          html += `<h${level}>${escapeHtml(heading[2])}</h${level}>`;
+          continue;
+        }
+
+        const bullet = line.match(/^[-*]\s+(.*)$/);
+        if (bullet) {
+          if (listType && listType !== "ul") closeList();
+          listType = "ul";
+          list += `<li>${escapeHtml(bullet[1])}</li>`;
+          continue;
+        }
+
+        const numbered = line.match(/^\d+\.\s+(.*)$/);
+        if (numbered) {
+          if (listType && listType !== "ol") closeList();
+          listType = "ol";
+          list += `<li>${escapeHtml(numbered[1])}</li>`;
+          continue;
+        }
+
+        closeList();
+        html += `<p>${escapeHtml(line).replace(/`([^`]+)`/g, "<code>$1</code>")}</p>`;
+      }
+
+      closeCode();
+      closeList();
+      return html || "<p>Empty markdown file.</p>";
+    }
+
+    function activeMarkdownReadme() {
+      const record = fileRecord(state.active);
+      if (!record || record.type !== "markdown" || !/readme\.md$/i.test(state.active)) return null;
+      return {
+        path: state.active,
+        text: record.lines.map((line) => plainLine(line)).join("\n")
+      };
+    }
+
+    function showMarkdownPreview(target = "page") {
+      const markdown = activeMarkdownReadme();
+      if (!markdown) {
+        message.textContent = "markdownPreview requires an active README.md";
+        return;
+      }
+
+      const body = renderMarkdownPreview(markdown.text);
+      if (target === "tab") {
+        const tab = window.open("", "_blank", "noopener");
+        if (!tab) {
+          message.textContent = "markdown preview tab blocked";
+          return;
+        }
+        tab.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(markdown.path)}</title><style>body{margin:32px;background:#000;color:#c1c9e6;font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}h1,h2,h3{color:#fff}code,pre{background:#111827;color:#a6e3a1}code{padding:1px 4px}pre{padding:12px;overflow:auto;border:1px solid #3a3d4a}</style></head><body>${body}</body></html>`);
+        tab.document.close();
+        message.textContent = "markdown preview opened";
+        return;
+      }
+
+      markdownPreviewTitle.textContent = markdown.path;
+      markdownPreviewBody.innerHTML = body;
+      markdownPreview.hidden = false;
+      message.textContent = "markdown preview";
+      markdownPreviewBody.focus({ preventScroll: true });
+    }
+
+    function hideMarkdownPreview() {
+      markdownPreview.hidden = true;
+      markdownPreviewBody.innerHTML = "";
     }
 
     function renderSyntaxLine(fileType, raw) {
@@ -4917,6 +5206,9 @@
         cycleBuffer(-1);
       } else if (input === "Neotree" || input === "NvimTreeToggle") {
         toggleExplorer();
+      } else if (/^markdownPreview!?(\s+tab|\s+page)?$/i.test(input)) {
+        const target = /!|\stab$/i.test(input) ? "tab" : "page";
+        showMarkdownPreview(target);
       } else if (input.startsWith("e ")) {
         const query = input.slice(2).trim();
         const match = Object.keys(files).find((file) => file.includes(query));
@@ -4925,6 +5217,60 @@
         message.textContent = `not an editor command: ${input}`;
       }
       hideCommandLine();
+    }
+
+    function hideCommandMenu() {
+      commandCompletionItems = [];
+      commandCompletionIndex = 0;
+      commandMenu.hidden = true;
+      commandMenu.innerHTML = "";
+    }
+
+    function renderCommandMenu() {
+      if (!commandCompletionItems.length) {
+        hideCommandMenu();
+        return;
+      }
+
+      commandMenu.innerHTML = commandCompletionItems.map((item, index) => `
+        <li class="cmd-menu-item ${index === commandCompletionIndex ? "is-selected" : ""}" data-command="${escapeHtml(item.value)}">
+          <span>${escapeHtml(item.value)}</span>
+          <span class="cmd-menu-kind">${escapeHtml(item.kind)}</span>
+        </li>
+      `).join("");
+      commandMenu.hidden = false;
+    }
+
+    function updateCommandSuggestion() {
+      const value = command.value.trim();
+      const markdown = activeMarkdownReadme();
+      if (!markdown || !value) {
+        hideCommandMenu();
+        return;
+      }
+
+      const query = value.toLowerCase();
+      commandCompletionItems = commandCompletions.filter((item) =>
+        item.value.toLowerCase().startsWith(query)
+      );
+      commandCompletionIndex = Math.max(0, Math.min(commandCompletionIndex, commandCompletionItems.length - 1));
+      renderCommandMenu();
+    }
+
+    function moveCommandCompletion(delta) {
+      if (!commandCompletionItems.length) return false;
+      commandCompletionIndex = (commandCompletionIndex + delta + commandCompletionItems.length) % commandCompletionItems.length;
+      renderCommandMenu();
+      return true;
+    }
+
+    function acceptCommandCompletion() {
+      if (!commandCompletionItems.length) return false;
+      const item = commandCompletionItems[commandCompletionIndex];
+      command.value = item.value;
+      command.setSelectionRange(command.value.length, command.value.length);
+      hideCommandMenu();
+      return true;
     }
 
     function handleLeaderKey(key) {
@@ -5056,9 +5402,27 @@
       runCommand(command.value);
     });
 
+    command.addEventListener("input", updateCommandSuggestion);
+
     command.addEventListener("focus", () => {
       hideWhichKey();
+      updateCommandSuggestion();
       updateModeIndicator();
+    });
+
+    commandMenu.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+      const item = event.target.closest("[data-command]");
+      if (!item) return;
+      command.value = item.dataset.command;
+      command.setSelectionRange(command.value.length, command.value.length);
+      hideCommandMenu();
+      command.focus({ preventScroll: true });
+    });
+
+    markdownPreviewClose.addEventListener("click", () => {
+      hideMarkdownPreview();
+      buffer.focus({ preventScroll: true });
     });
 
     document.addEventListener("keydown", (event) => {
@@ -5068,7 +5432,39 @@
         recentKeys.textContent = state.recentKeys.filter(Boolean).join(" ");
       }
 
+      if (!markdownPreview.hidden && event.key === "Escape") {
+        event.preventDefault();
+        hideMarkdownPreview();
+        buffer.focus({ preventScroll: true });
+        return;
+      }
+
       if (document.activeElement === command) {
+        if (event.key === "ArrowDown" || (event.ctrlKey && event.key.toLowerCase() === "n")) {
+          if (moveCommandCompletion(1)) {
+            event.preventDefault();
+          }
+          return;
+        }
+
+        if (event.key === "ArrowUp" || (event.ctrlKey && event.key.toLowerCase() === "p")) {
+          if (moveCommandCompletion(-1)) {
+            event.preventDefault();
+          }
+          return;
+        }
+
+        if (event.key === "Tab") {
+          if (acceptCommandCompletion()) event.preventDefault();
+          return;
+        }
+
+        if (event.key === "Enter" && commandCompletionItems.length) {
+          event.preventDefault();
+          acceptCommandCompletion();
+          return;
+        }
+
         if (event.key === "Escape") {
           event.preventDefault();
           hideCommandLine();
