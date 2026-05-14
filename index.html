@@ -3930,11 +3930,25 @@
       if (authToken && !headers.has("authorization")) {
         headers.set("authorization", `Bearer ${authToken}`);
       }
-      const response = await fetch(`${apiBase}${path}`, {
-        credentials: "include",
-        ...rest,
-        headers
-      });
+      const controller = new AbortController();
+      const timeoutMs = options.timeoutMs || 12000;
+      const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+      let response;
+      try {
+        response = await fetch(`${apiBase}${path}`, {
+          credentials: "include",
+          ...rest,
+          headers,
+          signal: controller.signal
+        });
+      } catch (error) {
+        if (controller.signal.aborted) {
+          throw new Error("request timed out");
+        }
+        throw error;
+      } finally {
+        window.clearTimeout(timeout);
+      }
       const text = await response.text();
       let payload = null;
       try {
