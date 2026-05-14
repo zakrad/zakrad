@@ -4036,20 +4036,31 @@
         parent = folderPath;
       }
 
-      if (!localFolders.includes(path)) {
+      if (!state.session.loaded) {
+        await refreshSession();
+      }
+
+      if (!state.session.authenticated && !localFolders.includes(path)) {
         localFolders.push(path);
         persistLocalFiles();
       }
       if (state.session.authenticated) {
         try {
           await createRemotePath(path, "", "folder");
+          localFolders = localFolders.filter((folder) => folder !== path);
+          persistLocalFiles();
         } catch (error) {
           message.textContent = error instanceof Error ? error.message : "remote folder create failed";
+          return false;
         }
+      } else {
+        openGithubAuth();
+        message.textContent = "github auth opened";
+        return false;
       }
       rebuildTreeChildren();
       render();
-      message.textContent = `${path}/ created locally`;
+      message.textContent = `${path}/ created in github`;
       return true;
     }
 
@@ -5568,7 +5579,8 @@
 
       if (!state.session.authenticated) {
         openGithubAuth();
-        message.textContent = "github auth opened, saving locally for now";
+        message.textContent = "github auth opened";
+        return false;
       }
 
       const text = state.editing ? editBuffer.value : plainFileText(state.active);
@@ -5578,13 +5590,12 @@
         icon: fileRecord(state.active)?.icon || meta.icon,
         lines: textToLines(text)
       };
-      localFiles[state.active] = files[state.active];
-
-      if (!persistLocalFiles()) return false;
 
       if (state.session.authenticated) {
         try {
           await saveRemoteFile(state.active, text);
+          delete localFiles[state.active];
+          persistLocalFiles();
           clearDirty(state.active);
           stopEditing();
           message.textContent = `${state.active} saved to github`;
@@ -5592,14 +5603,11 @@
           return true;
         } catch (error) {
           message.textContent = error instanceof Error ? error.message : "remote save failed";
+          return false;
         }
       }
 
-      clearDirty(state.active);
-      stopEditing();
-      message.textContent = `${state.active} written locally`;
-      render();
-      return true;
+      return false;
     }
 
     async function createLocalFile(rawPath) {
@@ -5625,24 +5633,33 @@
           icon: meta.icon,
           lines: [[""]]
         };
-        localFiles[path] = files[path];
         ensureTreePath(path);
         rebuildTreeChildren();
-        persistLocalFiles();
+        if (!state.session.authenticated) {
+          localFiles[path] = files[path];
+          persistLocalFiles();
+        }
       }
 
       if (state.session.authenticated) {
         try {
           await createRemotePath(path, "", "file");
+          delete localFiles[path];
+          persistLocalFiles();
         } catch (error) {
           message.textContent = error instanceof Error ? error.message : "remote create failed";
+          return;
         }
+      } else {
+        openGithubAuth();
+        message.textContent = "github auth opened";
+        return;
       }
 
       openFile(path);
       startEditing();
       markDirty(path);
-      message.textContent = `${path} created locally`;
+      message.textContent = `${path} created in github`;
     }
 
     explorerFilter.addEventListener("input", () => {
