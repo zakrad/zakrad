@@ -4847,17 +4847,14 @@
     }
 
     function updateAuthIndicator() {
-      const token = window.localStorage.getItem(authTokenStorageKey) || "";
       if (state.session.loaded) {
         authLabel.textContent = state.session.authenticated
           ? `AUTH ${state.session.login || ""}`.trim()
-          : token
-            ? "TOKEN"
-            : "NO AUTH";
+          : "NO AUTH";
         return;
       }
 
-      authLabel.textContent = token ? "TOKEN" : "NO AUTH";
+      authLabel.textContent = "NO AUTH";
     }
 
     function renderTerminal() {
