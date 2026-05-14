@@ -3948,6 +3948,9 @@
     async function refreshSession() {
       try {
         const result = await workerJson("/session");
+        if (result.payload?.token) {
+          window.localStorage.setItem(authTokenStorageKey, result.payload.token);
+        }
         state.session = {
           authenticated: Boolean(result.payload?.authenticated),
           login: result.payload?.login || null,
@@ -5783,6 +5786,7 @@
       };
 
       try {
+        message.textContent = "saving...";
         const result = await saveRemoteFile(state.active, text);
         delete localFiles[state.active];
         persistLocalFiles();
@@ -5834,6 +5838,7 @@
       }
 
       try {
+        message.textContent = "creating...";
         const result = await createRemotePath(path, "", "file");
         message.textContent = result?.commit
           ? `${path} created in github (${String(result.commit).slice(0, 7)})`

@@ -165,7 +165,12 @@ async function handleGithubCallback(request, env) {
 
 async function handleSession(request, env) {
   const session = await readSession(request, env);
-  return json({ authenticated: Boolean(session), login: session?.login || null });
+  const token = session ? readSessionToken(request, env) : null;
+  return json({
+    authenticated: Boolean(session),
+    login: session?.login || null,
+    token
+  });
 }
 
 async function handleSave(request, env) {
@@ -296,17 +301,31 @@ async function requireSession(request, env) {
 }
 
 async function readSession(request, env) {
+  const info = await readSessionInfo(request, env);
+  return info.session;
+}
+
+async function readSessionToken(request, env) {
+  const info = await readSessionInfo(request, env);
+  return info.token;
+}
+
+async function readSessionInfo(request, env) {
   const bearer = readBearerToken(request);
   if (bearer) {
     const session = await verifySession(bearer, env);
-    if (session && session.exp >= Math.floor(Date.now() / 1000)) return session;
+    if (session && session.exp >= Math.floor(Date.now() / 1000)) {
+      return { session, token: bearer };
+    }
   }
 
   const raw = readCookie(request, env.SESSION_COOKIE_NAME || "zakrad_editor_session");
-  if (!raw) return null;
+  if (!raw) return { session: null, token: null };
   const session = await verifySession(raw, env);
-  if (!session || session.exp < Math.floor(Date.now() / 1000)) return null;
-  return session;
+  if (!session || session.exp < Math.floor(Date.now() / 1000)) {
+    return { session: null, token: null };
+  }
+  return { session, token: raw };
 }
 
 function readBearerToken(request) {
