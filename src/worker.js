@@ -124,17 +124,25 @@ async function handleGithubCallback(request, env) {
   }));
 
   const openerOrigin = env.CORS_ORIGIN || "*";
+  const authHash = `#${new URLSearchParams({
+    zakrad_auth: session,
+    login: user.login
+  }).toString()}`;
+  const returnUrl = `${openerOrigin}/${authHash}`;
   return new Response(`<!doctype html>
 <meta charset="utf-8">
 <script>
   (function () {
     try {
-      if (window.opener) {
-        window.opener.postMessage(${JSON.stringify({
-          type: "zakrad-auth",
-          token: session,
-          login: user.login
-        })}, ${JSON.stringify(openerOrigin)});
+      if (window.opener && !window.opener.closed) {
+        try {
+          window.opener.location.hash = ${JSON.stringify(authHash)};
+          window.opener.focus();
+        } catch (error) {
+          window.opener.location.replace(${JSON.stringify(returnUrl)});
+        }
+      } else {
+        window.location.replace(${JSON.stringify(returnUrl)});
       }
     } catch (error) {
       document.body.textContent = "Auth complete, but could not notify the opener.";

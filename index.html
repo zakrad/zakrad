@@ -3842,6 +3842,7 @@
     const localStorageKey = "zakrad.nvim.localFiles.v1";
     const localFoldersStorageKey = "zakrad.nvim.localFolders.v1";
     const authTokenStorageKey = "zakrad.nvim.githubSessionToken.v1";
+    const pendingActionStorageKey = "zakrad.nvim.pendingRemoteAction.v1";
     let localFiles = {};
     let localFolders = [];
 
@@ -3853,6 +3854,47 @@
         return true;
       } catch {
         return false;
+      }
+    }
+
+    function sessionStorageAvailable() {
+      try {
+        const key = "__zakrad_session_test__";
+        sessionStorage.setItem(key, "1");
+        sessionStorage.removeItem(key);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function readPendingRemoteAction() {
+      if (!sessionStorageAvailable()) return null;
+      try {
+        const raw = sessionStorage.getItem(pendingActionStorageKey);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function setPendingRemoteAction(action) {
+      state.pendingRemoteAction = action;
+      if (!sessionStorageAvailable()) return;
+      try {
+        sessionStorage.setItem(pendingActionStorageKey, JSON.stringify(action));
+      } catch {
+        // ignore storage failures
+      }
+    }
+
+    function clearPendingRemoteAction() {
+      state.pendingRemoteAction = null;
+      if (!sessionStorageAvailable()) return;
+      try {
+        sessionStorage.removeItem(pendingActionStorageKey);
+      } catch {
+        // ignore storage failures
       }
     }
 
@@ -3898,6 +3940,23 @@
       message.textContent = "opened github auth";
     }
 
+    function consumeGithubAuthHash() {
+      const rawHash = window.location.hash.replace(/^#/, "");
+      if (!rawHash) return false;
+
+      const params = new URLSearchParams(rawHash);
+      const token = params.get("zakrad_auth");
+      if (!token) return false;
+
+      const login = params.get("login") || null;
+      window.localStorage.setItem(authTokenStorageKey, token);
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+      void handleGithubAuthToken(token, login).catch((error) => {
+        message.textContent = error instanceof Error ? error.message : "auth token handling failed";
+      });
+      return true;
+    }
+
     async function handleGithubAuthToken(token, login) {
       if (!token) return;
       window.localStorage.setItem(authTokenStorageKey, token);
@@ -3907,7 +3966,7 @@
       message.textContent = login ? `github session: ${login}` : "github session active";
       if (state.pendingRemoteAction) {
         const pending = state.pendingRemoteAction;
-        state.pendingRemoteAction = null;
+        clearPendingRemoteAction();
         try {
           if (pending.type === "save") {
             await saveRemoteFile(pending.path, pending.content);
@@ -4128,7 +4187,7 @@
       }
 
       if (!state.session.authenticated) {
-        state.pendingRemoteAction = { type: "new", path, kind: "folder", content: "" };
+        setPendingRemoteAction({ type: "new", path, kind: "folder", content: "" });
         openGithubAuth();
         message.textContent = "github auth opened";
         return false;
@@ -4256,7 +4315,7 @@
       editing: false,
       dirty: [],
       session: { authenticated: false, login: null, loaded: false },
-      pendingRemoteAction: null,
+      pendingRemoteAction: readPendingRemoteAction(),
       terminal: {
         history: [],
         draft: "",
@@ -5431,7 +5490,7 @@
 
       const kind = node.kind === "folder" ? "folder" : "file";
       if (!state.session.authenticated) {
-        state.pendingRemoteAction = { type: "delete", path: node.path, kind };
+        setPendingRemoteAction({ type: "delete", path: node.path, kind });
         openGithubAuth();
         message.textContent = "github auth opened";
         return;
@@ -5668,11 +5727,11 @@
       }
 
       if (!state.session.authenticated) {
-        state.pendingRemoteAction = {
+        setPendingRemoteAction({
           type: "save",
           path: state.active,
           content: state.editing ? editBuffer.value : plainFileText(state.active)
-        };
+        });
         openGithubAuth();
         message.textContent = "github auth opened";
         return false;
@@ -5729,7 +5788,7 @@
       }
 
       if (!state.session.authenticated) {
-        state.pendingRemoteAction = { type: "new", path, kind: "file", content: "" };
+        setPendingRemoteAction({ type: "new", path, kind: "file", content: "" });
         openGithubAuth();
         message.textContent = "github auth opened";
         return;
@@ -6104,6 +6163,10 @@
       }
     });
 
+    window.addEventListener("hashchange", () => {
+      consumeGithubAuthHash();
+    });
+
     document.addEventListener("keydown", (event) => {
       if (event.key.length === 1 || event.key.startsWith("Arrow") || event.key === "Enter" || event.key === "Escape") {
         const k = event.key === " " ? "SPC" : event.key === "Escape" ? "ESC" : event.key;
@@ -6387,6 +6450,7 @@
 
     render();
     renderTerminal();
+    consumeGithubAuthHash();
     void refreshSession().then(() => {
       if (state.session.authenticated) {
         clearLocalDraftState();
