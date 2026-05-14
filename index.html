@@ -3989,12 +3989,14 @@
       clearPendingRemoteAction();
       try {
         if (pending.type === "save") {
-          await saveRemoteFile(pending.path, pending.content);
-          message.textContent = `${pending.path} saved to github`;
+          const result = await saveRemoteFile(pending.path, pending.content);
+          message.textContent = result?.commit
+            ? `${pending.path} saved to github (${String(result.commit).slice(0, 7)})`
+            : `${pending.path} saved to github`;
           clearDirty(pending.path);
           stopEditing();
         } else if (pending.type === "new") {
-          await createRemotePath(pending.path, pending.content || "", pending.kind || "file");
+          const result = await createRemotePath(pending.path, pending.content || "", pending.kind || "file");
           if ((pending.kind || "file") === "folder") {
             addFolderTreeNodes(pending.path);
           } else {
@@ -4007,11 +4009,15 @@
             ensureTreePath(pending.path);
             openFile(pending.path);
           }
-          message.textContent = `${pending.path} created in github`;
+          message.textContent = result?.commit
+            ? `${pending.path} created in github (${String(result.commit).slice(0, 7)})`
+            : `${pending.path} created in github`;
         } else if (pending.type === "delete") {
-          await deleteRemotePath(pending.path, pending.kind || "file");
+          const result = await deleteRemotePath(pending.path, pending.kind || "file");
           removeLocalPath(pending.path, pending.kind || "file");
-          message.textContent = `${pending.path} deleted from github`;
+          message.textContent = result?.commit
+            ? `${pending.path} deleted from github (${String(result.commit).slice(0, 7)})`
+            : `${pending.path} deleted from github`;
         }
         render();
       } catch (error) {
@@ -5777,12 +5783,14 @@
       };
 
       try {
-        await saveRemoteFile(state.active, text);
+        const result = await saveRemoteFile(state.active, text);
         delete localFiles[state.active];
         persistLocalFiles();
         clearDirty(state.active);
         stopEditing();
-        message.textContent = `${state.active} saved to github`;
+        message.textContent = result?.commit
+          ? `${state.active} saved to github (${String(result.commit).slice(0, 7)})`
+          : `${state.active} saved to github`;
         render();
         return true;
       } catch (error) {
@@ -5826,7 +5834,10 @@
       }
 
       try {
-        await createRemotePath(path, "", "file");
+        const result = await createRemotePath(path, "", "file");
+        message.textContent = result?.commit
+          ? `${path} created in github (${String(result.commit).slice(0, 7)})`
+          : `${path} created in github`;
       } catch (error) {
         message.textContent = error instanceof Error ? error.message : "remote create failed";
         return;
@@ -5835,7 +5846,6 @@
       openFile(path);
       startEditing();
       markDirty(path);
-      message.textContent = `${path} created in github`;
     }
 
     explorerFilter.addEventListener("input", () => {
@@ -5885,6 +5895,10 @@
     });
 
     editBuffer.addEventListener("input", () => {
+      const record = fileRecord(state.active);
+      if (record) {
+        record.lines = textToLines(editBuffer.value);
+      }
       markDirty(state.active);
       updateModeIndicator();
     });

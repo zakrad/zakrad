@@ -174,8 +174,13 @@ async function handleSave(request, env) {
   const path = normalizePath(body.path);
   const content = String(body.content ?? "");
   assertAllowedPath(path);
-  await putGithubFile(env, path, content, `chore(site): update ${path}`);
-  return json({ ok: true, path });
+  const result = await putGithubFile(env, path, content, `chore(site): update ${path}`);
+  return json({
+    ok: true,
+    path,
+    commit: result?.commit?.sha || null,
+    contentPath: result?.content?.path || path
+  });
 }
 
 async function handleNew(request, env) {
@@ -185,8 +190,13 @@ async function handleNew(request, env) {
   const kind = body.kind === "folder" || path.endsWith("/") ? "folder" : "file";
   const targetPath = kind === "folder" ? `${path.replace(/\/$/, "")}/.gitkeep` : path;
   assertAllowedPath(targetPath);
-  await putGithubFile(env, targetPath, body.content ? String(body.content) : "", `chore(site): create ${targetPath}`);
-  return json({ ok: true, path: targetPath });
+  const result = await putGithubFile(env, targetPath, body.content ? String(body.content) : "", `chore(site): create ${targetPath}`);
+  return json({
+    ok: true,
+    path: targetPath,
+    commit: result?.commit?.sha || null,
+    contentPath: result?.content?.path || targetPath
+  });
 }
 
 async function handleDelete(request, env) {
@@ -196,8 +206,12 @@ async function handleDelete(request, env) {
   const kind = body.kind === "folder" ? "folder" : "file";
   const targetPath = kind === "folder" ? `${path.replace(/\/$/, "")}/.gitkeep` : path;
   assertAllowedPath(targetPath);
-  await deleteGithubFile(env, targetPath, `chore(site): delete ${targetPath}`);
-  return json({ ok: true, path: targetPath });
+  const result = await deleteGithubFile(env, targetPath, `chore(site): delete ${targetPath}`);
+  return json({
+    ok: true,
+    path: targetPath,
+    commit: result?.commit?.sha || null
+  });
 }
 
 function handleLogout(env) {
@@ -234,6 +248,7 @@ async function putGithubFile(env, path, content, message) {
     const detail = await putResponse.text();
     throw new Error(`github write failed: ${putResponse.status} ${detail}`);
   }
+  return putResponse.json();
 }
 
 async function deleteGithubFile(env, path, message) {
@@ -261,6 +276,7 @@ async function deleteGithubFile(env, path, message) {
     const detail = await deleteResponse.text();
     throw new Error(`github delete failed: ${deleteResponse.status} ${detail}`);
   }
+  return deleteResponse.json();
 }
 
 function githubHeaders(token, extra = {}) {
