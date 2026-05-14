@@ -657,6 +657,12 @@
       font-weight: 700;
     }
 
+    .status-segment.is-green {
+      color: var(--base);
+      background: var(--green);
+      font-weight: 700;
+    }
+
     .mode-chip {
       position: relative;
       z-index: 4;
@@ -1344,6 +1350,7 @@
       <footer class="statusline">
         <span class="mode-chip"><span></span><span id="mode">NORMAL</span></span>
         <span class="status-segment is-muted"><span></span><span id="branch">main</span></span>
+        <span class="status-segment is-green" id="authState"><span>󰌾</span><span id="authLabel">NO AUTH</span></span>
         <span class="status-segment is-black optional"><span id="statusFileIcon"></span><span id="statusFileName">README.md</span></span>
         <span class="status-segment" id="filetype">markdown</span>
         <span class="status-segment optional"><span class="yellow">󰆧</span><span>Portfolio</span></span>
@@ -3887,7 +3894,7 @@
     }
 
     function openGithubAuth() {
-      window.open(`${apiBase}/auth/github`, "_blank", "noopener");
+      window.open(`${apiBase}/auth/github`, "_blank");
       message.textContent = "opened github auth";
     }
 
@@ -4290,6 +4297,7 @@
     const filetype = document.querySelector("#filetype");
     const statusFileIcon = document.querySelector("#statusFileIcon");
     const statusFileName = document.querySelector("#statusFileName");
+    const authLabel = document.querySelector("#authLabel");
     const leaderState = document.querySelector("#leaderState");
     const recentKeys = document.querySelector("#recentKeys");
     const bufCount = document.querySelector("#bufCount");
@@ -4743,6 +4751,20 @@
 
       mode.textContent = "NORMAL";
       modeChip.classList.remove("is-insert");
+    }
+
+    function updateAuthIndicator() {
+      const token = window.localStorage.getItem(authTokenStorageKey) || "";
+      if (state.session.loaded) {
+        authLabel.textContent = state.session.authenticated
+          ? `AUTH ${state.session.login || ""}`.trim()
+          : token
+            ? "TOKEN"
+            : "NO AUTH";
+        return;
+      }
+
+      authLabel.textContent = token ? "TOKEN" : "NO AUTH";
     }
 
     function renderTerminal() {
@@ -5300,6 +5322,7 @@
       renderWindows();
       renderTerminal();
       updateModeIndicator();
+      updateAuthIndicator();
       recentKeys.textContent = state.recentKeys.filter(Boolean).join(" ");
       bufCount.textContent = state.open.length;
     }
