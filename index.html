@@ -4057,6 +4057,20 @@
       await markAuthenticated(login || null);
     }
 
+    async function logoutGithubSession() {
+      stopAuthPoll();
+      clearPendingRemoteAction();
+      try {
+        await workerJson("/logout", { method: "POST" });
+      } catch {
+        // ignore logout errors; local state still gets cleared
+      }
+      window.localStorage.removeItem(authTokenStorageKey);
+      state.session = { authenticated: false, login: null, loaded: true };
+      render();
+      message.textContent = "logged out";
+    }
+
     function normalizeCreatedLines(text) {
       return textToLines(text || "");
     }
@@ -4432,6 +4446,7 @@
     const commandCompletions = [
       { value: "markdownPreview", kind: "preview" },
       { value: "auth github", kind: "auth" },
+      { value: "logout", kind: "auth" },
       { value: "auth local", kind: "local" },
       { value: "edit", kind: "buffer" },
       { value: "new docs/note.md", kind: "file" },
@@ -5985,6 +6000,8 @@
         message.textContent = "local auth active";
       } else if (input === "auth github") {
         openGithubAuth();
+      } else if (input === "logout" || input === "auth logout") {
+        await logoutGithubSession();
       } else if (input === "i" || input === "insert" || input === "edit") {
         startEditing();
       } else if (input === "w" || input === "write" || input === "save") {
