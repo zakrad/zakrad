@@ -3834,6 +3834,7 @@
 
     const localStorageKey = "zakrad.nvim.localFiles.v1";
     const localFoldersStorageKey = "zakrad.nvim.localFolders.v1";
+    const authTokenStorageKey = "zakrad.nvim.githubSessionToken.v1";
     let localFiles = {};
     let localFolders = [];
 
@@ -3849,9 +3850,16 @@
     }
 
     async function workerJson(path, options = {}) {
+      const { headers: optionHeaders, ...rest } = options;
+      const headers = new Headers(optionHeaders || {});
+      const authToken = window.localStorage.getItem(authTokenStorageKey) || "";
+      if (authToken && !headers.has("authorization")) {
+        headers.set("authorization", `Bearer ${authToken}`);
+      }
       const response = await fetch(`${apiBase}${path}`, {
         credentials: "include",
-        ...options
+        ...rest,
+        headers
       });
       const text = await response.text();
       let payload = null;
@@ -3881,6 +3889,49 @@
     function openGithubAuth() {
       window.open(`${apiBase}/auth/github`, "_blank", "noopener");
       message.textContent = "opened github auth";
+    }
+
+    async function handleGithubAuthToken(token, login) {
+      if (!token) return;
+      window.localStorage.setItem(authTokenStorageKey, token);
+      state.session = { authenticated: true, login: login || null, loaded: true };
+      clearLocalDraftState();
+      render();
+      message.textContent = login ? `github session: ${login}` : "github session active";
+      if (state.pendingRemoteAction) {
+        const pending = state.pendingRemoteAction;
+        state.pendingRemoteAction = null;
+        try {
+          if (pending.type === "save") {
+            await saveRemoteFile(pending.path, pending.content);
+            message.textContent = `${pending.path} saved to github`;
+            clearDirty(pending.path);
+            stopEditing();
+          } else if (pending.type === "new") {
+            await createRemotePath(pending.path, pending.content || "", pending.kind || "file");
+            if ((pending.kind || "file") === "folder") {
+              addFolderTreeNodes(pending.path);
+            } else {
+              const meta = inferFileMeta(pending.path);
+              files[pending.path] = {
+                type: meta.type,
+                icon: meta.icon,
+                lines: textToLines(pending.content || "")
+              };
+              ensureTreePath(pending.path);
+              openFile(pending.path);
+            }
+            message.textContent = `${pending.path} created in github`;
+          } else if (pending.type === "delete") {
+            await deleteRemotePath(pending.path, pending.kind || "file");
+            removeLocalPath(pending.path, pending.kind || "file");
+            message.textContent = `${pending.path} deleted from github`;
+          }
+          render();
+        } catch (error) {
+          message.textContent = error instanceof Error ? error.message : "pending action failed";
+        }
+      }
     }
 
     function normalizeCreatedLines(text) {
@@ -4010,6 +4061,29 @@
       rebuildTreeChildren();
     }
 
+    function addFolderTreeNodes(rawPath) {
+      const path = normalizeEditablePath(rawPath).replace(/\/$/, "");
+      const parts = path.split("/");
+      let parent = undefined;
+      for (let i = 0; i < parts.length; i += 1) {
+        const folderPath = parts.slice(0, i + 1).join("/");
+        if (!treeNodes.some((node) => node.path === folderPath)) {
+          treeNodes.push({
+            kind: "folder",
+            name: parts[i],
+            path: folderPath,
+            parent,
+            depth: i
+          });
+        }
+        if (!state?.expanded?.includes(folderPath)) {
+          state?.expanded?.push(folderPath);
+        }
+        parent = folderPath;
+      }
+      rebuildTreeChildren();
+    }
+
     function clearLocalDraftState() {
       const draftFiles = Object.keys(localFiles);
       const draftFolders = [...localFolders];
@@ -4042,47 +4116,25 @@
         return false;
       }
 
-      const parts = path.split("/");
-      let parent = undefined;
-      for (let i = 0; i < parts.length; i += 1) {
-        const folderPath = parts.slice(0, i + 1).join("/");
-        if (!treeNodes.some((node) => node.path === folderPath)) {
-          treeNodes.push({
-            kind: "folder",
-            name: parts[i],
-            path: folderPath,
-            parent,
-            depth: i
-          });
-        }
-        if (!state?.expanded?.includes(folderPath)) {
-          state?.expanded?.push(folderPath);
-        }
-        parent = folderPath;
-      }
-
       if (!state.session.loaded) {
         await refreshSession();
       }
 
-      if (!state.session.authenticated && !localFolders.includes(path)) {
-        localFolders.push(path);
-        persistLocalFiles();
-      }
-      if (state.session.authenticated) {
-        try {
-          await createRemotePath(path, "", "folder");
-          localFolders = localFolders.filter((folder) => folder !== path);
-          persistLocalFiles();
-        } catch (error) {
-          message.textContent = error instanceof Error ? error.message : "remote folder create failed";
-          return false;
-        }
-      } else {
+      if (!state.session.authenticated) {
+        state.pendingRemoteAction = { type: "new", path, kind: "folder", content: "" };
         openGithubAuth();
         message.textContent = "github auth opened";
         return false;
       }
+
+      addFolderTreeNodes(path);
+      try {
+        await createRemotePath(path, "", "folder");
+      } catch (error) {
+        message.textContent = error instanceof Error ? error.message : "remote folder create failed";
+        return false;
+      }
+
       rebuildTreeChildren();
       render();
       message.textContent = `${path}/ created in github`;
@@ -4100,24 +4152,7 @@
       localFolders.forEach((rawPath) => {
         const path = normalizeEditablePath(rawPath).replace(/\/$/, "");
         if (!pathIsSafe(path)) return;
-        const parts = path.split("/");
-        let parent = undefined;
-        for (let i = 0; i < parts.length; i += 1) {
-          const folderPath = parts.slice(0, i + 1).join("/");
-          if (!treeNodes.some((node) => node.path === folderPath)) {
-            treeNodes.push({
-              kind: "folder",
-              name: parts[i],
-              path: folderPath,
-              parent,
-              depth: i
-            });
-          }
-          if (!state?.expanded?.includes(folderPath)) {
-            state?.expanded?.push(folderPath);
-          }
-          parent = folderPath;
-        }
+        addFolderTreeNodes(path);
       });
       Object.entries(localFiles).forEach(([path, record]) => {
         const normalized = normalizeEditablePath(path);
@@ -4214,6 +4249,7 @@
       editing: false,
       dirty: [],
       session: { authenticated: false, login: null, loaded: false },
+      pendingRemoteAction: null,
       terminal: {
         history: [],
         draft: "",
@@ -5371,16 +5407,22 @@
       }
 
       const kind = node.kind === "folder" ? "folder" : "file";
-      if (state.session.authenticated) {
-        try {
-          await deleteRemotePath(node.path, kind);
-        } catch (error) {
-          message.textContent = error instanceof Error ? error.message : "remote delete failed";
-        }
+      if (!state.session.authenticated) {
+        state.pendingRemoteAction = { type: "delete", path: node.path, kind };
+        openGithubAuth();
+        message.textContent = "github auth opened";
+        return;
+      }
+
+      try {
+        await deleteRemotePath(node.path, kind);
+      } catch (error) {
+        message.textContent = error instanceof Error ? error.message : "remote delete failed";
+        return;
       }
 
       removeLocalPath(node.path, kind);
-      message.textContent = `${node.path}${kind === "folder" ? "/" : ""} deleted locally`;
+      message.textContent = `${node.path}${kind === "folder" ? "/" : ""} deleted from github`;
     }
 
     function closeBuffer(file = state.active) {
@@ -5603,6 +5645,11 @@
       }
 
       if (!state.session.authenticated) {
+        state.pendingRemoteAction = {
+          type: "save",
+          path: state.active,
+          content: state.editing ? editBuffer.value : plainFileText(state.active)
+        };
         openGithubAuth();
         message.textContent = "github auth opened";
         return false;
@@ -5616,23 +5663,19 @@
         lines: textToLines(text)
       };
 
-      if (state.session.authenticated) {
-        try {
-          await saveRemoteFile(state.active, text);
-          delete localFiles[state.active];
-          persistLocalFiles();
-          clearDirty(state.active);
-          stopEditing();
-          message.textContent = `${state.active} saved to github`;
-          render();
-          return true;
-        } catch (error) {
-          message.textContent = error instanceof Error ? error.message : "remote save failed";
-          return false;
-        }
+      try {
+        await saveRemoteFile(state.active, text);
+        delete localFiles[state.active];
+        persistLocalFiles();
+        clearDirty(state.active);
+        stopEditing();
+        message.textContent = `${state.active} saved to github`;
+        render();
+        return true;
+      } catch (error) {
+        message.textContent = error instanceof Error ? error.message : "remote save failed";
+        return false;
       }
-
-      return false;
     }
 
     async function createLocalFile(rawPath) {
@@ -5660,24 +5703,19 @@
         };
         ensureTreePath(path);
         rebuildTreeChildren();
-        if (!state.session.authenticated) {
-          localFiles[path] = files[path];
-          persistLocalFiles();
-        }
       }
 
-      if (state.session.authenticated) {
-        try {
-          await createRemotePath(path, "", "file");
-          delete localFiles[path];
-          persistLocalFiles();
-        } catch (error) {
-          message.textContent = error instanceof Error ? error.message : "remote create failed";
-          return;
-        }
-      } else {
+      if (!state.session.authenticated) {
+        state.pendingRemoteAction = { type: "new", path, kind: "file", content: "" };
         openGithubAuth();
         message.textContent = "github auth opened";
+        return;
+      }
+
+      try {
+        await createRemotePath(path, "", "file");
+      } catch (error) {
+        message.textContent = error instanceof Error ? error.message : "remote create failed";
         return;
       }
 
@@ -6031,6 +6069,16 @@
     markdownPreviewClose.addEventListener("click", () => {
       hideMarkdownPreview();
       buffer.focus({ preventScroll: true });
+    });
+
+    window.addEventListener("message", async (event) => {
+      if (event.origin !== new URL(apiBase).origin) return;
+      if (event.data?.type !== "zakrad-auth") return;
+      try {
+        await handleGithubAuthToken(event.data.token, event.data.login);
+      } catch (error) {
+        message.textContent = error instanceof Error ? error.message : "auth token handling failed";
+      }
     });
 
     document.addEventListener("keydown", (event) => {

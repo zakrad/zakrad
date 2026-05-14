@@ -115,13 +115,6 @@ async function handleGithubCallback(request, env) {
   }, env);
 
   const headers = new Headers({ "content-type": "text/html; charset=utf-8" });
-  headers.append("set-cookie", cookie(env.SESSION_COOKIE_NAME, session, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "None",
-    maxAge: COOKIE_MAX_AGE,
-    path: "/"
-  }));
   headers.append("set-cookie", cookie("zakrad_oauth_state", "", {
     httpOnly: true,
     secure: true,
@@ -130,7 +123,26 @@ async function handleGithubCallback(request, env) {
     path: "/"
   }));
 
-  return new Response("<script>window.close()</script><p>Authenticated. You can close this tab.</p>", { headers });
+  const openerOrigin = env.CORS_ORIGIN || "*";
+  return new Response(`<!doctype html>
+<meta charset="utf-8">
+<script>
+  (function () {
+    try {
+      if (window.opener) {
+        window.opener.postMessage(${JSON.stringify({
+          type: "zakrad-auth",
+          token: session,
+          login: user.login
+        })}, ${JSON.stringify(openerOrigin)});
+      }
+    } catch (error) {
+      document.body.textContent = "Auth complete, but could not notify the opener.";
+    }
+    window.close();
+  })();
+</script>
+<p>Authenticated. You can close this tab.</p>`, { headers });
 }
 
 async function handleSession(request, env) {
@@ -250,11 +262,23 @@ async function requireSession(request, env) {
 }
 
 async function readSession(request, env) {
+  const bearer = readBearerToken(request);
+  if (bearer) {
+    const session = await verifySession(bearer, env);
+    if (session && session.exp >= Math.floor(Date.now() / 1000)) return session;
+  }
+
   const raw = readCookie(request, env.SESSION_COOKIE_NAME || "zakrad_editor_session");
   if (!raw) return null;
   const session = await verifySession(raw, env);
   if (!session || session.exp < Math.floor(Date.now() / 1000)) return null;
   return session;
+}
+
+function readBearerToken(request) {
+  const header = request.headers.get("authorization") || "";
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  return match ? match[1] : "";
 }
 
 async function signSession(payload, env) {
