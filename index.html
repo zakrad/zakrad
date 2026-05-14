@@ -4010,6 +4010,31 @@
       rebuildTreeChildren();
     }
 
+    function clearLocalDraftState() {
+      const draftFiles = Object.keys(localFiles);
+      const draftFolders = [...localFolders];
+
+      draftFiles.forEach((path) => {
+        delete files[path];
+      });
+      draftFolders.forEach((folder) => {
+        deleteTreeNodesByPrefix(folder);
+      });
+      draftFiles.forEach((path) => {
+        deleteTreeNodesByPrefix(path);
+      });
+
+      localFiles = {};
+      localFolders = [];
+      state.open = state.open.filter((file) => !draftFiles.includes(file));
+      state.pinned = state.pinned.filter((file) => !draftFiles.includes(file));
+      if (draftFiles.includes(state.active)) {
+        state.active = state.open[0] || "";
+      }
+
+      persistLocalFiles();
+    }
+
     async function ensureFolderPath(rawPath) {
       const path = normalizeEditablePath(rawPath).replace(/\/$/, "");
       if (!pathIsSafe(path)) {
@@ -6293,6 +6318,7 @@
     renderTerminal();
     void refreshSession().then(() => {
       if (state.session.authenticated) {
+        clearLocalDraftState();
         message.textContent = `github session: ${state.session.login}`;
       }
       render();
