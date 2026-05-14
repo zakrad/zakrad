@@ -515,6 +515,28 @@
       outline: 0;
     }
 
+    .edit-textarea {
+      position: absolute;
+      inset: 28px 0 0;
+      z-index: 4;
+      width: 100%;
+      min-height: 0;
+      padding: 4px 16px 12px 54px;
+      border: 0;
+      color: var(--text);
+      background: var(--base);
+      outline: 0;
+      resize: none;
+      font: inherit;
+      line-height: 20px;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    .edit-textarea[hidden] {
+      display: none;
+    }
+
     .line {
       display: grid;
       grid-template-columns: 52px minmax(0, 1fr);
@@ -1305,6 +1327,7 @@
           <section class="editor" id="editorPane" aria-live="polite">
             <div class="winbar" id="winbar"></div>
             <div class="buffer" id="buffer" tabindex="0" aria-label="editor buffer"></div>
+            <textarea class="edit-textarea" id="editBuffer" autocomplete="off" spellcheck="false" aria-label="editable buffer" hidden></textarea>
           </section>
 
           <section class="terminal-pane" id="terminalPane" aria-label="terminal split">
@@ -1387,6 +1410,8 @@
           ["type", "SPC b o     delete other buffers"],
           ["type", "SPC w h/j/k/l move window focus"],
           ["type", "SPC f g     open GitHub"],
+          ["type", "i           insert/edit file"],
+          ["type", ":save       write local changes"],
           ["", ""],
           ["comment", "-- press Space to start"]
         ]
@@ -1790,6 +1815,12 @@
           ["type", "SPC f g     open GitHub"],
           ["type", "SPC f l     open LinkedIn"],
           ["type", "SPC f e     open EIPs"],
+          ["", ""],
+          ["type", "i           insert/edit active file"],
+          ["type", "a           explorer: add file or folder path"],
+          ["type", ":w/:save    save locally"],
+          ["type", ":new path   create file; trailing / creates folder"],
+          ["type", ":mkdir path create folder"],
           ["", ""],
           ["type", "j/k         move cursor"],
           ["type", "h/l         previous/next buffer"],
@@ -3745,7 +3776,7 @@
       return files[resolveFilePath(file)] || files[file];
     }
 
-    const treeNodes = [
+    let treeNodes = [
       { kind: "file", path: "README.md", depth: 0, iconClass: "icon-md" },
       { kind: "folder", name: "dotfiles", path: "dotfiles", depth: 0 },
       { kind: "file", path: "dotfiles/README.md", parent: "dotfiles", depth: 1, iconClass: "icon-md" },
@@ -3800,6 +3831,292 @@
       linkedin: "https://www.linkedin.com/in/zakrad",
       eips: "https://eips.ethereum.org"
     };
+
+    const localStorageKey = "zakrad.nvim.localFiles.v1";
+    const localFoldersStorageKey = "zakrad.nvim.localFolders.v1";
+    let localFiles = {};
+    let localFolders = [];
+
+    function storageAvailable() {
+      try {
+        const key = "__zakrad_storage_test__";
+        localStorage.setItem(key, "1");
+        localStorage.removeItem(key);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    async function workerJson(path, options = {}) {
+      const response = await fetch(`${apiBase}${path}`, {
+        credentials: "include",
+        ...options
+      });
+      const text = await response.text();
+      let payload = null;
+      try {
+        payload = text ? JSON.parse(text) : null;
+      } catch {
+        payload = { raw: text };
+      }
+      return { ok: response.ok, status: response.status, payload };
+    }
+
+    async function refreshSession() {
+      try {
+        const result = await workerJson("/session");
+        state.session = {
+          authenticated: Boolean(result.payload?.authenticated),
+          login: result.payload?.login || null,
+          loaded: true
+        };
+        return state.session;
+      } catch {
+        state.session = { authenticated: false, login: null, loaded: true };
+        return state.session;
+      }
+    }
+
+    function openGithubAuth() {
+      window.open(`${apiBase}/auth/github`, "_blank", "noopener");
+      message.textContent = "opened github auth";
+    }
+
+    function normalizeCreatedLines(text) {
+      return textToLines(text || "");
+    }
+
+    async function saveRemoteFile(path, content) {
+      const result = await workerJson("/save", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ path, content })
+      });
+      if (!result.ok) throw new Error(result.payload?.error || "remote save failed");
+      return result.payload;
+    }
+
+    async function createRemotePath(path, content = "", kind = "file") {
+      const result = await workerJson("/new", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ path, content, kind })
+      });
+      if (!result.ok) throw new Error(result.payload?.error || "remote create failed");
+      return result.payload;
+    }
+
+    async function deleteRemotePath(path, kind = "file") {
+      const result = await workerJson("/delete", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ path, kind })
+      });
+      if (!result.ok) throw new Error(result.payload?.error || "remote delete failed");
+      return result.payload;
+    }
+
+    function readLocalFiles() {
+      if (!storageAvailable()) return {};
+      try {
+        const parsed = JSON.parse(localStorage.getItem(localStorageKey) || "{}");
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function persistLocalFiles() {
+      if (!storageAvailable()) {
+        message.textContent = "localStorage unavailable";
+        return false;
+      }
+
+      localStorage.setItem(localStorageKey, JSON.stringify(localFiles));
+      localStorage.setItem(localFoldersStorageKey, JSON.stringify(localFolders));
+      return true;
+    }
+
+    function inferFileMeta(path) {
+      const lower = path.toLowerCase();
+      if (lower.endsWith(".md")) return { type: "markdown", icon: "", iconClass: "icon-md" };
+      if (lower.endsWith(".lua")) return { type: "lua", icon: "", iconClass: "icon-lua" };
+      if (lower.endsWith(".sol")) return { type: "solidity", icon: "󰡪", iconClass: "icon-sol" };
+      if (lower.endsWith(".json")) return { type: "json", icon: "", iconClass: "icon-json" };
+      if (lower.endsWith(".toml")) return { type: "toml", icon: "", iconClass: "icon-toml" };
+      if (lower.endsWith(".env") || lower.includes(".env.")) return { type: "dotenv", icon: "", iconClass: "icon-env" };
+      if (lower.endsWith(".gitignore")) return { type: "gitignore", icon: "󰊢", iconClass: "icon-git" };
+      if (lower.endsWith(".sh") || lower.endsWith(".zshrc")) return { type: "shell", icon: "$", iconClass: "icon-text" };
+      return { type: "text", icon: "󰈙", iconClass: "icon-text" };
+    }
+
+    function plainFileText(file) {
+      const record = fileRecord(file);
+      return record ? record.lines.map((line) => plainLine(line)).join("\n") : "";
+    }
+
+    function textToLines(text) {
+      return String(text).replace(/\r\n?/g, "\n").split("\n").map((line) => [line]);
+    }
+
+    function normalizeEditablePath(path) {
+      return path.trim().replace(/^\/+/, "").replace(/\/+/g, "/");
+    }
+
+    function pathIsSafe(path) {
+      return Boolean(path) && !path.startsWith(".") && !path.split("/").includes("..");
+    }
+
+    function ensureTreePath(path) {
+      const parts = path.split("/");
+      let parent = undefined;
+      for (let i = 0; i < parts.length - 1; i += 1) {
+        const folderPath = parts.slice(0, i + 1).join("/");
+        if (!treeNodes.some((node) => node.path === folderPath)) {
+          treeNodes.push({
+            kind: "folder",
+            name: parts[i],
+            path: folderPath,
+            parent,
+            depth: i
+          });
+        }
+        if (!state?.expanded?.includes(folderPath)) {
+          state?.expanded?.push(folderPath);
+        }
+        parent = folderPath;
+      }
+
+      if (!treeNodes.some((node) => node.path === path)) {
+        const meta = inferFileMeta(path);
+        treeNodes.push({
+          kind: "file",
+          path,
+          parent,
+          depth: parts.length - 1,
+          iconClass: meta.iconClass
+        });
+      }
+    }
+
+    function deleteTreeNodesByPrefix(prefix) {
+      const normalized = prefix.replace(/\/$/, "");
+      treeNodes = treeNodes.filter((node) => {
+        if (node.path === normalized) return false;
+        if (!normalized) return true;
+        return !(node.path === normalized || node.path.startsWith(`${normalized}/`));
+      });
+      rebuildTreeChildren();
+    }
+
+    async function ensureFolderPath(rawPath) {
+      const path = normalizeEditablePath(rawPath).replace(/\/$/, "");
+      if (!pathIsSafe(path)) {
+        message.textContent = `invalid folder: ${rawPath}`;
+        return false;
+      }
+
+      const parts = path.split("/");
+      let parent = undefined;
+      for (let i = 0; i < parts.length; i += 1) {
+        const folderPath = parts.slice(0, i + 1).join("/");
+        if (!treeNodes.some((node) => node.path === folderPath)) {
+          treeNodes.push({
+            kind: "folder",
+            name: parts[i],
+            path: folderPath,
+            parent,
+            depth: i
+          });
+        }
+        if (!state?.expanded?.includes(folderPath)) {
+          state?.expanded?.push(folderPath);
+        }
+        parent = folderPath;
+      }
+
+      if (!localFolders.includes(path)) {
+        localFolders.push(path);
+        persistLocalFiles();
+      }
+      if (state.session.authenticated) {
+        try {
+          await createRemotePath(path, "", "folder");
+        } catch (error) {
+          message.textContent = error instanceof Error ? error.message : "remote folder create failed";
+        }
+      }
+      rebuildTreeChildren();
+      render();
+      message.textContent = `${path}/ created locally`;
+      return true;
+    }
+
+    function mergeLocalFiles() {
+      localFiles = readLocalFiles();
+      try {
+        const parsedFolders = JSON.parse(localStorage.getItem(localFoldersStorageKey) || "[]");
+        localFolders = Array.isArray(parsedFolders) ? parsedFolders.filter((path) => pathIsSafe(normalizeEditablePath(path))) : [];
+      } catch {
+        localFolders = [];
+      }
+      localFolders.forEach((rawPath) => {
+        const path = normalizeEditablePath(rawPath).replace(/\/$/, "");
+        if (!pathIsSafe(path)) return;
+        const parts = path.split("/");
+        let parent = undefined;
+        for (let i = 0; i < parts.length; i += 1) {
+          const folderPath = parts.slice(0, i + 1).join("/");
+          if (!treeNodes.some((node) => node.path === folderPath)) {
+            treeNodes.push({
+              kind: "folder",
+              name: parts[i],
+              path: folderPath,
+              parent,
+              depth: i
+            });
+          }
+          if (!state?.expanded?.includes(folderPath)) {
+            state?.expanded?.push(folderPath);
+          }
+          parent = folderPath;
+        }
+      });
+      Object.entries(localFiles).forEach(([path, record]) => {
+        const normalized = normalizeEditablePath(path);
+        if (!pathIsSafe(normalized) || !record?.lines) return;
+        const meta = inferFileMeta(normalized);
+        files[normalized] = {
+          type: record.type || meta.type,
+          icon: record.icon || meta.icon,
+          lines: record.lines
+        };
+        ensureTreePath(normalized);
+      });
+    }
+
+    function removeLocalPath(path, kind = "file") {
+      const normalized = normalizeEditablePath(path).replace(/\/$/, "");
+      const prefix = kind === "folder" ? `${normalized}/` : normalized;
+      const shouldRemove = (candidate) => candidate === normalized || candidate.startsWith(prefix);
+
+      Object.keys(files).forEach((file) => {
+        if (shouldRemove(file)) delete files[file];
+      });
+      Object.keys(localFiles).forEach((file) => {
+        if (shouldRemove(file)) delete localFiles[file];
+      });
+      localFolders = localFolders.filter((folder) => !shouldRemove(folder));
+      state.open = state.open.filter((file) => !shouldRemove(file));
+      state.pinned = state.pinned.filter((file) => !shouldRemove(file));
+      if (state.active && shouldRemove(state.active)) {
+        state.active = state.open[0] || "";
+      }
+      deleteTreeNodesByPrefix(normalized);
+      persistLocalFiles();
+      render();
+    }
 
     const groups = {
       root: [
@@ -3858,6 +4175,9 @@
       visual: null,
       explorerFilter: "",
       yank: "",
+      editing: false,
+      dirty: [],
+      session: { authenticated: false, login: null, loaded: false },
       terminal: {
         history: [],
         draft: "",
@@ -3886,6 +4206,7 @@
     const tabline = document.querySelector("#tabline");
     const tabs = document.querySelector("#tabs");
     const buffer = document.querySelector("#buffer");
+    const editBuffer = document.querySelector("#editBuffer");
     const winbar = document.querySelector("#winbar");
     const command = document.querySelector("#command");
     const commandForm = document.querySelector("#commandForm");
@@ -3910,8 +4231,16 @@
     const markdownPreviewClose = document.querySelector("#markdownPreviewClose");
 
     const coinbaseQuoteOrder = ["USD", "USDC", "USDT", "EUR", "GBP", "BTC"];
+    const apiBase = "https://zakrad-editor-api.daniyal-rad.workers.dev";
     const commandCompletions = [
-      { value: "markdownPreview", kind: "preview" }
+      { value: "markdownPreview", kind: "preview" },
+      { value: "auth github", kind: "auth" },
+      { value: "auth local", kind: "local" },
+      { value: "edit", kind: "buffer" },
+      { value: "new docs/note.md", kind: "file" },
+      { value: "mkdir docs", kind: "folder" },
+      { value: "save", kind: "write" },
+      { value: "w", kind: "write" }
     ];
     let commandCompletionItems = [];
     let commandCompletionIndex = 0;
@@ -3919,6 +4248,14 @@
     function showCommandLine() {
       commandForm.classList.add("is-visible");
       command.focus();
+    }
+
+    function showCommandLineWith(value) {
+      commandForm.classList.add("is-visible");
+      command.value = value;
+      command.focus();
+      command.setSelectionRange(command.value.length, command.value.length);
+      updateCommandSuggestion();
     }
 
     function hideCommandLine() {
@@ -4248,12 +4585,20 @@
       return treeNodeText(node).includes(query);
     }
 
-    const treeChildren = treeNodes.reduce((map, node) => {
-      const key = node.parent ?? "";
-      if (!map.has(key)) map.set(key, []);
-      map.get(key).push(node);
-      return map;
-    }, new Map());
+    mergeLocalFiles();
+
+    let treeChildren = new Map();
+
+    function rebuildTreeChildren() {
+      treeChildren = treeNodes.reduce((map, node) => {
+        const key = node.parent ?? "";
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(node);
+        return map;
+      }, new Map());
+    }
+
+    rebuildTreeChildren();
 
     function childrenOf(parentPath) {
       return treeChildren.get(parentPath ?? "") || [];
@@ -4318,7 +4663,7 @@
         return;
       }
 
-      if (document.activeElement === terminalCommand || document.activeElement === explorerFilter) {
+      if (document.activeElement === editBuffer || document.activeElement === terminalCommand || document.activeElement === explorerFilter) {
         mode.textContent = "INSERT";
         modeChip.classList.add("is-insert");
         return;
@@ -4623,6 +4968,31 @@
         document.body.classList.remove("page-broken");
         renderTerminal();
         return;
+      } else if (normalized === "auth" || normalized === "auth local") {
+        output = [
+          terminalLine("local auth active", "green"),
+          terminalLine("changes are saved only in this browser until a backend is added", "term-meta")
+        ];
+      } else if (normalized === "auth github") {
+        openGithubAuth();
+        output = [
+          terminalLine("opened github auth", "green"),
+          terminalLine("finish the login in the new tab", "term-meta")
+        ];
+      } else if (normalized === "edit") {
+        startEditing();
+        output = [terminalLine(`editing ${state.active}`, "green")];
+      } else if (normalized === "save" || normalized === "write") {
+        const saved = await saveActiveFile();
+        output = [terminalLine(saved ? `${state.active} written locally` : "write failed", saved ? "green" : "red")];
+      } else if (/^new\s+/i.test(command)) {
+        const path = command.replace(/^new\s+/i, "").trim();
+        await createLocalFile(path);
+        output = [terminalLine(`${normalizeEditablePath(path)} created locally`, "green")];
+      } else if (/^mkdir\s+/i.test(command)) {
+        const path = command.replace(/^mkdir\s+/i, "").trim();
+        const created = await ensureFolderPath(path);
+        output = [terminalLine(created ? `${normalizeEditablePath(path).replace(/\/$/, "")}/ created locally` : "mkdir failed", created ? "green" : "red")];
       } else if (/^price\s+/i.test(command)) {
         const query = command.replace(/^price\s+/i, "").trim();
         const quote = await fetchTerminalQuote(query);
@@ -4737,7 +5107,7 @@
             <button class="tab ${file === state.active ? "is-active" : ""}" data-file="${file}">
               <span class="${iconClassFor(file)}">${fileRecord(file)?.icon || ""}</span>
               <span>${state.pinned.includes(file) ? "󰐃" : ""}</span>
-              <span>${file}</span>
+              <span>${file}${state.dirty.includes(file) ? " +" : ""}</span>
               <span class="tab-close" data-close="${file}" aria-label="close ${file}">×</span>
             </button>
           `).join("")
@@ -4767,7 +5137,7 @@
       filetype.textContent = file.type;
       statusFileIcon.textContent = file.icon;
       statusFileIcon.className = iconClass;
-      statusFileName.textContent = shortFileName(state.active);
+      statusFileName.textContent = `${shortFileName(state.active)}${state.dirty.includes(state.active) ? " +" : ""}`;
       state.percent = Math.round(((state.cursor + 1) / file.lines.length) * 100);
       if (!state.leader) leaderState.textContent = `${state.percent}%`;
       position.textContent = `${state.cursor + 1}:1`;
@@ -4944,6 +5314,37 @@
       openFile(node.path);
       state.window = "editor";
       render();
+    }
+
+    function explorerCreatePrefix() {
+      const node = visibleTreeNodes()[state.explorerIndex];
+      if (!node) return "new ";
+      const folder = node.kind === "folder" ? node.path : node.parent;
+      return folder ? `new ${folder}/` : "new ";
+    }
+
+    async function deleteExplorerSelection() {
+      const node = visibleTreeNodes()[state.explorerIndex];
+      if (!node) {
+        message.textContent = "nothing to delete";
+        return;
+      }
+
+      if (!state.session.loaded) {
+        await refreshSession();
+      }
+
+      const kind = node.kind === "folder" ? "folder" : "file";
+      if (state.session.authenticated) {
+        try {
+          await deleteRemotePath(node.path, kind);
+        } catch (error) {
+          message.textContent = error instanceof Error ? error.message : "remote delete failed";
+        }
+      }
+
+      removeLocalPath(node.path, kind);
+      message.textContent = `${node.path}${kind === "folder" ? "/" : ""} deleted locally`;
     }
 
     function closeBuffer(file = state.active) {
@@ -5124,6 +5525,126 @@
       else explorerFilter.blur();
     }
 
+    function markDirty(file) {
+      if (file && !state.dirty.includes(file)) state.dirty.push(file);
+    }
+
+    function clearDirty(file) {
+      state.dirty = state.dirty.filter((item) => item !== file);
+    }
+
+    function startEditing() {
+      if (!state.active || !fileRecord(state.active)) {
+        message.textContent = "no active buffer";
+        return;
+      }
+
+      state.editing = true;
+      state.window = "editor";
+      editBuffer.value = plainFileText(state.active);
+      editBuffer.hidden = false;
+      editBuffer.focus({ preventScroll: true });
+      updateModeIndicator();
+      message.textContent = `editing ${state.active}`;
+    }
+
+    function stopEditing() {
+      state.editing = false;
+      editBuffer.hidden = true;
+      editBuffer.value = "";
+      buffer.focus({ preventScroll: true });
+      updateModeIndicator();
+    }
+
+    async function saveActiveFile() {
+      if (!state.active || !fileRecord(state.active)) {
+        message.textContent = "no active buffer";
+        return false;
+      }
+
+      if (!state.session.loaded) {
+        await refreshSession();
+      }
+
+      if (!state.session.authenticated) {
+        openGithubAuth();
+        message.textContent = "github auth opened, saving locally for now";
+      }
+
+      const text = state.editing ? editBuffer.value : plainFileText(state.active);
+      const meta = inferFileMeta(state.active);
+      files[state.active] = {
+        type: fileRecord(state.active)?.type || meta.type,
+        icon: fileRecord(state.active)?.icon || meta.icon,
+        lines: textToLines(text)
+      };
+      localFiles[state.active] = files[state.active];
+
+      if (!persistLocalFiles()) return false;
+
+      if (state.session.authenticated) {
+        try {
+          await saveRemoteFile(state.active, text);
+          clearDirty(state.active);
+          stopEditing();
+          message.textContent = `${state.active} saved to github`;
+          render();
+          return true;
+        } catch (error) {
+          message.textContent = error instanceof Error ? error.message : "remote save failed";
+        }
+      }
+
+      clearDirty(state.active);
+      stopEditing();
+      message.textContent = `${state.active} written locally`;
+      render();
+      return true;
+    }
+
+    async function createLocalFile(rawPath) {
+      if (!state.session.loaded) {
+        await refreshSession();
+      }
+
+      const path = normalizeEditablePath(rawPath);
+      if (path.endsWith("/")) {
+        await ensureFolderPath(path);
+        return;
+      }
+
+      if (!pathIsSafe(path)) {
+        message.textContent = `invalid path: ${rawPath}`;
+        return;
+      }
+
+      const meta = inferFileMeta(path);
+      if (!files[path]) {
+        files[path] = {
+          type: meta.type,
+          icon: meta.icon,
+          lines: [[""]]
+        };
+        localFiles[path] = files[path];
+        ensureTreePath(path);
+        rebuildTreeChildren();
+        persistLocalFiles();
+      }
+
+      if (state.session.authenticated) {
+        try {
+          await createRemotePath(path, "", "file");
+        } catch (error) {
+          message.textContent = error instanceof Error ? error.message : "remote create failed";
+        }
+      }
+
+      openFile(path);
+      startEditing();
+      markDirty(path);
+      message.textContent = `${path} created locally`;
+    }
+
     explorerFilter.addEventListener("input", () => {
       state.explorerFilter = explorerFilter.value;
       state.explorerIndex = 0;
@@ -5170,7 +5691,42 @@
       if (state.window === "terminal") terminalCommand.focus({ preventScroll: true });
     });
 
-    function runCommand(raw) {
+    editBuffer.addEventListener("input", () => {
+      markDirty(state.active);
+      updateModeIndicator();
+    });
+
+    editBuffer.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        void saveActiveFile();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        event.preventDefault();
+        const start = editBuffer.selectionStart;
+        const end = editBuffer.selectionEnd;
+        editBuffer.value = `${editBuffer.value.slice(0, start)}  ${editBuffer.value.slice(end)}`;
+        editBuffer.setSelectionRange(start + 2, start + 2);
+        markDirty(state.active);
+        return;
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        const record = fileRecord(state.active);
+        if (record) {
+          record.lines = textToLines(editBuffer.value);
+          markDirty(state.active);
+        }
+        stopEditing();
+        message.textContent = "normal mode";
+        render();
+      }
+    });
+
+    async function runCommand(raw) {
       const input = raw.trim().replace(/^:/, "");
       if (!input) {
         hideCommandLine();
@@ -5198,6 +5754,28 @@
         toggleExplorer();
       } else if (/^markdownPreview!?$/i.test(input)) {
         showMarkdownPreview();
+      } else if (input === "auth" || input === "auth local") {
+        message.textContent = "local auth active";
+      } else if (input === "auth github") {
+        openGithubAuth();
+      } else if (input === "i" || input === "insert" || input === "edit") {
+        startEditing();
+      } else if (input === "w" || input === "write" || input === "save") {
+        await saveActiveFile();
+      } else if (input === "wq") {
+        if (await saveActiveFile()) closeBuffer();
+      } else if (input.startsWith("new ")) {
+        await createLocalFile(input.slice(4));
+      } else if (input.startsWith("mkdir ")) {
+        await ensureFolderPath(input.slice(6));
+      } else if (input.startsWith("edit ")) {
+        const path = normalizeEditablePath(input.slice(5));
+        if (fileRecord(path)) {
+          openFile(path);
+          startEditing();
+        } else {
+          createLocalFile(path);
+        }
       } else if (input.startsWith("e ")) {
         const query = input.slice(2).trim();
         const match = Object.keys(files).find((file) => file.includes(query));
@@ -5232,8 +5810,7 @@
 
     function updateCommandSuggestion() {
       const value = command.value.trim();
-      const markdown = activeMarkdownReadme();
-      if (!markdown || !value) {
+      if (!value) {
         hideCommandMenu();
         return;
       }
@@ -5388,7 +5965,7 @@
 
     commandForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      runCommand(command.value);
+      void runCommand(command.value);
     });
 
     command.addEventListener("input", updateCommandSuggestion);
@@ -5502,6 +6079,10 @@
         return;
       }
 
+      if (document.activeElement === editBuffer) {
+        return;
+      }
+
       if (event.key === "Escape") {
         event.preventDefault();
         hideWhichKey();
@@ -5562,15 +6143,38 @@
           return;
         }
 
-        if (state.window === "explorer" && document.activeElement !== explorerFilter) {
+        if (state.window === "explorer") {
           event.preventDefault();
-          explorerFilter.focus({ preventScroll: true });
-          updateModeIndicator();
+          const node = visibleTreeNodes()[state.explorerIndex];
+          if (node?.kind === "file") {
+            openFile(node.path);
+            startEditing();
+          } else {
+            message.textContent = "select a file or press a to create";
+          }
+          return;
+        }
+
+        if (state.window === "editor") {
+          event.preventDefault();
+          startEditing();
           return;
         }
       }
 
       if (state.window === "explorer") {
+        if (event.key === "a") {
+          event.preventDefault();
+          showCommandLineWith(explorerCreatePrefix());
+          return;
+        }
+
+        if (event.key === "d") {
+          event.preventDefault();
+          void deleteExplorerSelection();
+          return;
+        }
+
         if (event.key === "j" || event.key === "ArrowDown") {
           event.preventDefault();
           moveExplorer(1);
@@ -5670,6 +6274,12 @@
 
     render();
     renderTerminal();
+    void refreshSession().then(() => {
+      if (state.session.authenticated) {
+        message.textContent = `github session: ${state.session.login}`;
+      }
+      render();
+    });
     buffer.focus({ preventScroll: true });
   </script>
 </body>

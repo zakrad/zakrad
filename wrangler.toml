@@ -1,0 +1,11 @@
+name = "zakrad-editor-api"
+main = "src/worker.js"
+compatibility_date = "2026-05-14"
+
+[vars]
+GITHUB_OWNER = "zakrad"
+GITHUB_REPO = "zakrad"
+GITHUB_BRANCH = "main"
+GITHUB_ALLOWED_LOGIN = "zakrad"
+CORS_ORIGIN = "https://zakrad.com"
+SESSION_COOKIE_NAME = "zakrad_editor_session"
