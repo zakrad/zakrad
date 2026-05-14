@@ -115,6 +115,13 @@ async function handleGithubCallback(request, env) {
   }, env);
 
   const headers = new Headers({ "content-type": "text/html; charset=utf-8" });
+  headers.append("set-cookie", cookie(env.SESSION_COOKIE_NAME || "zakrad_editor_session", session, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+    maxAge: COOKIE_MAX_AGE,
+    path: "/"
+  }));
   headers.append("set-cookie", cookie("zakrad_oauth_state", "", {
     httpOnly: true,
     secure: true,
@@ -128,7 +135,6 @@ async function handleGithubCallback(request, env) {
     zakrad_auth: session,
     login: user.login
   }).toString()}`;
-  const returnUrl = `${openerOrigin}/${authHash}`;
   return new Response(`<!doctype html>
 <meta charset="utf-8">
 <script>
@@ -139,10 +145,14 @@ async function handleGithubCallback(request, env) {
           window.opener.location.hash = ${JSON.stringify(authHash)};
           window.opener.focus();
         } catch (error) {
-          window.opener.location.replace(${JSON.stringify(returnUrl)});
+          try {
+            window.opener.postMessage(${JSON.stringify({
+              type: "zakrad-auth",
+              token: session,
+              login: user.login
+            })}, ${JSON.stringify(openerOrigin)});
+          } catch (messageError) {}
         }
-      } else {
-        window.location.replace(${JSON.stringify(returnUrl)});
       }
     } catch (error) {
       document.body.textContent = "Auth complete, but could not notify the opener.";

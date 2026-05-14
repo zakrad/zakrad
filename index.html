@@ -3898,6 +3898,31 @@
       }
     }
 
+    let authPollTimer = null;
+
+    function stopAuthPoll() {
+      if (authPollTimer !== null) {
+        window.clearInterval(authPollTimer);
+        authPollTimer = null;
+      }
+    }
+
+    function startAuthPoll() {
+      if (authPollTimer !== null) return;
+      let attempts = 0;
+      authPollTimer = window.setInterval(() => {
+        attempts += 1;
+        void refreshSession().then(async (session) => {
+          if (session.authenticated) {
+            stopAuthPoll();
+            await markAuthenticated(session.login || null);
+            return;
+          }
+          if (attempts >= 30) stopAuthPoll();
+        });
+      }, 1000);
+    }
+
     async function workerJson(path, options = {}) {
       const { headers: optionHeaders, ...rest } = options;
       const headers = new Headers(optionHeaders || {});
@@ -3937,6 +3962,7 @@
 
     function openGithubAuth() {
       window.open(`${apiBase}/auth/github`, "_blank");
+      startAuthPoll();
       message.textContent = "opened github auth";
     }
 
@@ -3957,47 +3983,55 @@
       return true;
     }
 
-    async function handleGithubAuthToken(token, login) {
-      if (!token) return;
-      window.localStorage.setItem(authTokenStorageKey, token);
+    async function flushPendingRemoteAction() {
+      if (!state.pendingRemoteAction) return;
+      const pending = state.pendingRemoteAction;
+      clearPendingRemoteAction();
+      try {
+        if (pending.type === "save") {
+          await saveRemoteFile(pending.path, pending.content);
+          message.textContent = `${pending.path} saved to github`;
+          clearDirty(pending.path);
+          stopEditing();
+        } else if (pending.type === "new") {
+          await createRemotePath(pending.path, pending.content || "", pending.kind || "file");
+          if ((pending.kind || "file") === "folder") {
+            addFolderTreeNodes(pending.path);
+          } else {
+            const meta = inferFileMeta(pending.path);
+            files[pending.path] = {
+              type: meta.type,
+              icon: meta.icon,
+              lines: textToLines(pending.content || "")
+            };
+            ensureTreePath(pending.path);
+            openFile(pending.path);
+          }
+          message.textContent = `${pending.path} created in github`;
+        } else if (pending.type === "delete") {
+          await deleteRemotePath(pending.path, pending.kind || "file");
+          removeLocalPath(pending.path, pending.kind || "file");
+          message.textContent = `${pending.path} deleted from github`;
+        }
+        render();
+      } catch (error) {
+        message.textContent = error instanceof Error ? error.message : "pending action failed";
+      }
+    }
+
+    async function markAuthenticated(login) {
       state.session = { authenticated: true, login: login || null, loaded: true };
       clearLocalDraftState();
       render();
       message.textContent = login ? `github session: ${login}` : "github session active";
-      if (state.pendingRemoteAction) {
-        const pending = state.pendingRemoteAction;
-        clearPendingRemoteAction();
-        try {
-          if (pending.type === "save") {
-            await saveRemoteFile(pending.path, pending.content);
-            message.textContent = `${pending.path} saved to github`;
-            clearDirty(pending.path);
-            stopEditing();
-          } else if (pending.type === "new") {
-            await createRemotePath(pending.path, pending.content || "", pending.kind || "file");
-            if ((pending.kind || "file") === "folder") {
-              addFolderTreeNodes(pending.path);
-            } else {
-              const meta = inferFileMeta(pending.path);
-              files[pending.path] = {
-                type: meta.type,
-                icon: meta.icon,
-                lines: textToLines(pending.content || "")
-              };
-              ensureTreePath(pending.path);
-              openFile(pending.path);
-            }
-            message.textContent = `${pending.path} created in github`;
-          } else if (pending.type === "delete") {
-            await deleteRemotePath(pending.path, pending.kind || "file");
-            removeLocalPath(pending.path, pending.kind || "file");
-            message.textContent = `${pending.path} deleted from github`;
-          }
-          render();
-        } catch (error) {
-          message.textContent = error instanceof Error ? error.message : "pending action failed";
-        }
-      }
+      await flushPendingRemoteAction();
+    }
+
+    async function handleGithubAuthToken(token, login) {
+      if (!token) return;
+      window.localStorage.setItem(authTokenStorageKey, token);
+      stopAuthPoll();
+      await markAuthenticated(login || null);
     }
 
     function normalizeCreatedLines(text) {
@@ -6453,8 +6487,7 @@
     consumeGithubAuthHash();
     void refreshSession().then(() => {
       if (state.session.authenticated) {
-        clearLocalDraftState();
-        message.textContent = `github session: ${state.session.login}`;
+        void markAuthenticated(state.session.login || null);
       }
       render();
     });
