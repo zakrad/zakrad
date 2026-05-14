@@ -1355,6 +1355,7 @@
         <span class="status-segment" id="filetype">markdown</span>
         <span class="status-segment optional"><span class="yellow">󰆧</span><span>Portfolio</span></span>
         <span class="status-spacer"></span>
+        <span class="status-segment is-muted optional" id="statusMessage">ready</span>
         <span class="status-segment optional" id="recentKeysSegment"><span class="mauve" id="recentKeys">SPC</span></span>
         <span class="status-segment optional" id="bufCountSegment"><span class="pink" style="font-size:17px;line-height:1">⬡</span><span id="bufCount">1</span></span>
         <span class="status-segment is-muted optional" id="leaderState">0%</span>
@@ -4007,6 +4008,9 @@
       try {
         if (pending.type === "save") {
           const result = await saveRemoteFile(pending.path, pending.content);
+          setStatusMessage(result?.commit
+            ? `${pending.path} saved to github (${String(result.commit).slice(0, 7)})`
+            : `${pending.path} saved to github`);
           message.textContent = result?.commit
             ? `${pending.path} saved to github (${String(result.commit).slice(0, 7)})`
             : `${pending.path} saved to github`;
@@ -4014,6 +4018,9 @@
           stopEditing();
         } else if (pending.type === "new") {
           const result = await createRemotePath(pending.path, pending.content || "", pending.kind || "file");
+          setStatusMessage(result?.commit
+            ? `${pending.path} created in github (${String(result.commit).slice(0, 7)})`
+            : `${pending.path} created in github`);
           if ((pending.kind || "file") === "folder") {
             addFolderTreeNodes(pending.path);
           } else {
@@ -4032,6 +4039,9 @@
         } else if (pending.type === "delete") {
           const result = await deleteRemotePath(pending.path, pending.kind || "file");
           removeLocalPath(pending.path, pending.kind || "file");
+          setStatusMessage(result?.commit
+            ? `${pending.path} deleted from github (${String(result.commit).slice(0, 7)})`
+            : `${pending.path} deleted from github`);
           message.textContent = result?.commit
             ? `${pending.path} deleted from github (${String(result.commit).slice(0, 7)})`
             : `${pending.path} deleted from github`;
@@ -4047,6 +4057,7 @@
       clearLocalDraftState();
       render();
       message.textContent = login ? `github session: ${login}` : "github session active";
+      setStatusMessage(login ? `AUTH ${login}` : "AUTH");
       await flushPendingRemoteAction();
     }
 
@@ -4069,6 +4080,7 @@
       state.session = { authenticated: false, login: null, loaded: true };
       render();
       message.textContent = "logged out";
+      setStatusMessage("NO AUTH");
     }
 
     function normalizeCreatedLines(text) {
@@ -4431,6 +4443,7 @@
     const leaderState = document.querySelector("#leaderState");
     const recentKeys = document.querySelector("#recentKeys");
     const bufCount = document.querySelector("#bufCount");
+    const statusMessage = document.querySelector("#statusMessage");
     const whichKey = document.querySelector("#whichKey");
     const wkTitle = document.querySelector("#wkTitle");
     const wkGrid = document.querySelector("#wkGrid");
@@ -4460,6 +4473,10 @@
     function showCommandLine() {
       commandForm.classList.add("is-visible");
       command.focus();
+    }
+
+    function setStatusMessage(text) {
+      statusMessage.textContent = text;
     }
 
     function showCommandLineWith(value) {
@@ -5570,10 +5587,12 @@
         await deleteRemotePath(node.path, kind);
       } catch (error) {
         message.textContent = error instanceof Error ? error.message : "remote delete failed";
+        setStatusMessage(error instanceof Error ? error.message : "remote delete failed");
         return;
       }
 
       removeLocalPath(node.path, kind);
+      setStatusMessage(`${node.path}${kind === "folder" ? "/" : ""} deleted from github`);
       message.textContent = `${node.path}${kind === "folder" ? "/" : ""} deleted from github`;
     }
 
@@ -5817,11 +5836,15 @@
 
       try {
         message.textContent = "saving...";
+        setStatusMessage("saving...");
         const result = await saveRemoteFile(state.active, text);
         delete localFiles[state.active];
         persistLocalFiles();
         clearDirty(state.active);
         stopEditing();
+        setStatusMessage(result?.commit
+          ? `${state.active} saved to github (${String(result.commit).slice(0, 7)})`
+          : `${state.active} saved to github`);
         message.textContent = result?.commit
           ? `${state.active} saved to github (${String(result.commit).slice(0, 7)})`
           : `${state.active} saved to github`;
@@ -5869,7 +5892,11 @@
 
       try {
         message.textContent = "creating...";
+        setStatusMessage("creating...");
         const result = await createRemotePath(path, "", "file");
+        setStatusMessage(result?.commit
+          ? `${path} created in github (${String(result.commit).slice(0, 7)})`
+          : `${path} created in github`);
         message.textContent = result?.commit
           ? `${path} created in github (${String(result.commit).slice(0, 7)})`
           : `${path} created in github`;
