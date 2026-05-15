@@ -1,7 +1,7 @@
 # zakrad
 
 Mohammad Zakeri Rad
-Blockchain engineer.
+Blockchain engineer - Software developer
 
 Companies:
 - Pike Finance
