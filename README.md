@@ -23,4 +23,4 @@ SPC f g     open GitHub
 i           insert/edit file
 :save       write local changes
 
--- press Space to startdsad
+-- press Space to start
