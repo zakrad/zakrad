@@ -1,16 +1,10 @@
 # zakrad
 
 Mohammad Zakeri Rad
-Blockchain engineer - Software developer
+Software Engineer/Blockchain Developer
 
-Companies:
-- Pike Finance
-- Polytrade
-- ParaLead
-- PaperScore
-
-This portfolio behaves like a tiny LazyVim session.
-Open files from Neo-tree, move between buffers, close buffers,
+This page behaves like a tiny LazyVim session.
+Open my config files from Neo-tree, move between buffers, close buffers,
 and use leader bindings.
 
 SPC e       toggle explorer
