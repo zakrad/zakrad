@@ -1,10 +1,10 @@
 # zakrad
 
 Mohammad Zakeri Rad
-Software Engineer/Blockchain Developer
+Blockchain developer - Open source contributor
 
 This page behaves like a tiny LazyVim session.
-Open my config files from Neo-tree, move between buffers, close buffers,
+Open files from Neo-tree, move between buffers, close buffers,
 and use leader bindings.
 
 SPC e       toggle explorer
