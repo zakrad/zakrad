@@ -1,7 +1,7 @@
 # zakrad
 
 Mohammad Zakeri Rad
-Blockchain developer - Open source contributor
+Blockchain developer - OSS contributor
 
 This page behaves like a tiny LazyVim session.
 Open files from Neo-tree, move between buffers, close buffers,
