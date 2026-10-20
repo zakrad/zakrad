@@ -3,13 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Mohammad zakrad - blockchain developer, Solidity engineer, EIP author.">
+  <meta name="description" content="Mohammad Zakeri Rad (zakrad) - blockchain engineer, Solidity developer, EIP author.">
+  <meta name="theme-color" content="#000000">
   <title>zakrad.nvim</title>
-  <link rel="icon" type="image/svg+xml" href="https://commons.wikimedia.org/wiki/Special:FilePath/Neovim-mark-flat.svg">
+  <link rel="canonical" href="https://zakrad.fun/">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="preload" href="./fonts/JetBrainsMonoNerdFontMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zakrad.fun/">
+  <meta property="og:title" content="zakrad.nvim">
+  <meta property="og:description" content="Mohammad Zakeri Rad (zakrad) - blockchain engineer, Solidity developer, EIP author.">
+  <meta property="og:image" content="https://zakrad.fun/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="zakrad.nvim">
+  <meta name="twitter:description" content="Mohammad Zakeri Rad (zakrad) - blockchain engineer, Solidity developer, EIP author.">
+  <meta name="twitter:image" content="https://zakrad.fun/og.png">
   <style>
     @font-face {
       font-family: "JetBrainsMono Nerd Font Site";
-      src: url("./fonts/JetBrainsMonoNerdFontMono-Regular.ttf") format("truetype");
+      src: url("./fonts/JetBrainsMonoNerdFontMono-Regular.woff2") format("woff2");
       font-weight: 400;
       font-style: normal;
       font-display: swap;
@@ -17,7 +31,7 @@
 
     @font-face {
       font-family: "JetBrainsMono Nerd Font Site";
-      src: url("./fonts/JetBrainsMonoNerdFontMono-Medium.ttf") format("truetype");
+      src: url("./fonts/JetBrainsMonoNerdFontMono-Medium.woff2") format("woff2");
       font-weight: 500;
       font-style: normal;
       font-display: swap;
@@ -1283,8 +1297,11 @@
       }
 
       .tree-list {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        display: block;
+      }
+
+      #authLabel {
+        display: none;
       }
 
       .status-segment.optional,
@@ -1310,9 +1327,71 @@
         max-height: min(320px, calc(100vh - 72px));
       }
     }
+
+    .mode-chip,
+    .wk-row {
+      cursor: pointer;
+    }
+
+    .buffer-link {
+      color: inherit;
+      text-decoration: underline;
+      text-decoration-color: var(--overlay1);
+      text-underline-offset: 3px;
+    }
+
+    .buffer-link:hover {
+      color: var(--sky);
+      text-decoration-color: var(--sky);
+    }
+
+    .leader-fab {
+      display: none;
+      position: fixed;
+      right: 12px;
+      bottom: 40px;
+      z-index: 30;
+      padding: 10px 14px;
+      border: 1px solid var(--blue);
+      border-radius: 6px;
+      color: var(--base);
+      background: var(--blue);
+      font: 700 14px/1 var(--mono);
+    }
+
+    @media (pointer: coarse) {
+      .leader-fab {
+        display: block;
+      }
+    }
+
+    .noscript {
+      max-width: 640px;
+      padding: 32px 16px;
+      color: var(--text);
+      font-family: var(--mono);
+      line-height: 1.6;
+    }
+
+    .noscript a {
+      color: var(--sky);
+    }
   </style>
 </head>
 <body>
+  <noscript>
+    <div class="noscript">
+      <h1>Mohammad Zakeri Rad (zakrad)</h1>
+      <p>Blockchain engineer, Solidity developer, EIP author.</p>
+      <p>This site is a small Neovim-style editor and needs JavaScript.</p>
+      <ul>
+        <li><a href="https://github.com/zakrad">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/zakrad">LinkedIn</a></li>
+        <li><a href="https://eips.ethereum.org/EIPS/eip-6960">ERC-6960</a></li>
+        <li><a href="./PROJECTS.md">Projects</a></li>
+      </ul>
+    </div>
+  </noscript>
   <main class="workspace" aria-label="zakrad LazyVim portfolio">
     <section class="nvim" aria-label="interactive fake Neovim editor">
       <div class="main" id="main">
@@ -1349,7 +1428,7 @@
 
       <footer class="statusline">
         <span class="mode-chip"><span></span><span id="mode">NORMAL</span></span>
-        <span class="status-segment is-muted"><span></span><span id="branch">main</span></span>
+        <span class="status-segment is-muted optional"><span></span><span id="branch">main</span></span>
         <span class="status-segment is-green" id="authState"><span>󰌾</span><span id="authLabel">NO AUTH</span></span>
         <span class="status-segment is-black optional"><span id="statusFileIcon"></span><span id="statusFileName">README.md</span></span>
         <span class="status-segment" id="filetype">markdown</span>
@@ -1379,6 +1458,8 @@
     <div class="wk-grid" id="wkGrid"></div>
   </section>
 
+  <button class="leader-fab" id="leaderFab" type="button" aria-label="toggle leader menu">SPC</button>
+
   <div class="yank-toast" id="yankToast" hidden></div>
 
   <section class="markdown-preview" id="markdownPreview" hidden aria-label="markdown preview">
@@ -1396,32 +1477,74 @@
         type: "markdown",
         icon: "",
         lines: [
-          ["comment", "# zakrad"],
-          ["", ""],
-          ["", "Mohammad Zakeri Rad"],
-          ["", "Blockchain engineer."],
-          ["", ""],
-          ["", "Companies:"],
-          ["", "- Pike Finance"],
-          ["", "- Polytrade"],
-          ["", "- ParaLead"],
-          ["", "- PaperScore"],
-          ["", ""],
-          ["", "This portfolio behaves like a tiny LazyVim session."],
-          ["", "Open files from Neo-tree, move between buffers, close buffers,"],
-          ["", "and use leader bindings."],
-          ["", ""],
-          ["type", "SPC e       toggle explorer"],
-          ["type", "SPC b n     next buffer"],
-          ["type", "SPC b p     previous buffer"],
-          ["type", "SPC b d     delete current buffer"],
-          ["type", "SPC b o     delete other buffers"],
-          ["type", "SPC w h/j/k/l move window focus"],
-          ["type", "SPC f g     open GitHub"],
-          ["type", "i           insert/edit file"],
-          ["type", ":save       write local changes"],
-          ["", ""],
-          ["comment", "-- press Space to start"]
+          ["# zakrad"],
+          [""],
+          ["Mohammad Zakeri Rad"],
+          ["Blockchain developer - OSS contributor"],
+          [""],
+          ["This page behaves like a tiny LazyVim session."],
+          ["Open files from Neo-tree, move between buffers, close buffers,"],
+          ["and use leader bindings."],
+          [""],
+          ["SPC e       toggle explorer"],
+          ["SPC b n     next buffer"],
+          ["SPC b p     previous buffer"],
+          ["SPC b d     delete current buffer"],
+          ["SPC b o     delete other buffers"],
+          ["SPC w hjkl  move window focus"],
+          ["SPC f g     open GitHub"],
+          ["i           insert/edit file"],
+          [":save       write local changes"],
+          ["gx          open link on line"],
+          [""],
+          ["github      https://github.com/zakrad"],
+          ["linkedin    https://www.linkedin.com/in/zakrad"],
+          ["projects    PROJECTS.md"],
+          ["contact     docs/contact.txt"],
+          [""],
+          ["-- press Space (or tap SPC) to start"]
+        ]
+      },
+      "PROJECTS.md": {
+        type: "markdown",
+        icon: "",
+        lines: [
+          ["## Projects"],
+          [""],
+          ["### EIPs"],
+          [""],
+          ["- [ERC6960][ERC6960] (co-author)"],
+          ["- [ERC2612][ERC2612] (contributor)"],
+          [""],
+          ["### Extensions"],
+          [""],
+          ["- [ERC6960-Permit][ERC6960-Permit] (author)"],
+          ["- [ERC6960-Enumerable][ERC6960-Enumerable] (author)"],
+          [""],
+          ["### Libraries"],
+          [""],
+          ["- [account-abstraction-modules][account-abstraction-modules] (author)"],
+          ["- [biconomy-smart-account][biconomy-smart-account] (contributor)"],
+          ["- [noir-lang][noir-lang] (contributor)"],
+          ["- [huff-mate][huff-mate] (contributor)"],
+          ["- [ERC6960-Huff][ERC6960-Huff] (author)"],
+          [""],
+          ["### SCs"],
+          [""],
+          ["- [rwa-marketplace][rwa-marketplace] (author)"],
+          ["- [lender-pool-v3][lender-pool-v3] (author)"],
+          [""],
+          ["[account-abstraction-modules]: https://github.com/Unhosted-Wallet/unhosted-modules"],
+          ["[biconomy-smart-account]: https://github.com/bcnmy/scw-contracts"],
+          ["[noir-lang]: https://github.com/noir-lang/docs"],
+          ["[huff-mate]: https://github.com/huff-language/huffmate"],
+          ["[ERC6960]: https://eips.ethereum.org/EIPS/eip-6960"],
+          ["[ERC2612]: https://eips.ethereum.org/EIPS/eip-2612"],
+          ["[ERC6960-Huff]: https://github.com/zakrad/DLT-Huff"],
+          ["[ERC6960-Permit]: https://github.com/polytrade-finance/dual-layer-token"],
+          ["[ERC6960-Enumerable]: https://github.com/polytrade-finance/dual-layer-token"],
+          ["[lender-pool-v3]: https://github.com/polytrade-finance/lenderpool-v3"],
+          ["[rwa-marketplace]: https://github.com/polytrade-finance/ntf-marketplace-smart-contract"]
         ]
       },
       "nvim/README.md": {
@@ -3786,6 +3909,10 @@
 
     let treeNodes = [
       { kind: "file", path: "README.md", depth: 0, iconClass: "icon-md" },
+      { kind: "file", path: "PROJECTS.md", depth: 0, iconClass: "icon-md" },
+      { kind: "folder", name: "docs", path: "docs", depth: 0 },
+      { kind: "file", path: "docs/contact.txt", parent: "docs", depth: 1, iconClass: "icon-text" },
+      { kind: "file", path: "docs/help.md", parent: "docs", depth: 1, iconClass: "icon-md" },
       { kind: "folder", name: "dotfiles", path: "dotfiles", depth: 0 },
       { kind: "file", path: "dotfiles/README.md", parent: "dotfiles", depth: 1, iconClass: "icon-md" },
       { kind: "folder", name: "nvim", path: "dotfiles/nvim", parent: "dotfiles", depth: 1 },
@@ -4531,9 +4658,9 @@
 
     function renderFileLine(file, line) {
       if (line.length === 1) {
-        return renderSyntaxLine(file.type, line[0]);
+        return linkify(renderSyntaxLine(file.type, line[0]));
       }
-      return renderLine(line);
+      return linkify(renderLine(line));
     }
 
     function renderMarkdownPreview(markdown) {
@@ -4786,7 +4913,62 @@
         return html;
       }
 
+      if (fileType === "markdown") {
+        if (/^#{1,6}\s/.test(text) || /^--\s/.test(text)) return `<span class="comment">${escapeHtml(text)}</span>`;
+        if (/^\[[^\]]+\]:\s/.test(text)) return `<span class="muted">${escapeHtml(text)}</span>`;
+        if (/^\S.*?\s{2,}\S/.test(text)) return `<span class="type">${escapeHtml(text)}</span>`;
+        return escapeHtml(text)
+          .replace(/^(\s*)([-*])(\s)/, `$1<span class="keyword">$2</span>$3`)
+          .replace(/\[([^\]]+)\](\[[^\]]*\])?/g, `<span class="string">[$1]</span><span class="muted">$2</span>`);
+      }
+
       return escapeHtml(text);
+    }
+
+    const linkPattern = /(https?:\/\/(?:(?!&quot;|&lt;|&gt;)[^\s<>"'])*[^\s<>"'.,;:)\]&])|(?<![\w/.-])((?:[\w-]+\/)*[\w.-]+\.(?:md|txt))(?![\w/-])/g;
+
+    function linkify(html) {
+      return html.replace(linkPattern, (match, url, path) => {
+        if (url) return `<a class="buffer-link" href="${url}" target="_blank" rel="noopener">${url}</a>`;
+        if (fileRecord(path)) return `<a class="buffer-link" href="#" data-open="${path}">${path}</a>`;
+        return match;
+      });
+    }
+
+    function openLinkOnCursorLine() {
+      const line = fileRecord(state.active)?.lines[state.cursor];
+      if (!line) return;
+      const text = line.length === 1 ? String(line[0]) : plainLine(line);
+      for (const [, url, path] of text.matchAll(linkPattern)) {
+        if (url) {
+          window.open(url, "_blank", "noopener");
+          message.textContent = `opened ${url}`;
+          return;
+        }
+        if (fileRecord(path)) {
+          openFile(path);
+          return;
+        }
+      }
+      message.textContent = "no link on line";
+    }
+
+    const remoteFiles = ["README.md", "PROJECTS.md"];
+
+    async function loadRemoteFiles() {
+      await Promise.all(remoteFiles.map(async (path) => {
+        if (localFiles[path] || state.dirty.includes(path)) return;
+        try {
+          const response = await fetch(`./${path}`, { cache: "no-cache" });
+          if (!response.ok) return;
+          const text = (await response.text()).replace(/\s+$/, "");
+          if (state.dirty.includes(path) || (state.editing && state.active === path)) return;
+          files[path] = { ...files[path], lines: textToLines(text) };
+        } catch {
+          // keep the embedded copy
+        }
+      }));
+      render();
     }
 
     let yankToastTimer = null;
@@ -5440,7 +5622,7 @@
         "?": "is-mauve"
       };
       wkGrid.innerHTML = rows.map(([key, desc]) => `
-        <div class="wk-row">
+        <div class="wk-row" data-key="${escapeHtml(key)}">
           <span class="wk-key">${key}</span>
           <span class="wk-arrow">→</span>
           <span class="wk-icon ${iconTones[key] || "is-blue"}">${icons[key] || "󰌌"}</span>
@@ -6205,6 +6387,26 @@
       return true;
     }
 
+    function toggleLeaderMenu() {
+      if (whichKey.hidden) handleLeaderKey(" ");
+      else hideWhichKey();
+    }
+
+    document.querySelector("#leaderFab").addEventListener("click", toggleLeaderMenu);
+    modeChip.addEventListener("click", toggleLeaderMenu);
+
+    wkGrid.addEventListener("click", (event) => {
+      const row = event.target.closest("[data-key]");
+      if (row) handleLeaderKey(row.dataset.key);
+    });
+
+    buffer.addEventListener("click", (event) => {
+      const link = event.target.closest("[data-open]");
+      if (!link) return;
+      event.preventDefault();
+      openFile(link.dataset.open);
+    });
+
     tree.addEventListener("click", (event) => {
       const folder = event.target.closest("[data-folder]");
       if (folder) {
@@ -6533,6 +6735,12 @@
         return;
       }
 
+      if (event.key === "x" && state.pendingG) {
+        event.preventDefault();
+        state.pendingG = false;
+        openLinkOnCursorLine();
+        return;
+      }
       if (event.key === "G") {
         event.preventDefault();
         const record = fileRecord(state.active);
@@ -6559,6 +6767,7 @@
 
     render();
     renderTerminal();
+    void loadRemoteFiles();
     consumeGithubAuthHash();
     void refreshSession().then(() => {
       if (state.session.authenticated) {
