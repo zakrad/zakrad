@@ -10,6 +10,7 @@
 
 ### EIPs
 
+- [ERC7410][ERC7410] (author)
 - [ERC6960][ERC6960] (co-author)
 - [ERC2612][ERC2612] (contributor)
 
@@ -35,6 +36,7 @@
 [biconomy-smart-account]: https://github.com/bcnmy/scw-contracts
 [noir-lang]: https://github.com/noir-lang/docs
 [huff-mate]: https://github.com/huff-language/huffmate
+[ERC7410]: https://eips.ethereum.org/EIPS/eip-7410
 [ERC6960]: https://eips.ethereum.org/EIPS/eip-6960
 [ERC2612]: https://eips.ethereum.org/EIPS/eip-2612
 [ERC6960-Huff]: https://github.com/zakrad/DLT-Huff
