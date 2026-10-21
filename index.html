@@ -1511,6 +1511,14 @@
         lines: [
           ["## Projects"],
           [""],
+          ["### Latest"],
+          [""],
+          ["- [Sooth][sooth] - prediction market protocol"],
+          ["- [Seer][seer] - prediction markets researched by AI agents"],
+          ["- [Binary][binary] - binary prediction markets"],
+          ["- [Stook Street][stook-street] - stock-anchored memecoins on Solana"],
+          ["- [Fallpit][fallpit] - daily stock prediction game on Robinhood Chain"],
+          [""],
           ["### EIPs"],
           [""],
           ["- [ERC6960][ERC6960] (co-author)"],
@@ -1544,7 +1552,12 @@
           ["[ERC6960-Permit]: https://github.com/polytrade-finance/dual-layer-token"],
           ["[ERC6960-Enumerable]: https://github.com/polytrade-finance/dual-layer-token"],
           ["[lender-pool-v3]: https://github.com/polytrade-finance/lenderpool-v3"],
-          ["[rwa-marketplace]: https://github.com/polytrade-finance/ntf-marketplace-smart-contract"]
+          ["[rwa-marketplace]: https://github.com/polytrade-finance/ntf-marketplace-smart-contract"],
+          ["[sooth]: https://sooth.market"],
+          ["[seer]: https://seer.zone"],
+          ["[binary]: https://binary.cool"],
+          ["[stook-street]: https://stookstreet.xyz"],
+          ["[fallpit]: https://fallpit.xyz"]
         ]
       },
       "nvim/README.md": {
@@ -4658,7 +4671,13 @@
 
     function renderFileLine(file, line) {
       if (line.length === 1) {
-        return linkify(renderSyntaxLine(file.type, line[0]));
+        const html = linkify(renderSyntaxLine(file.type, line[0]));
+        if (file.type !== "markdown") return html;
+        const refs = markdownRefs(file);
+        return html.replace(/<span class="string">\[([^\]<]+)\]<\/span><span class="muted">\[([^\]<]*)\]<\/span>/g, (match, text, ref) => {
+          const url = refs[(ref || text).toLowerCase()];
+          return url ? `<a class="buffer-link" href="${escapeHtml(url)}" target="_blank" rel="noopener">${text}</a>` : match;
+        });
       }
       return linkify(renderLine(line));
     }
@@ -4935,10 +4954,27 @@
       });
     }
 
+    function markdownRefs(file) {
+      if (file.refsFor !== file.lines) {
+        file.refs = {};
+        file.lines.forEach((line) => {
+          const match = String(line[0] ?? "").match(/^\[([^\]]+)\]:\s+(https?:\/\/\S+)/);
+          if (match) file.refs[match[1].toLowerCase()] = match[2];
+        });
+        file.refsFor = file.lines;
+      }
+      return file.refs;
+    }
+
     function openLinkOnCursorLine() {
-      const line = fileRecord(state.active)?.lines[state.cursor];
+      const file = fileRecord(state.active);
+      const line = file?.lines[state.cursor];
       if (!line) return;
-      const text = line.length === 1 ? String(line[0]) : plainLine(line);
+      let text = line.length === 1 ? String(line[0]) : plainLine(line);
+      if (file.type === "markdown") {
+        const refs = markdownRefs(file);
+        text = text.replace(/\[([^\]]+)\]\[([^\]]*)\]/g, (match, label, ref) => refs[(ref || label).toLowerCase()] || match);
+      }
       for (const [, url, path] of text.matchAll(linkPattern)) {
         if (url) {
           window.open(url, "_blank", "noopener");

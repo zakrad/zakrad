@@ -1,5 +1,13 @@
 ## Projects
 
+### Latest
+
+- [Sooth][sooth] - prediction market protocol
+- [Seer][seer] - prediction markets researched by AI agents
+- [Binary][binary] - binary prediction markets
+- [Stook Street][stook-street] - stock-anchored memecoins on Solana
+- [Fallpit][fallpit] - daily stock prediction game on Robinhood Chain
+
 ### EIPs
 
 - [ERC6960][ERC6960] (co-author)
@@ -34,4 +42,8 @@
 [ERC6960-Enumerable]: https://github.com/polytrade-finance/dual-layer-token
 [lender-pool-v3]: https://github.com/polytrade-finance/lenderpool-v3
 [rwa-marketplace]: https://github.com/polytrade-finance/ntf-marketplace-smart-contract
-
+[sooth]: https://sooth.market
+[seer]: https://seer.zone
+[binary]: https://binary.cool
+[stook-street]: https://stookstreet.xyz
+[fallpit]: https://fallpit.xyz
