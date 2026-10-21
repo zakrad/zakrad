@@ -14,15 +14,15 @@
 - [ERC6960][ERC6960] (co-author)
 - [ERC2612][ERC2612] (contributor)
 
-### Libraries
+### Contributions
 
-- [account-abstraction-modules][account-abstraction-modules] (author)
+- [rust-lang/rust][rust] (47 merged PRs)
 - [biconomy-smart-account][biconomy-smart-account] (contributor)
 - [noir-lang][noir-lang] (contributor)
 - [huff-mate][huff-mate] (contributor)
 - [ERC6960-Huff][ERC6960-Huff] (author)
 
-[account-abstraction-modules]: https://github.com/Unhosted-Wallet/unhosted-modules
+[rust]: https://github.com/rust-lang/rust/pulls?q=is%3Apr+author%3Azakrad+is%3Amerged
 [biconomy-smart-account]: https://github.com/bcnmy/scw-contracts
 [noir-lang]: https://github.com/noir-lang/docs
 [huff-mate]: https://github.com/huff-language/huffmate
